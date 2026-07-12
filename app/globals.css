@@ -1,26 +1,165 @@
-@import "tailwindcss";
+/* ===== Valhalla Tecnologia — base + interaction styles =====
+   Base look lives in inline styles (ported from the design prototype).
+   Hover / focus / active states live here as classes; they use !important
+   because they must override the element's inline styles. */
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+  /* clip (not hidden) avoids creating a scroll container, which would
+     break the sticky header. */
+  overflow-x: clip;
+}
+/* Long display words must never push the layout wider than the screen. */
+h1,
+h2 {
+  overflow-wrap: break-word;
+}
+body {
+  background: #120020;
+  color: #ffffff;
+  font-family: "Manrope", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+a {
+  color: #b056ff;
+  text-decoration: none;
+}
+::selection {
+  background: #8b2cf5;
+  color: #fff;
+}
+input,
+select,
+textarea,
+button {
+  font-family: inherit;
+}
+pre {
+  font-family: "Manrope", sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+@keyframes vh-toast {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 16px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
 }
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@keyframes vh-shimmer {
+  from {
+    background-position: -400px 0;
+  }
+  to {
+    background-position: 400px 0;
+  }
+}
+@keyframes vh-glow {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 0.9;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ----- interactions ----- */
+.vh-lime:hover {
+  color: #8cff00 !important;
+}
+.vh-navcat:hover {
+  color: #8cff00 !important;
+  border-color: #8cff00 !important;
+}
+.vh-searchbtn:hover {
+  background: #b056ff !important;
+}
+.vh-autorow:hover {
+  background: #2a0a45 !important;
+}
+.vh-minhalista:hover {
+  border-color: #8cff00 !important;
+  background: rgba(140, 255, 0, 0.06) !important;
+}
+.vh-wa:hover {
+  filter: brightness(1.1);
+  color: #062e17 !important;
+}
+.vh-wa-outline:hover {
+  background: rgba(37, 211, 102, 0.1) !important;
+  color: #25d366 !important;
+}
+.vh-contactlink:hover {
+  filter: brightness(1.15);
+  color: #ffffff !important;
+}
+.vh-finalize:hover {
+  filter: brightness(1.08);
+}
+.vh-btn-lime:hover {
+  background: #65c900 !important;
+}
+.vh-btn-lime-lift:hover {
+  background: #65c900 !important;
+  transform: translateY(-1px);
+}
+.vh-btn-lime-lift:active {
+  transform: translateY(0);
+}
+.vh-ghost-violet:hover {
+  background: rgba(139, 44, 245, 0.18) !important;
+}
+.vh-cardcat:hover {
+  border-color: #8b2cf5 !important;
+  transform: translateY(-3px);
+}
+.vh-cardprod:hover {
+  transform: translateY(-4px);
+  border-color: #8b2cf5 !important;
+  box-shadow: 0 12px 32px rgba(139, 44, 245, 0.25) !important;
+}
+.vh-input:focus {
+  border-color: #8b2cf5 !important;
+  box-shadow: 0 0 0 3px rgba(139, 44, 245, 0.25) !important;
+}
+.vh-select:focus {
+  border-color: #8b2cf5 !important;
+}
+.vh-chip:hover {
+  border-color: #8cff00 !important;
+}
+.vh-qty:hover {
+  background: #2a0a45 !important;
+}
+.vh-thumb:hover {
+  border-color: #8b2cf5 !important;
+}
+.vh-accordion:hover {
+  background: #22003d !important;
+}
+.vh-fab:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+}
+.vh-remove:hover {
+  border-color: #ff4d6d !important;
+  color: #ff4d6d !important;
+}
+
+/* ----- small screens: tame the desktop-first display type ----- */
+@media (max-width: 640px) {
+  h1 {
+    font-size: clamp(24px, 7vw, 34px) !important;
+    line-height: 1.1 !important;
+  }
+  h2 {
+    font-size: clamp(20px, 5.5vw, 26px) !important;
+  }
 }

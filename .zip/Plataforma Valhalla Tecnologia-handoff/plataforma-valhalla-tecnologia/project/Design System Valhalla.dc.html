@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#120020;color:#FFFFFF;font-family:'Manrope',sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#B056FF;text-decoration:none}a:hover{color:#8CFF00}
+*{box-sizing:border-box}
+@keyframes vh-shimmer{from{background-position:-400px 0}to{background-position:400px 0}}
+@keyframes vh-spin{to{transform:rotate(360deg)}}
+</style>
+</helmet>
+<div style="max-width:1080px;margin:0 auto;padding:56px 32px 96px;display:flex;flex-direction:column;gap:56px">
+
+<header style="display:flex;flex-direction:column;gap:14px;border-bottom:1px solid #341052;padding-bottom:36px">
+  <div style="display:flex;flex-direction:column;line-height:1">
+    <span style="font:700 34px 'Space Grotesk',sans-serif;letter-spacing:.04em;transform:skewX(-4deg)">VALHALLA</span>
+    <span style="display:flex;align-items:center;gap:8px;margin-top:5px"><span style="width:6px;height:6px;background:#8CFF00;transform:rotate(45deg)"></span><span style="font:700 11px 'Space Grotesk',sans-serif;letter-spacing:.42em;color:#8CFF00">TECNOLOGIA</span><span style="width:6px;height:6px;background:#8CFF00;transform:rotate(45deg)"></span></span>
+  </div>
+  <h1 style="margin:12px 0 0;font:700 clamp(28px,4vw,40px)/1.1 'Space Grotesk',sans-serif">Design System <span style="color:#B056FF">v1.0</span></h1>
+  <p style="margin:0;max-width:640px;font:500 14.5px/1.7 'Manrope',sans-serif;color:#9690A3">Fundações, tokens e componentes da plataforma de catálogo Valhalla Tecnologia. Estética tech-energética: roxo profundo como palco, roxo vibrante como voz da marca e verde-limão reservado para ação e conversão. Verde WhatsApp aparece exclusivamente no canal de atendimento.</p>
+</header>
+
+<!-- PRIMITIVAS -->
+<section style="display:flex;flex-direction:column;gap:20px">
+  <h2 style="margin:0;font:700 24px 'Space Grotesk',sans-serif;color:#B056FF">1 · Cores primitivas</h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px">
+    <sc-for list="{{ primitives }}" as="c" hint-placeholder-count="8">
+      <div style="border:1px solid #341052;border-radius:12px;overflow:hidden">
+        <div style="height:64px;background:{{ c.hex }}"></div>
+        <div style="padding:10px 12px;background:#1D0333;display:flex;flex-direction:column;gap:2px">
+          <span style="font:700 12px 'Space Grotesk',sans-serif">{{ c.n }}</span>
+          <span style="font:500 11px ui-monospace,Menlo,monospace;color:#9690A3">{{ c.hex }}</span>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+</section>
+
+<!-- TOKENS -->
+<section style="display:flex;flex-direction:column;gap:20px">
+  <h2 style="margin:0;font:700 24px 'Space Grotesk',sans-serif;color:#B056FF">2 · Tokens semânticos</h2>
+  <div style="border:1px solid #341052;border-radius:14px;overflow:hidden">
+    <div style="display:grid;grid-template-columns:minmax(200px,1.2fr) minmax(110px,.6fr) 1.2fr;gap:0;background:#22003D;padding:12px 18px">
+      <span style="font:700 11px 'Space Grotesk',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#9690A3">Token</span>
+      <span style="font:700 11px 'Space Grotesk',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#9690A3">Valor</span>
+      <span style="font:700 11px 'Space Grotesk',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#9690A3">Uso</span>
+    </div>
+    <sc-for list="{{ tokens }}" as="t" hint-placeholder-count="10">
+      <div style="display:grid;grid-template-columns:minmax(200px,1.2fr) minmax(110px,.6fr) 1.2fr;align-items:center;gap:0;padding:11px 18px;border-top:1px solid #22003D;background:#1D0333">
+        <span style="font:600 12px ui-monospace,Menlo,monospace;color:#8CFF00">{{ t.n }}</span>
+        <span style="display:flex;align-items:center;gap:8px"><span style="width:14px;height:14px;border-radius:4px;background:{{ t.hex }};border:1px solid #341052;flex:none"></span><span style="font:500 11.5px ui-monospace,monospace;color:#D8D5E0">{{ t.hex }}</span></span>
+        <span style="font:500 12.5px 'Manrope',sans-serif;color:#9690A3">{{ t.u }}</span>
+      </div>
+    </sc-for>
+  </div>
+  <div style="display:flex;gap:10px;align-items:flex-start;background:rgba(255,176,32,.07);border:1px solid rgba(255,176,32,.35);border-radius:12px;padding:14px 18px">
+    <span style="width:8px;height:8px;margin-top:5px;background:#FFB020;border-radius:50%;flex:none"></span>
+    <span style="font:500 13px/1.6 'Manrope',sans-serif;color:#D8D5E0"><strong style="color:#FFB020">Regra de contraste (WCAG AA):</strong> verde-limão #8CFF00 só sobre fundos escuros (contraste 15,9:1 sobre #120020) e nunca em textos longos. Texto sobre verde-limão usa #09050D. Texto secundário mínimo: #9690A3 sobre #120020 (4,6:1).</span>
+  </div>
+</section>
+
+<!-- TIPOGRAFIA -->
+<section style="display:flex;flex-direction:column;gap:20px">
+  <h2 style="margin:0;font:700 24px 'Space Grotesk',sans-serif;color:#B056FF">3 · Tipografia</h2>
+  <p style="margin:0;font:500 13.5px/1.6 'Manrope',sans-serif;color:#9690A3"><strong style="color:#FFFFFF">Space Grotesk</strong> (títulos, preços, botões, navegação — a voz tech da marca) + <strong style="color:#FFFFFF">Manrope</strong> (corpo, descrições, apoio). Códigos de produto e dados técnicos em monospace do sistema.</p>
+  <div style="background:#1D0333;border:1px solid #341052;border-radius:14px;padding:28px;display:flex;flex-direction:column;gap:18px">
+    <div><span style="font:700 44px/1.05 'Space Grotesk',sans-serif">Display / 44 · Hero</span><span style="display:block;font:500 11px ui-monospace,monospace;color:#9690A3;margin-top:4px">Space Grotesk 700 · -1% tracking</span></div>
+    <div><span style="font:700 28px/1.15 'Space Grotesk',sans-serif">Heading / 28 · Título de seção</span><span style="display:block;font:500 11px ui-monospace,monospace;color:#9690A3;margin-top:4px">Space Grotesk 700</span></div>
+    <div><span style="font:700 17px/1.3 'Space Grotesk',sans-serif">Subtítulo / 17 · Cards e blocos</span><span style="display:block;font:500 11px ui-monospace,monospace;color:#9690A3;margin-top:4px">Space Grotesk 700</span></div>
+    <div><span style="font:700 24px 'Space Grotesk',sans-serif;color:#8CFF00">R$ 6.799 · Preço / 24-34</span><span style="display:block;font:500 11px ui-monospace,monospace;color:#9690A3;margin-top:4px">Space Grotesk 700 · sempre color-action-primary</span></div>
+    <div><span style="font:500 14px/1.7 'Manrope',sans-serif;color:#D8D5E0">Corpo / 14 · Descrições e textos de apoio com altura de linha 1.6–1.7 para leitura confortável em fundo escuro.</span><span style="display:block;font:500 11px ui-monospace,monospace;color:#9690A3;margin-top:4px">Manrope 500</span></div>
+    <div><span style="font:700 12px 'Space Grotesk',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#B056FF">Overline / 12 · Rótulos e eyebrows</span><span style="display:block;font:500 11px ui-monospace,monospace;color:#9690A3;margin-top:4px">Space Grotesk 700 · caps · +14% tracking</span></div>
+  </div>
+</section>
+
+<!-- FUNDACOES -->
+<section style="display:flex;flex-direction:column;gap:20px">
+  <h2 style="margin:0;font:700 24px 'Space Grotesk',sans-serif;color:#B056FF">4 · Espaçamento, grid, raios e elevação</h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px">
+    <div style="background:#1D0333;border:1px solid #341052;border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:10px">
+      <span style="font:700 14px 'Space Grotesk',sans-serif">Escala de espaçamento (base 4)</span>
+      <div style="display:flex;align-items:flex-end;gap:8px">
+        <sc-for list="{{ spaces }}" as="sp" hint-placeholder-count="7">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:5px"><div style="width:18px;background:#8B2CF5;border-radius:3px;height:{{ sp.h }}"></div><span style="font:500 10px ui-monospace,monospace;color:#9690A3">{{ sp.v }}</span></div>
+        </sc-for>
+      </div>
+      <span style="font:500 12px 'Manrope',sans-serif;color:#9690A3">4 · 8 · 12 · 16 · 24 · 32 · 48 · 64 px</span>
+    </div>
+    <div style="background:#1D0333;border:1px solid #341052;border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:10px">
+      <span style="font:700 14px 'Space Grotesk',sans-serif">Grid responsivo</span>
+      <span style="font:500 12.5px/1.7 'Manrope',sans-serif;color:#9690A3">Container 1240px · gutter 16-24px.<br>Desktop ≥1024: 12 col (4-5 cards).<br>Tablet 640-1023: 8 col (2-3 cards).<br>Mobile &lt;640: 4 col (1-2 cards).<br>Implementado com <span style="font-family:ui-monospace,monospace;color:#8CFF00">auto-fill minmax(230px,1fr)</span>.</span>
+    </div>
+    <div style="background:#1D0333;border:1px solid #341052;border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:12px">
+      <span style="font:700 14px 'Space Grotesk',sans-serif">Raios de borda</span>
+      <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap">
+        <div style="width:52px;height:52px;background:#22003D;border:1px solid #8B2CF5;border-radius:6px;display:flex;align-items:flex-end;justify-content:center;padding:4px"><span style="font:500 9.5px ui-monospace,monospace;color:#9690A3">6 chip</span></div>
+        <div style="width:52px;height:52px;background:#22003D;border:1px solid #8B2CF5;border-radius:10px;display:flex;align-items:flex-end;justify-content:center;padding:4px"><span style="font:500 9.5px ui-monospace,monospace;color:#9690A3">10 btn</span></div>
+        <div style="width:52px;height:52px;background:#22003D;border:1px solid #8B2CF5;border-radius:14px;display:flex;align-items:flex-end;justify-content:center;padding:4px"><span style="font:500 9.5px ui-monospace,monospace;color:#9690A3">14 card</span></div>
+        <div style="width:52px;height:52px;background:#22003D;border:1px solid #8B2CF5;border-radius:20px;display:flex;align-items:flex-end;justify-content:center;padding:4px"><span style="font:500 9.5px ui-monospace,monospace;color:#9690A3">20 hero</span></div>
+      </div>
+    </div>
+    <div style="background:#1D0333;border:1px solid #341052;border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:12px">
+      <span style="font:700 14px 'Space Grotesk',sans-serif">Elevação e brilho</span>
+      <div style="display:flex;gap:14px;flex-wrap:wrap">
+        <div style="width:96px;height:60px;background:#22003D;border:1px solid #341052;border-radius:10px;box-shadow:0 12px 32px rgba(139,44,245,.25);display:flex;align-items:center;justify-content:center"><span style="font:500 9.5px ui-monospace,monospace;color:#9690A3">hover roxo</span></div>
+        <div style="width:96px;height:60px;background:#8CFF00;border-radius:10px;box-shadow:0 0 28px rgba(140,255,0,.35);display:flex;align-items:center;justify-content:center"><span style="font:500 9.5px ui-monospace,monospace;color:#09050D">glow ação</span></div>
+        <div style="width:96px;height:60px;background:#25D366;border-radius:10px;box-shadow:0 0 34px rgba(37,211,102,.4);display:flex;align-items:center;justify-content:center"><span style="font:500 9.5px ui-monospace,monospace;color:#062e17">glow WA</span></div>
+      </div>
+      <span style="font:500 12px/1.6 'Manrope',sans-serif;color:#9690A3">Glow reservado a CTAs principais — nunca em cards ou textos.</span>
+    </div>
+  </div>
+</section>
+
+<!-- BOTOES -->
+<section style="display:flex;flex-direction:column;gap:20px">
+  <h2 style="margin:0;font:700 24px 'Space Grotesk',sans-serif;color:#B056FF">5 · Botões e estados</h2>
+  <div style="background:#1D0333;border:1px solid #341052;border-radius:14px;padding:26px;display:flex;flex-direction:column;gap:22px">
+    <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center">
+      <button style="background:#8CFF00;color:#09050D;border:none;border-radius:10px;padding:14px 24px;font:700 14px 'Space Grotesk',sans-serif;cursor:pointer;box-shadow:0 0 24px rgba(140,255,0,.28)" style-hover="background:#65C900">Primário / Ação</button>
+      <button style="background:transparent;color:#FFFFFF;border:1px solid #8B2CF5;border-radius:10px;padding:14px 24px;font:600 14px 'Space Grotesk',sans-serif;cursor:pointer" style-hover="background:rgba(139,44,245,.18)">Secundário</button>
+      <button style="background:transparent;color:#B056FF;border:none;border-radius:10px;padding:14px 18px;font:700 14px 'Space Grotesk',sans-serif;cursor:pointer" style-hover="color:#8CFF00">Terciário →</button>
+      <button style="display:inline-flex;align-items:center;gap:9px;background:#25D366;color:#062e17;border:none;border-radius:10px;padding:14px 24px;font:700 14px 'Space Grotesk',sans-serif;cursor:pointer;box-shadow:0 0 24px rgba(37,211,102,.3)" style-hover="filter:brightness(1.08)"><span style="width:9px;height:9px;background:#062e17;border-radius:50%"></span>WhatsApp</button>
+    </div>
+    <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center">
+      <button style="background:#65C900;color:#09050D;border:none;border-radius:10px;padding:14px 24px;font:700 14px 'Space Grotesk',sans-serif">Hover</button>
+      <button style="background:#8CFF00;color:#09050D;border:none;border-radius:10px;padding:14px 24px;font:700 14px 'Space Grotesk',sans-serif;box-shadow:0 0 0 3px #120020,0 0 0 6px rgba(140,255,0,.5)">Foco</button>
+      <button style="background:#65C900;color:#09050D;border:none;border-radius:10px;padding:14px 24px;font:700 14px 'Space Grotesk',sans-serif;transform:translateY(1px) scale(.98)">Pressionado</button>
+      <button disabled="{{ true }}" style="background:#341052;color:#9690A3;border:none;border-radius:10px;padding:14px 24px;font:700 14px 'Space Grotesk',sans-serif;cursor:not-allowed">Desabilitado</button>
+      <button style="display:inline-flex;align-items:center;gap:10px;background:#8CFF00;color:#09050D;border:none;border-radius:10px;padding:14px 24px;font:700 14px 'Space Grotesk',sans-serif;opacity:.8"><span style="width:13px;height:13px;border:2px solid rgba(9,5,13,.3);border-top-color:#09050D;border-radius:50%;display:inline-block;animation:vh-spin 1s linear infinite"></span>Carregando…</button>
+    </div>
+    <span style="font:500 12.5px/1.6 'Manrope',sans-serif;color:#9690A3">Altura mínima 44px (alvo de toque). Verde-limão = ação de conversão · Roxo = navegação e ações neutras · Verde WhatsApp = exclusivo do canal de atendimento.</span>
+  </div>
+</section>
+
+<!-- COMPONENTES -->
+<section style="display:flex;flex-direction:column;gap:20px">
+  <h2 style="margin:0;font:700 24px 'Space Grotesk',sans-serif;color:#B056FF">6 · Componentes</h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;align-items:start">
+    <div style="background:#1D0333;border:1px solid #341052;border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:14px">
+      <span style="font:700 13px 'Space Grotesk',sans-serif;color:#9690A3;text-transform:uppercase;letter-spacing:.1em">Badges e tags</span>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <span style="font:700 11px 'Space Grotesk',sans-serif;letter-spacing:.06em;text-transform:uppercase;padding:5px 9px;border-radius:6px;background:#8CFF00;color:#09050D">-15% OFF</span>
+        <span style="font:700 11px 'Space Grotesk',sans-serif;letter-spacing:.06em;text-transform:uppercase;padding:5px 9px;border-radius:6px;background:#8B2CF5;color:#FFFFFF">Novo</span>
+        <span style="font:700 11px 'Space Grotesk',sans-serif;letter-spacing:.06em;text-transform:uppercase;padding:5px 10px;border-radius:20px;background:rgba(140,255,0,.1);color:#8CFF00;border:1px solid rgba(140,255,0,.4)">Em estoque</span>
+        <span style="font:700 11px 'Space Grotesk',sans-serif;letter-spacing:.06em;text-transform:uppercase;padding:5px 10px;border-radius:20px;background:rgba(255,176,32,.1);color:#FFB020;border:1px solid rgba(255,176,32,.4)">Últimas unidades</span>
+        <span style="font:700 11px 'Space Grotesk',sans-serif;letter-spacing:.06em;text-transform:uppercase;padding:5px 10px;border-radius:20px;background:rgba(255,77,109,.1);color:#FF4D6D;border:1px solid rgba(255,77,109,.4)">Indisponível</span>
+      </div>
+    </div>
+    <div style="background:#1D0333;border:1px solid #341052;border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:10px">
+      <span style="font:700 13px 'Space Grotesk',sans-serif;color:#9690A3;text-transform:uppercase;letter-spacing:.1em">Alertas</span>
+      <div style="display:flex;gap:10px;align-items:center;background:rgba(140,255,0,.07);border:1px solid rgba(140,255,0,.35);border-radius:10px;padding:11px 14px;font:600 12.5px 'Manrope',sans-serif;color:#8CFF00"><span style="width:8px;height:8px;background:#8CFF00;border-radius:50%;flex:none"></span>Sucesso — item adicionado à lista.</div>
+      <div style="display:flex;gap:10px;align-items:center;background:rgba(255,176,32,.07);border:1px solid rgba(255,176,32,.35);border-radius:10px;padding:11px 14px;font:600 12.5px 'Manrope',sans-serif;color:#FFB020"><span style="width:8px;height:8px;background:#FFB020;border-radius:50%;flex:none"></span>Alerta — variação indisponível.</div>
+      <div style="display:flex;gap:10px;align-items:center;background:rgba(255,77,109,.07);border:1px solid rgba(255,77,109,.35);border-radius:10px;padding:11px 14px;font:600 12.5px 'Manrope',sans-serif;color:#FF4D6D"><span style="width:8px;height:8px;background:#FF4D6D;border-radius:50%;flex:none"></span>Erro — falha de conexão, tente de novo.</div>
+      <div style="display:flex;gap:10px;align-items:center;background:rgba(176,86,255,.07);border:1px solid rgba(176,86,255,.35);border-radius:10px;padding:11px 14px;font:600 12.5px 'Manrope',sans-serif;color:#B056FF"><span style="width:8px;height:8px;background:#B056FF;border-radius:50%;flex:none"></span>Info — a compra é concluída no WhatsApp.</div>
+    </div>
+    <div style="background:#1D0333;border:1px solid #341052;border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:14px">
+      <span style="font:700 13px 'Space Grotesk',sans-serif;color:#9690A3;text-transform:uppercase;letter-spacing:.1em">Inputs</span>
+      <input placeholder="Padrão" style="background:#120020;border:1px solid #341052;border-radius:10px;padding:13px 15px;color:#FFFFFF;font:500 13.5px 'Manrope',sans-serif;outline:none" style-focus="border-color:#8B2CF5;box-shadow:0 0 0 3px rgba(139,44,245,.25)"></input>
+      <input placeholder="Foco (clique aqui)" style="background:#120020;border:1px solid #8B2CF5;border-radius:10px;padding:13px 15px;color:#FFFFFF;font:500 13.5px 'Manrope',sans-serif;outline:none;box-shadow:0 0 0 3px rgba(139,44,245,.25)"></input>
+      <input placeholder="Erro" style="background:#120020;border:1px solid #FF4D6D;border-radius:10px;padding:13px 15px;color:#FFFFFF;font:500 13.5px 'Manrope',sans-serif;outline:none"></input>
+      <input placeholder="Desabilitado" disabled="{{ true }}" style="background:#1D0333;border:1px solid #22003D;border-radius:10px;padding:13px 15px;color:#9690A3;font:500 13.5px 'Manrope',sans-serif;cursor:not-allowed"></input>
+    </div>
+    <div style="background:#1D0333;border:1px solid #341052;border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:14px">
+      <span style="font:700 13px 'Space Grotesk',sans-serif;color:#9690A3;text-transform:uppercase;letter-spacing:.1em">Breadcrumb · paginação · quantidade</span>
+      <p style="margin:0;font:600 12px 'Space Grotesk',sans-serif;color:#9690A3"><span style="color:#B056FF">Início</span> / <span style="color:#B056FF">Smartphones</span> / Galaxy S25 Ultra</p>
+      <div style="display:flex;gap:8px">
+        <span style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:9px;background:#8B2CF5;color:#fff;font:700 13px 'Space Grotesk',sans-serif">1</span>
+        <span style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:9px;border:1px solid #341052;color:#D8D5E0;font:600 13px 'Space Grotesk',sans-serif;cursor:pointer" style-hover="border-color:#8B2CF5">2</span>
+        <span style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:9px;border:1px solid #341052;color:#D8D5E0;font:600 13px 'Space Grotesk',sans-serif;cursor:pointer" style-hover="border-color:#8B2CF5">3</span>
+        <span style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:9px;border:1px solid #341052;color:#9690A3;font:600 13px 'Space Grotesk',sans-serif;cursor:pointer" style-hover="border-color:#8B2CF5">→</span>
+      </div>
+      <div style="display:flex;align-items:center;border:1px solid #341052;border-radius:10px;overflow:hidden;align-self:flex-start">
+        <span style="width:38px;height:42px;display:flex;align-items:center;justify-content:center;background:#22003D;color:#FFFFFF;font:700 17px 'Space Grotesk',sans-serif;cursor:pointer">−</span>
+        <span style="width:44px;text-align:center;font:700 14px 'Space Grotesk',sans-serif">2</span>
+        <span style="width:38px;height:42px;display:flex;align-items:center;justify-content:center;background:#22003D;color:#FFFFFF;font:700 17px 'Space Grotesk',sans-serif;cursor:pointer">+</span>
+      </div>
+    </div>
+    <div style="background:#1D0333;border:1px solid #341052;border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:14px">
+      <span style="font:700 13px 'Space Grotesk',sans-serif;color:#9690A3;text-transform:uppercase;letter-spacing:.1em">Skeleton de carregamento</span>
+      <div style="height:90px;border-radius:10px;background:linear-gradient(90deg,#22003D 25%,#2A0A45 50%,#22003D 75%);background-size:800px 100%;animation:vh-shimmer 1.4s linear infinite"></div>
+      <div style="height:13px;width:60%;border-radius:6px;background:linear-gradient(90deg,#22003D 25%,#2A0A45 50%,#22003D 75%);background-size:800px 100%;animation:vh-shimmer 1.4s linear infinite"></div>
+      <div style="height:13px;width:35%;border-radius:6px;background:linear-gradient(90deg,#22003D 25%,#2A0A45 50%,#22003D 75%);background-size:800px 100%;animation:vh-shimmer 1.4s linear infinite"></div>
+    </div>
+    <div style="background:#1D0333;border:1px solid #341052;border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:14px">
+      <span style="font:700 13px 'Space Grotesk',sans-serif;color:#9690A3;text-transform:uppercase;letter-spacing:.1em">Seletor de variação · swatches</span>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <span style="font:600 13px 'Space Grotesk',sans-serif;padding:10px 16px;border-radius:10px;border:1px solid #8CFF00;color:#8CFF00;background:rgba(140,255,0,.08)">256 GB</span>
+        <span style="font:600 13px 'Space Grotesk',sans-serif;padding:10px 16px;border-radius:10px;border:1px solid #341052;color:#FFFFFF;cursor:pointer" style-hover="border-color:#8CFF00">512 GB · +R$ 700</span>
+        <span style="font:600 13px 'Space Grotesk',sans-serif;padding:10px 16px;border-radius:10px;border:1px solid #341052;color:#9690A3;text-decoration:line-through;cursor:not-allowed">1 TB</span>
+      </div>
+      <div style="display:flex;gap:12px">
+        <span style="width:32px;height:32px;border-radius:50%;background:#2b2b30;box-shadow:0 0 0 2px #1D0333,0 0 0 4px #8CFF00"></span>
+        <span style="width:32px;height:32px;border-radius:50%;background:#8a8a90;box-shadow:0 0 0 2px #1D0333,0 0 0 4px #341052;cursor:pointer"></span>
+        <span style="position:relative;width:32px;height:32px;border-radius:50%;background:#7c6fa0;opacity:.45;box-shadow:0 0 0 2px #1D0333,0 0 0 4px #22003D"><span style="position:absolute;left:-4px;right:-4px;top:50%;height:2px;background:#9690A3;transform:rotate(-45deg)"></span></span>
+      </div>
+    </div>
+  </div>
+  <div style="background:#1D0333;border:1px solid #341052;border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:12px">
+    <span style="font:700 13px 'Space Grotesk',sans-serif;color:#9690A3;text-transform:uppercase;letter-spacing:.1em">Card de produto (componente vivo — "Card Produto.dc.html")</span>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px">
+      <dc-import name="Card Produto" p="{{ cardPromo }}" open="{{ noop }}" add="{{ noop }}" hint-size="100%,420px"></dc-import>
+      <dc-import name="Card Produto" p="{{ cardNew }}" open="{{ noop }}" add="{{ noop }}" hint-size="100%,420px"></dc-import>
+      <dc-import name="Card Produto" p="{{ cardOut }}" open="{{ noop }}" add="{{ noop }}" hint-size="100%,420px"></dc-import>
+    </div>
+  </div>
+</section>
+
+<!-- IMAGENS / ICONES -->
+<section style="display:flex;flex-direction:column;gap:20px">
+  <h2 style="margin:0;font:700 24px 'Space Grotesk',sans-serif;color:#B056FF">7 · Ícones, imagens e grafismos</h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px">
+    <div style="background:#1D0333;border:1px solid #341052;border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:10px">
+      <span style="font:700 14px 'Space Grotesk',sans-serif">Ícones</span>
+      <span style="font:500 12.5px/1.7 'Manrope',sans-serif;color:#9690A3">Estilo outline geométrico, traço 1.5-2px, cantos levemente arredondados (recomendado: Lucide). Cor padrão #D8D5E0; estados ativos em #8CFF00. Marcadores simples (círculo, losango, quadrado) substituem ícones decorativos.</span>
+      <div style="display:flex;gap:14px;align-items:center;margin-top:4px">
+        <span style="width:12px;height:12px;border:2px solid #8CFF00;border-radius:50%"></span>
+        <span style="width:12px;height:12px;border:2px solid #B056FF;transform:rotate(45deg);border-radius:2px"></span>
+        <span style="width:12px;height:12px;border:2px solid #D8D5E0;border-radius:3px"></span>
+      </div>
+    </div>
+    <div style="background:#1D0333;border:1px solid #341052;border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:10px">
+      <span style="font:700 14px 'Space Grotesk',sans-serif">Fotografia de produto</span>
+      <span style="font:500 12.5px/1.7 'Manrope',sans-serif;color:#9690A3">Produto recortado sobre o roxo escuro, com glow radial verde-limão discreto sob o objeto no hero. Proporção 1:1 nos cards, 3:4 no hero. Nunca fundo branco chapado.</span>
+      <div style="position:relative;height:110px;background:repeating-linear-gradient(45deg,#2A0A45 0 12px,#24063C 12px 24px);border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:hidden">
+        <div style="position:absolute;bottom:6px;width:60%;height:26px;background:radial-gradient(ellipse,rgba(140,255,0,.4),transparent 70%);filter:blur(10px)"></div>
+        <span style="position:relative;font:500 10.5px ui-monospace,monospace;color:#9690A3;background:rgba(9,5,13,.55);padding:5px 10px;border-radius:6px">[foto de produto]</span>
+      </div>
+    </div>
+    <div style="background:#1D0333;border:1px solid #341052;border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:10px">
+      <span style="font:700 14px 'Space Grotesk',sans-serif">Grafismo de fundo</span>
+      <span style="font:500 12.5px/1.7 'Manrope',sans-serif;color:#9690A3">Padrão de pontos (dot grid 18-20px, roxo claro a 12% de opacidade) com máscara em gradiente — herdado da arte de referência. Aplicado só em heros e bandas de destaque.</span>
+      <div style="height:80px;border-radius:10px;background:radial-gradient(rgba(176,86,255,.25) 1px,transparent 1.5px) #22003D;background-size:18px 18px"></div>
+    </div>
+  </div>
+</section>
+
+<!-- MICROCOPY -->
+<section style="display:flex;flex-direction:column;gap:20px">
+  <h2 style="margin:0;font:700 24px 'Space Grotesk',sans-serif;color:#B056FF">8 · Microcopy e mensagem do WhatsApp</h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;align-items:start">
+    <div style="background:#1D0333;border:1px solid #341052;border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:9px">
+      <span style="font:700 14px 'Space Grotesk',sans-serif;margin-bottom:4px">Tom: energético e próximo</span>
+      <span style="font:500 13px 'Manrope',sans-serif;color:#D8D5E0">CTA principal → <strong style="color:#8CFF00">"Garanta o seu!"</strong></span>
+      <span style="font:500 13px 'Manrope',sans-serif;color:#D8D5E0">Adicionar → <strong style="color:#8CFF00">"Adicionar à lista"</strong></span>
+      <span style="font:500 13px 'Manrope',sans-serif;color:#D8D5E0">Conversão → <strong style="color:#25D366">"Finalizar pelo WhatsApp"</strong></span>
+      <span style="font:500 13px 'Manrope',sans-serif;color:#D8D5E0">Lista vazia → <strong style="color:#FFFFFF">"Sua lista está vazia"</strong> + CTA explorar</span>
+      <span style="font:500 13px 'Manrope',sans-serif;color:#D8D5E0">Confiança → <strong style="color:#FFFFFF">"Nenhum pagamento é feito neste site"</strong></span>
+      <span style="font:500 13px 'Manrope',sans-serif;color:#D8D5E0">404 → <strong style="color:#FFFFFF">"Essa página se perdeu no Valhalla"</strong></span>
+    </div>
+    <div style="background:#0b141a;border:1px solid #1f2c34;border-radius:14px;padding:18px">
+      <div style="background:#005c4b;border-radius:12px 12px 4px 12px;padding:14px 16px">
+        <pre style="margin:0;white-space:pre-wrap;font:500 12px/1.6 'Manrope',sans-serif;color:#e9edef">Olá, equipe Valhalla Tecnologia! Meu nome é Ana.
+
+Tenho interesse nos seguintes produtos:
+
+1. Galaxy S25 Ultra
+Modelo: 256 GB
+Cor: Titânio Preto
+Quantidade: 1
+Preço apresentado: R$ 6.799
+Link: valhalla.tec.br/p/s25u
+
+Valor total estimado: R$ 6.799
+
+Gostaria de confirmar a disponibilidade e finalizar a compra com um atendente.</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals(){
+    return {
+      noop:()=>{},
+      primitives:[
+        {n:'Roxo Profundo',hex:'#120020'},{n:'Roxo Noite',hex:'#22003D'},{n:'Superfície',hex:'#1D0333'},{n:'Borda',hex:'#341052'},
+        {n:'Roxo Institucional',hex:'#8B2CF5'},{n:'Roxo Claro',hex:'#B056FF'},{n:'Verde-limão',hex:'#8CFF00'},{n:'Verde-limão Escuro',hex:'#65C900'},
+        {n:'Verde WhatsApp',hex:'#25D366'},{n:'Branco',hex:'#FFFFFF'},{n:'Cinza Claro',hex:'#D8D5E0'},{n:'Cinza Médio',hex:'#9690A3'},
+        {n:'Preto Valhalla',hex:'#09050D'},{n:'Âmbar (alerta)',hex:'#FFB020'},{n:'Rosa (erro)',hex:'#FF4D6D'}],
+      tokens:[
+        {n:'color-background-primary',hex:'#120020',u:'Fundo geral das páginas'},
+        {n:'color-background-secondary',hex:'#22003D',u:'Bandas de seção, fundos alternados'},
+        {n:'color-surface',hex:'#1D0333',u:'Cards, inputs, modais, dropdowns'},
+        {n:'color-border',hex:'#341052',u:'Bordas de cards e divisores'},
+        {n:'color-brand-primary',hex:'#8B2CF5',u:'Marca, seleção, botões secundários'},
+        {n:'color-brand-accent',hex:'#B056FF',u:'Títulos de destaque, links, overlines'},
+        {n:'color-text-primary',hex:'#FFFFFF',u:'Títulos e textos principais'},
+        {n:'color-text-secondary',hex:'#9690A3',u:'Apoio, legendas, placeholders'},
+        {n:'color-action-primary',hex:'#8CFF00',u:'CTAs, preços, disponibilidade, conversão'},
+        {n:'color-action-hover',hex:'#65C900',u:'Hover das ações primárias'},
+        {n:'color-whatsapp',hex:'#25D366',u:'Exclusivo do canal WhatsApp'},
+        {n:'color-success',hex:'#8CFF00',u:'Confirmações e feedback positivo'},
+        {n:'color-warning',hex:'#FFB020',u:'Estoque baixo, variação indisponível'},
+        {n:'color-error',hex:'#FF4D6D',u:'Erros, remoção, indisponível'},
+        {n:'color-info',hex:'#B056FF',u:'Avisos neutros e informativos'}],
+      spaces:[{v:4,h:'4px'},{v:8,h:'8px'},{v:12,h:'12px'},{v:16,h:'16px'},{v:24,h:'24px'},{v:32,h:'32px'},{v:48,h:'48px'},{v:64,h:'64px'}],
+      cardPromo:{name:'Galaxy S25 Ultra',brand:'Samsung',priceF:'R$ 6.799',oldPriceF:'R$ 7.499',badge:'-9%',badgeBg:'#8CFF00',badgeFg:'#09050D',out:false,canAdd:true},
+      cardNew:{name:'MacBook Air M4 13"',brand:'Apple',priceF:'R$ 10.999',oldPriceF:null,badge:'NOVO',badgeBg:'#8B2CF5',badgeFg:'#FFFFFF',out:false,canAdd:true},
+      cardOut:{name:'Soundbar JBL Cinema SB510',brand:'JBL',priceF:'R$ 1.899',oldPriceF:null,badge:null,out:true,canAdd:false}
+    };
+  }
+}
+</script>
+</body>
+</html>

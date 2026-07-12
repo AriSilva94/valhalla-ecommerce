@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="width:100%;background:#1D0333;border:1px solid #341052;border-radius:14px;overflow:hidden;display:flex;flex-direction:column;cursor:pointer;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease" style-hover="transform:translateY(-4px);border-color:#8B2CF5;box-shadow:0 12px 32px rgba(139,44,245,.25)" onClick="{{ open }}">
+  <div style="position:relative;aspect-ratio:1/1;background:repeating-linear-gradient(45deg,#2A0A45 0 12px,#24063C 12px 24px);display:flex;align-items:center;justify-content:center">
+    <span style="font:500 11px ui-monospace,Menlo,monospace;color:#9690A3;background:rgba(9,5,13,.55);padding:5px 10px;border-radius:6px">[foto: {{ p.name }}]</span>
+    <sc-if value="{{ p.badge }}" hint-placeholder-val="{{ false }}">
+      <span style="position:absolute;top:10px;left:10px;font:700 11px 'Space Grotesk',sans-serif;letter-spacing:.06em;text-transform:uppercase;padding:5px 9px;border-radius:6px;background:{{ p.badgeBg }};color:{{ p.badgeFg }}">{{ p.badge }}</span>
+    </sc-if>
+    <sc-if value="{{ p.out }}" hint-placeholder-val="{{ false }}">
+      <span style="position:absolute;inset:auto 10px 10px 10px;text-align:center;font:600 11px 'Space Grotesk',sans-serif;letter-spacing:.05em;padding:6px;border-radius:6px;background:rgba(9,5,13,.75);color:#D8D5E0;text-transform:uppercase">Esgotado</span>
+    </sc-if>
+  </div>
+  <div style="padding:14px 16px 16px;display:flex;flex-direction:column;gap:6px;flex:1">
+    <span style="font:600 10.5px 'Space Grotesk',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#B056FF">{{ p.brand }}</span>
+    <span style="font:600 14.5px/1.35 'Space Grotesk',sans-serif;color:#FFFFFF">{{ p.name }}</span>
+    <div style="margin-top:auto;padding-top:8px;display:flex;flex-direction:column;gap:2px">
+      <sc-if value="{{ p.oldPriceF }}" hint-placeholder-val="{{ false }}">
+        <span style="font:500 12px 'Manrope',sans-serif;color:#9690A3;text-decoration:line-through">{{ p.oldPriceF }}</span>
+      </sc-if>
+      <span style="font:700 19px 'Space Grotesk',sans-serif;color:#8CFF00">{{ p.priceF }}</span>
+      <span style="font:500 11px 'Manrope',sans-serif;color:#9690A3">à combinar no atendimento</span>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button style="flex:1;font:600 12.5px 'Space Grotesk',sans-serif;color:#FFFFFF;background:transparent;border:1px solid #8B2CF5;border-radius:8px;padding:9px 0;cursor:pointer;transition:background .15s" style-hover="background:rgba(139,44,245,.18)" onClick="{{ open }}">Ver detalhes</button>
+      <sc-if value="{{ p.canAdd }}" hint-placeholder-val="{{ true }}">
+        <button title="Adicionar à lista" style="width:38px;font:700 18px 'Space Grotesk',sans-serif;color:#09050D;background:#8CFF00;border:none;border-radius:8px;cursor:pointer;transition:background .15s" style-hover="background:#65C900" onClick="{{ add }}">+</button>
+      </sc-if>
+      <sc-if value="{{ p.out }}" hint-placeholder-val="{{ false }}">
+        <button disabled="{{ true }}" style="width:38px;font:700 18px 'Space Grotesk',sans-serif;color:#9690A3;background:#341052;border:none;border-radius:8px;cursor:not-allowed">+</button>
+      </sc-if>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;280px&quot;,&quot;height&quot;:&quot;430px&quot;},&quot;p&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;{name:string;brand:string;priceF:string;oldPriceF?:string;badge?:string;badgeBg?:string;badgeFg?:string;out?:boolean;canAdd?:boolean}&quot;,&quot;default&quot;:{&quot;name&quot;:&quot;Galaxy S25 Ultra&quot;,&quot;brand&quot;:&quot;Samsung&quot;,&quot;priceF&quot;:&quot;R$ 6.799&quot;,&quot;oldPriceF&quot;:&quot;R$ 7.499&quot;,&quot;badge&quot;:&quot;-9%&quot;,&quot;badgeBg&quot;:&quot;#8CFF00&quot;,&quot;badgeFg&quot;:&quot;#09050D&quot;,&quot;out&quot;:false,&quot;canAdd&quot;:true}},&quot;open&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;()=&gt;void&quot;},&quot;add&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;()=&gt;void&quot;}}"></script>
+</body>
+</html>

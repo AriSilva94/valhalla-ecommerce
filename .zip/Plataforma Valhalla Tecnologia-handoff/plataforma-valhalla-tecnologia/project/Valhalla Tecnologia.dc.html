@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#120020;color:#FFFFFF;font-family:'Manrope',sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#B056FF;text-decoration:none}a:hover{color:#8CFF00}
+*{box-sizing:border-box}
+::selection{background:#8B2CF5;color:#fff}
+input,select,textarea,button{font-family:inherit}
+@keyframes vh-toast{from{opacity:0;transform:translate(-50%,16px)}to{opacity:1;transform:translate(-50%,0)}}
+@keyframes vh-shimmer{from{background-position:-400px 0}to{background-position:400px 0}}
+@keyframes vh-glow{0%,100%{opacity:.55}50%{opacity:.9}}
+</style>
+</helmet>
+
+<div style="min-height:100vh;display:flex;flex-direction:column">
+
+<!-- ===== HEADER ===== -->
+<sc-if value="{{ showBar }}" hint-placeholder-val="{{ true }}">
+<div style="background:#8CFF00;color:#09050D;text-align:center;font:700 12px 'Space Grotesk',sans-serif;letter-spacing:.08em;text-transform:uppercase;padding:8px 16px">Produtos originais com garantia • Atendimento humano pelo WhatsApp</div>
+</sc-if>
+<header style="position:sticky;top:0;z-index:60;background:rgba(18,0,32,.94);backdrop-filter:blur(14px);border-bottom:1px solid #341052">
+  <div style="max-width:1240px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+    <div onClick="{{ goHome }}" style="cursor:pointer;display:flex;flex-direction:column;line-height:1;user-select:none">
+      <span style="font:700 24px 'Space Grotesk',sans-serif;letter-spacing:.04em;color:#FFFFFF;transform:skewX(-4deg)">VALHALLA</span>
+      <span style="display:flex;align-items:center;gap:6px;margin-top:3px"><span style="width:5px;height:5px;background:#8CFF00;transform:rotate(45deg)"></span><span style="font:700 9.5px 'Space Grotesk',sans-serif;letter-spacing:.42em;color:#8CFF00">TECNOLOGIA</span><span style="width:5px;height:5px;background:#8CFF00;transform:rotate(45deg)"></span></span>
+    </div>
+    <div style="flex:1;min-width:220px;position:relative">
+      <input value="{{ q }}" onChange="{{ onQ }}" onKeyDown="{{ onQKey }}" onFocus="{{ onQFocus }}" onBlur="{{ onQBlur }}" placeholder="Buscar smartphones, notebooks, fones..." style="width:100%;background:#1D0333;border:1px solid #341052;border-radius:10px;padding:12px 44px 12px 16px;color:#FFFFFF;font:500 13.5px 'Manrope',sans-serif;outline:none;transition:border-color .15s" style-focus="border-color:#8B2CF5;box-shadow:0 0 0 3px rgba(139,44,245,.25)"></input>
+      <button onClick="{{ doSearch }}" title="Buscar" style="position:absolute;right:6px;top:6px;bottom:6px;width:34px;background:#8B2CF5;border:none;border-radius:7px;cursor:pointer;color:#fff;font:700 14px 'Space Grotesk',sans-serif;transition:background .15s" style-hover="background:#B056FF">⌕</button>
+      <sc-if value="{{ showAuto }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;top:calc(100% + 6px);left:0;right:0;background:#1D0333;border:1px solid #8B2CF5;border-radius:12px;overflow:hidden;box-shadow:0 16px 40px rgba(9,5,13,.6);z-index:70">
+          <sc-for list="{{ suggestions }}" as="s" hint-placeholder-count="0">
+            <div onMouseDown="{{ s.open }}" style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 16px;cursor:pointer;border-bottom:1px solid #2A0A45;transition:background .12s" style-hover="background:#2A0A45">
+              <span style="font:600 13px 'Manrope',sans-serif;color:#FFFFFF">{{ s.name }}</span>
+              <span style="font:700 12.5px 'Space Grotesk',sans-serif;color:#8CFF00;white-space:nowrap">{{ s.priceF }}</span>
+            </div>
+          </sc-for>
+          <div onMouseDown="{{ doSearch }}" style="padding:10px 16px;font:600 12px 'Space Grotesk',sans-serif;letter-spacing:.05em;color:#B056FF;cursor:pointer;text-transform:uppercase" style-hover="color:#8CFF00">Ver todos os resultados →</div>
+        </div>
+      </sc-if>
+    </div>
+    <button onClick="{{ goList }}" style="position:relative;display:flex;align-items:center;gap:9px;background:transparent;border:1px solid #341052;border-radius:10px;padding:11px 16px;cursor:pointer;color:#FFFFFF;font:600 13px 'Space Grotesk',sans-serif;transition:border-color .15s,background .15s" style-hover="border-color:#8CFF00;background:rgba(140,255,0,.06)">
+      <span style="width:8px;height:8px;border:2px solid #8CFF00;border-radius:2px"></span>Minha lista
+      <sc-if value="{{ cartCount }}" hint-placeholder-val="{{ false }}">
+        <span style="position:absolute;top:-8px;right:-8px;min-width:20px;height:20px;background:#8CFF00;color:#09050D;border-radius:10px;font:800 11px 'Space Grotesk',sans-serif;display:flex;align-items:center;justify-content:center;padding:0 5px">{{ cartCount }}</span>
+      </sc-if>
+    </button>
+    <a href="{{ waDirectUrl }}" target="_blank" style="display:flex;align-items:center;gap:8px;background:#25D366;border-radius:10px;padding:11px 16px;color:#062e17;font:700 13px 'Space Grotesk',sans-serif;transition:filter .15s" style-hover="filter:brightness(1.1);color:#062e17">
+      <span style="width:9px;height:9px;background:#062e17;border-radius:50%"></span>WhatsApp
+    </a>
+  </div>
+  <nav style="border-top:1px solid #22003D">
+    <div style="max-width:1240px;margin:0 auto;padding:0 24px;display:flex;gap:4px;overflow-x:auto">
+      <sc-for list="{{ navCats }}" as="c" hint-placeholder-count="6">
+        <span onClick="{{ c.open }}" style="padding:11px 14px;font:600 12.5px 'Space Grotesk',sans-serif;letter-spacing:.03em;color:#D8D5E0;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:color .12s,border-color .12s" style-hover="color:#8CFF00;border-color:#8CFF00">{{ c.n }}</span>
+      </sc-for>
+      <span style="flex:1"></span>
+      <span onClick="{{ goAbout }}" style="padding:11px 12px;font:600 12.5px 'Space Grotesk',sans-serif;color:#9690A3;cursor:pointer;white-space:nowrap" style-hover="color:#8CFF00">Sobre</span>
+      <span onClick="{{ goFaq }}" style="padding:11px 12px;font:600 12.5px 'Space Grotesk',sans-serif;color:#9690A3;cursor:pointer;white-space:nowrap" style-hover="color:#8CFF00">FAQ</span>
+      <span onClick="{{ goContact }}" style="padding:11px 12px;font:600 12.5px 'Space Grotesk',sans-serif;color:#9690A3;cursor:pointer;white-space:nowrap" style-hover="color:#8CFF00">Contato</span>
+    </div>
+  </nav>
+</header>
+
+<main style="flex:1">
+
+<!-- ===== HOME ===== -->
+<sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+  <section style="position:relative;overflow:hidden;background:radial-gradient(1100px 500px at 75% -10%,rgba(139,44,245,.35),transparent 65%),radial-gradient(circle at 12% 90%,rgba(140,255,0,.07),transparent 40%),#120020">
+    <div style="position:absolute;inset:0;background:radial-gradient(rgba(176,86,255,.13) 1px,transparent 1.5px);background-size:20px 20px;mask-image:linear-gradient(115deg,transparent 35%,black 75%)"></div>
+    <div style="position:relative;max-width:1240px;margin:0 auto;padding:64px 24px 72px;display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:48px;align-items:center">
+      <div style="display:flex;flex-direction:column;gap:18px">
+        <span style="align-self:flex-start;font:700 11.5px 'Space Grotesk',sans-serif;letter-spacing:.18em;text-transform:uppercase;color:#8CFF00;border:1px solid rgba(140,255,0,.4);border-radius:20px;padding:7px 14px">Oferta da semana</span>
+        <h1 style="margin:0;font:700 clamp(34px,4.5vw,56px)/1.05 'Space Grotesk',sans-serif;letter-spacing:-.01em"><span style="color:#B056FF">GALAXY S25 ULTRA</span><br>com desconto de<br><span style="color:#8CFF00">R$ 700 à vista</span></h1>
+        <p style="margin:0;max-width:440px;font:500 15.5px/1.65 'Manrope',sans-serif;color:#D8D5E0">Garanta o seu direto com nosso time no WhatsApp. Atendimento rápido, produto original e garantia de fábrica.</p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:6px">
+          <button onClick="{{ heroOpen }}" style="background:#8CFF00;color:#09050D;border:none;border-radius:10px;padding:15px 28px;font:700 14.5px 'Space Grotesk',sans-serif;letter-spacing:.03em;cursor:pointer;box-shadow:0 0 28px rgba(140,255,0,.35);transition:background .15s,transform .12s" style-hover="background:#65C900;transform:translateY(-1px)" style-active="transform:translateY(0)">Garanta o seu!</button>
+          <button onClick="{{ goCats }}" style="background:transparent;color:#FFFFFF;border:1px solid #8B2CF5;border-radius:10px;padding:15px 28px;font:600 14.5px 'Space Grotesk',sans-serif;cursor:pointer;transition:background .15s" style-hover="background:rgba(139,44,245,.18)">Explorar categorias</button>
+        </div>
+        <div style="display:flex;gap:22px;flex-wrap:wrap;margin-top:10px">
+          <span style="font:600 12.5px 'Manrope',sans-serif;color:#9690A3"><span style="color:#8CFF00">✓</span> Produtos originais</span>
+          <span style="font:600 12.5px 'Manrope',sans-serif;color:#9690A3"><span style="color:#8CFF00">✓</span> Garantia de fábrica</span>
+          <span style="font:600 12.5px 'Manrope',sans-serif;color:#9690A3"><span style="color:#8CFF00">✓</span> Atendimento humano</span>
+        </div>
+      </div>
+      <div style="position:relative;display:flex;align-items:center;justify-content:center;min-height:340px">
+        <div style="position:absolute;bottom:8%;width:70%;height:60px;background:radial-gradient(ellipse,rgba(140,255,0,.4),transparent 70%);filter:blur(18px);animation:vh-glow 3.5s ease-in-out infinite"></div>
+        <div style="position:relative;width:min(340px,80%);aspect-ratio:3/4;background:repeating-linear-gradient(45deg,#2A0A45 0 14px,#24063C 14px 28px);border:1px solid #341052;border-radius:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 24px 60px rgba(9,5,13,.6)">
+          <span style="font:500 12px ui-monospace,Menlo,monospace;color:#9690A3;background:rgba(9,5,13,.55);padding:6px 12px;border-radius:6px">[foto: Galaxy S25 Ultra]</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="max-width:1240px;margin:0 auto;padding:56px 24px 8px;width:100%">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:22px">
+      <h2 style="margin:0;font:700 26px 'Space Grotesk',sans-serif;color:#FFFFFF">Categorias</h2>
+      <span onClick="{{ goCats }}" style="font:600 13px 'Space Grotesk',sans-serif;color:#B056FF;cursor:pointer" style-hover="color:#8CFF00">Ver todas →</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px">
+      <sc-for list="{{ homeCats }}" as="c" hint-placeholder-count="6">
+        <div onClick="{{ c.open }}" style="background:linear-gradient(160deg,#22003D,#1D0333);border:1px solid #341052;border-radius:14px;padding:20px 18px;cursor:pointer;display:flex;flex-direction:column;gap:8px;transition:border-color .15s,transform .15s" style-hover="border-color:#8B2CF5;transform:translateY(-3px)">
+          <span style="width:12px;height:12px;background:linear-gradient(135deg,#8B2CF5,#B056FF);transform:rotate(45deg);border-radius:3px"></span>
+          <span style="font:700 15px 'Space Grotesk',sans-serif;color:#FFFFFF">{{ c.n }}</span>
+          <span style="font:500 12px 'Manrope',sans-serif;color:#9690A3">{{ c.count }} produtos</span>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="max-width:1240px;margin:0 auto;padding:48px 24px 8px;width:100%">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:22px">
+      <h2 style="margin:0;font:700 26px 'Space Grotesk',sans-serif">Destaques</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px">
+      <sc-for list="{{ featured }}" as="it" hint-placeholder-count="4">
+        <dc-import name="Card Produto" p="{{ it }}" open="{{ it.open }}" add="{{ it.add }}" hint-size="100%,420px"></dc-import>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="background:#22003D;margin-top:56px">
+    <div style="max-width:1240px;margin:0 auto;padding:48px 24px;width:100%">
+      <div style="display:flex;align-items:baseline;gap:14px;margin-bottom:22px">
+        <h2 style="margin:0;font:700 26px 'Space Grotesk',sans-serif;color:#8CFF00">Ofertas imperdíveis</h2>
+        <span style="font:700 11px 'Space Grotesk',sans-serif;letter-spacing:.1em;background:#8CFF00;color:#09050D;padding:4px 9px;border-radius:6px;text-transform:uppercase">Por tempo limitado</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px">
+        <sc-for list="{{ offers }}" as="it" hint-placeholder-count="4">
+          <dc-import name="Card Produto" p="{{ it }}" open="{{ it.open }}" add="{{ it.add }}" hint-size="100%,420px"></dc-import>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <section style="max-width:1240px;margin:0 auto;padding:56px 24px 8px;width:100%">
+    <h2 style="margin:0 0 22px;font:700 26px 'Space Grotesk',sans-serif">Lançamentos</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px">
+      <sc-for list="{{ launches }}" as="it" hint-placeholder-count="4">
+        <dc-import name="Card Produto" p="{{ it }}" open="{{ it.open }}" add="{{ it.add }}" hint-size="100%,420px"></dc-import>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="max-width:1240px;margin:0 auto;padding:56px 24px 0;width:100%">
+    <p style="margin:0 0 16px;font:700 12px 'Space Grotesk',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#9690A3;text-align:center">Marcas que você encontra aqui</p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+      <sc-for list="{{ brands }}" as="b" hint-placeholder-count="8">
+        <span style="font:700 14px 'Space Grotesk',sans-serif;letter-spacing:.06em;color:#D8D5E0;background:#1D0333;border:1px solid #341052;border-radius:10px;padding:11px 22px">{{ b }}</span>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="max-width:1240px;margin:0 auto;padding:56px 24px 0;width:100%">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px">
+      <sc-for list="{{ benefits }}" as="b" hint-placeholder-count="4">
+        <div style="background:#1D0333;border:1px solid #341052;border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:10px">
+          <span style="width:34px;height:34px;border-radius:10px;background:rgba(140,255,0,.12);border:1px solid rgba(140,255,0,.35);display:flex;align-items:center;justify-content:center;color:#8CFF00;font:700 15px 'Space Grotesk',sans-serif">{{ b.i }}</span>
+          <span style="font:700 15px 'Space Grotesk',sans-serif;color:#FFFFFF">{{ b.t }}</span>
+          <span style="font:500 13px/1.55 'Manrope',sans-serif;color:#9690A3">{{ b.d }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="max-width:1240px;margin:0 auto;padding:64px 24px 0;width:100%">
+    <h2 style="margin:0 0 8px;font:700 26px 'Space Grotesk',sans-serif;text-align:center">Como comprar pelo <span style="color:#25D366">WhatsApp</span></h2>
+    <p style="margin:0 auto 30px;max-width:520px;text-align:center;font:500 14px/1.6 'Manrope',sans-serif;color:#9690A3">Sem checkout, sem complicação. Você escolhe no site e finaliza com um atendente de verdade.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px">
+      <sc-for list="{{ steps }}" as="s" hint-placeholder-count="3">
+        <div style="background:linear-gradient(160deg,#22003D,#1D0333);border:1px solid #341052;border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:10px">
+          <span style="font:700 30px 'Space Grotesk',sans-serif;color:#8CFF00">{{ s.n }}</span>
+          <span style="font:700 15.5px 'Space Grotesk',sans-serif">{{ s.t }}</span>
+          <span style="font:500 13px/1.55 'Manrope',sans-serif;color:#9690A3">{{ s.d }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="max-width:1240px;margin:0 auto;padding:64px 24px 0;width:100%">
+    <h2 style="margin:0 0 26px;font:700 26px 'Space Grotesk',sans-serif;text-align:center">Quem comprou, recomenda</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px">
+      <sc-for list="{{ reviews }}" as="r" hint-placeholder-count="3">
+        <div style="background:#1D0333;border:1px solid #341052;border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:12px">
+          <span style="color:#8CFF00;font:700 14px 'Space Grotesk',sans-serif;letter-spacing:.25em">★★★★★</span>
+          <span style="font:500 14px/1.6 'Manrope',sans-serif;color:#D8D5E0">"{{ r.t }}"</span>
+          <span style="font:700 12.5px 'Space Grotesk',sans-serif;color:#B056FF">{{ r.n }} <span style="color:#9690A3;font-weight:500">· {{ r.c }}</span></span>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="max-width:1240px;margin:64px auto 0;padding:0 24px;width:100%">
+    <div style="position:relative;overflow:hidden;background:radial-gradient(700px 300px at 85% 0%,rgba(37,211,102,.22),transparent 60%),linear-gradient(160deg,#22003D,#120020);border:1px solid #341052;border-radius:20px;padding:44px 40px;display:flex;flex-wrap:wrap;gap:28px;align-items:center;justify-content:space-between">
+      <div style="position:absolute;inset:0;background:radial-gradient(rgba(176,86,255,.12) 1px,transparent 1.5px);background-size:18px 18px;mask-image:linear-gradient(100deg,transparent 40%,black 90%)"></div>
+      <div style="position:relative;max-width:560px;display:flex;flex-direction:column;gap:10px">
+        <h2 style="margin:0;font:700 clamp(24px,3vw,34px)/1.15 'Space Grotesk',sans-serif"><span style="color:#B056FF">SIGA NOSSO CANAL</span><br><span style="color:#8CFF00">NO WHATSAPP!</span></h2>
+        <p style="margin:0;font:500 14px/1.6 'Manrope',sans-serif;color:#D8D5E0">Novidades em primeira mão, promoções exclusivas, dicas e tutoriais — direto no seu WhatsApp.</p>
+      </div>
+      <a href="{{ waDirectUrl }}" target="_blank" style="position:relative;display:inline-flex;align-items:center;gap:10px;background:#25D366;color:#062e17;border-radius:12px;padding:16px 30px;font:700 15px 'Space Grotesk',sans-serif;box-shadow:0 0 34px rgba(37,211,102,.4);transition:filter .15s" style-hover="filter:brightness(1.1);color:#062e17"><span style="width:10px;height:10px;background:#062e17;border-radius:50%"></span>Clique e siga nosso canal!</a>
+    </div>
+  </section>
+</sc-if>
+
+<!-- ===== CATEGORIES INDEX ===== -->
+<sc-if value="{{ isCats }}" hint-placeholder-val="{{ false }}">
+  <section style="max-width:1240px;margin:0 auto;padding:40px 24px;width:100%">
+    <p style="margin:0 0 6px;font:600 12px 'Space Grotesk',sans-serif;color:#9690A3"><span onClick="{{ goHome }}" style="cursor:pointer;color:#B056FF">Início</span> / Categorias</p>
+    <h1 style="margin:0 0 26px;font:700 34px 'Space Grotesk',sans-serif">Todas as categorias</h1>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px">
+      <sc-for list="{{ allCats }}" as="c" hint-placeholder-count="6">
+        <div onClick="{{ c.open }}" style="background:linear-gradient(160deg,#22003D,#1D0333);border:1px solid #341052;border-radius:16px;padding:28px 24px;cursor:pointer;display:flex;flex-direction:column;gap:10px;transition:border-color .15s,transform .15s" style-hover="border-color:#8B2CF5;transform:translateY(-3px)">
+          <span style="width:14px;height:14px;background:linear-gradient(135deg,#8B2CF5,#B056FF);transform:rotate(45deg);border-radius:3px"></span>
+          <span style="font:700 19px 'Space Grotesk',sans-serif">{{ c.n }}</span>
+          <span style="font:500 13px 'Manrope',sans-serif;color:#9690A3">{{ c.d }}</span>
+          <span style="font:700 12px 'Space Grotesk',sans-serif;color:#8CFF00">{{ c.count }} produtos →</span>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+</sc-if>
+
+<!-- ===== CATEGORY / SEARCH ===== -->
+<sc-if value="{{ isListing }}" hint-placeholder-val="{{ false }}">
+  <section style="max-width:1240px;margin:0 auto;padding:40px 24px;width:100%">
+    <p style="margin:0 0 6px;font:600 12px 'Space Grotesk',sans-serif;color:#9690A3"><span onClick="{{ goHome }}" style="cursor:pointer;color:#B056FF">Início</span> / {{ listingCrumb }}</p>
+    <div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:20px">
+      <h1 style="margin:0;font:700 34px 'Space Grotesk',sans-serif">{{ listingTitle }}</h1>
+      <span style="font:500 13.5px 'Manrope',sans-serif;color:#9690A3">{{ listingCount }} resultado(s)</span>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:24px">
+      <sc-for list="{{ brandChips }}" as="b" hint-placeholder-count="4">
+        <span onClick="{{ b.pick }}" style="font:600 12.5px 'Space Grotesk',sans-serif;padding:8px 16px;border-radius:20px;cursor:pointer;border:1px solid {{ b.bc }};color:{{ b.fg }};background:{{ b.bg }};transition:border-color .12s" style-hover="border-color:#8CFF00">{{ b.n }}</span>
+      </sc-for>
+      <span style="flex:1"></span>
+      <select value="{{ sort }}" onChange="{{ onSort }}" style="background:#1D0333;border:1px solid #341052;border-radius:10px;padding:10px 14px;color:#FFFFFF;font:600 12.5px 'Space Grotesk',sans-serif;outline:none;cursor:pointer" style-focus="border-color:#8B2CF5">
+        <option value="rel">Relevância</option>
+        <option value="asc">Menor preço</option>
+        <option value="desc">Maior preço</option>
+        <option value="promo">Maiores descontos</option>
+      </select>
+    </div>
+    <sc-if value="{{ loading }}" hint-placeholder-val="{{ false }}">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px">
+        <sc-for list="{{ skeletons }}" as="k" hint-placeholder-count="4">
+          <div style="background:#1D0333;border:1px solid #341052;border-radius:14px;overflow:hidden">
+            <div style="aspect-ratio:1/1;background:linear-gradient(90deg,#22003D 25%,#2A0A45 50%,#22003D 75%);background-size:800px 100%;animation:vh-shimmer 1.4s linear infinite"></div>
+            <div style="padding:16px;display:flex;flex-direction:column;gap:10px">
+              <div style="height:11px;width:40%;border-radius:6px;background:linear-gradient(90deg,#22003D 25%,#2A0A45 50%,#22003D 75%);background-size:800px 100%;animation:vh-shimmer 1.4s linear infinite"></div>
+              <div style="height:14px;width:85%;border-radius:6px;background:linear-gradient(90deg,#22003D 25%,#2A0A45 50%,#22003D 75%);background-size:800px 100%;animation:vh-shimmer 1.4s linear infinite"></div>
+              <div style="height:20px;width:55%;border-radius:6px;background:linear-gradient(90deg,#22003D 25%,#2A0A45 50%,#22003D 75%);background-size:800px 100%;animation:vh-shimmer 1.4s linear infinite"></div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+    <sc-if value="{{ listingReady }}" hint-placeholder-val="{{ false }}">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px">
+        <sc-for list="{{ listing }}" as="it" hint-placeholder-count="4">
+          <dc-import name="Card Produto" p="{{ it }}" open="{{ it.open }}" add="{{ it.add }}" hint-size="100%,420px"></dc-import>
+        </sc-for>
+      </div>
+    </sc-if>
+    <sc-if value="{{ listingEmpty }}" hint-placeholder-val="{{ false }}">
+      <div style="text-align:center;padding:70px 24px;background:#1D0333;border:1px dashed #341052;border-radius:16px">
+        <span style="display:inline-block;width:18px;height:18px;border:3px solid #8B2CF5;border-radius:50%;margin-bottom:14px"></span>
+        <h3 style="margin:0 0 8px;font:700 20px 'Space Grotesk',sans-serif">{{ emptyTitle }}</h3>
+        <p style="margin:0 0 20px;font:500 14px 'Manrope',sans-serif;color:#9690A3">{{ emptyDesc }}</p>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          <button onClick="{{ goHome }}" style="background:#8CFF00;color:#09050D;border:none;border-radius:10px;padding:13px 24px;font:700 13.5px 'Space Grotesk',sans-serif;cursor:pointer" style-hover="background:#65C900">Ver destaques</button>
+          <a href="{{ waDirectUrl }}" target="_blank" style="display:inline-flex;align-items:center;background:#25D366;color:#062e17;border-radius:10px;padding:13px 24px;font:700 13.5px 'Space Grotesk',sans-serif" style-hover="filter:brightness(1.1);color:#062e17">Pedir ajuda no WhatsApp</a>
+        </div>
+      </div>
+    </sc-if>
+  </section>
+</sc-if>
+
+<!-- ===== PRODUCT ===== -->
+<sc-if value="{{ isProduct }}" hint-placeholder-val="{{ false }}">
+  <section style="max-width:1240px;margin:0 auto;padding:36px 24px;width:100%">
+    <p style="margin:0 0 20px;font:600 12px 'Space Grotesk',sans-serif;color:#9690A3"><span onClick="{{ goHome }}" style="cursor:pointer;color:#B056FF">Início</span> / <span onClick="{{ pOpenCat }}" style="cursor:pointer;color:#B056FF">{{ pCatName }}</span> / {{ pName }}</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:44px;align-items:start">
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="position:relative;aspect-ratio:1/1;background:repeating-linear-gradient(45deg,#2A0A45 0 14px,#24063C 14px 28px);border:1px solid #341052;border-radius:18px;display:flex;align-items:center;justify-content:center">
+          <span style="font:500 12px ui-monospace,Menlo,monospace;color:#9690A3;background:rgba(9,5,13,.55);padding:6px 12px;border-radius:6px">[foto principal: {{ pName }}]</span>
+          <sc-if value="{{ pBadge }}" hint-placeholder-val="{{ false }}">
+            <span style="position:absolute;top:14px;left:14px;font:700 12px 'Space Grotesk',sans-serif;letter-spacing:.06em;text-transform:uppercase;padding:6px 11px;border-radius:7px;background:#8CFF00;color:#09050D">{{ pBadge }}</span>
+          </sc-if>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+          <sc-for list="{{ pThumbs }}" as="t" hint-placeholder-count="4">
+            <div style="aspect-ratio:1/1;background:repeating-linear-gradient(45deg,#2A0A45 0 8px,#24063C 8px 16px);border:1px solid #341052;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .12s" style-hover="border-color:#8B2CF5"><span style="font:500 10px ui-monospace,monospace;color:#9690A3">{{ t }}</span></div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <span style="font:600 11.5px 'Space Grotesk',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#B056FF">{{ pBrand }}</span>
+          <h1 style="margin:0;font:700 clamp(24px,3vw,32px)/1.15 'Space Grotesk',sans-serif">{{ pName }}</h1>
+          <span style="font:500 12px ui-monospace,Menlo,monospace;color:#9690A3">Cód. {{ pCode }}</span>
+        </div>
+        <span style="align-self:flex-start;font:700 11.5px 'Space Grotesk',sans-serif;letter-spacing:.08em;text-transform:uppercase;padding:6px 12px;border-radius:20px;background:{{ pStockBg }};color:{{ pStockFg }};border:1px solid {{ pStockBc }}">{{ pStockLabel }}</span>
+        <div style="background:#1D0333;border:1px solid #341052;border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;gap:2px">
+          <sc-if value="{{ pOldPriceF }}" hint-placeholder-val="{{ false }}">
+            <span style="font:500 14px 'Manrope',sans-serif;color:#9690A3;text-decoration:line-through">{{ pOldPriceF }}</span>
+          </sc-if>
+          <span style="font:700 34px 'Space Grotesk',sans-serif;color:#8CFF00">{{ pPriceF }}</span>
+          <span style="font:500 12.5px 'Manrope',sans-serif;color:#9690A3">Preço à vista de referência · condições finais com o atendente</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <span style="font:700 12.5px 'Space Grotesk',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#D8D5E0">Cor: <span style="color:#8CFF00">{{ pColorName }}</span></span>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <sc-for list="{{ pColors }}" as="c" hint-placeholder-count="3">
+              <span onClick="{{ c.pick }}" title="{{ c.title }}" style="position:relative;width:34px;height:34px;border-radius:50%;background:{{ c.hex }};cursor:{{ c.cursor }};opacity:{{ c.op }};box-shadow:0 0 0 2px #120020,0 0 0 4px {{ c.ring }};transition:box-shadow .12s">
+                <sc-if value="{{ c.unav }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;left:-4px;right:-4px;top:50%;height:2px;background:#9690A3;transform:rotate(-45deg)"></span></sc-if>
+              </span>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <span style="font:700 12.5px 'Space Grotesk',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#D8D5E0">{{ pVarLabel }}</span>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <sc-for list="{{ pVars }}" as="v" hint-placeholder-count="3">
+              <span onClick="{{ v.pick }}" style="font:600 13px 'Space Grotesk',sans-serif;padding:10px 16px;border-radius:10px;cursor:{{ v.cursor }};border:1px solid {{ v.bc }};color:{{ v.fg }};background:{{ v.bg }};text-decoration:{{ v.deco }};transition:border-color .12s">{{ v.l }}</span>
+            </sc-for>
+          </div>
+          <sc-if value="{{ pVarUnavailable }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;gap:10px;align-items:center;background:rgba(255,176,32,.08);border:1px solid rgba(255,176,32,.4);border-radius:10px;padding:11px 14px;font:600 12.5px 'Manrope',sans-serif;color:#FFB020"><span style="width:8px;height:8px;background:#FFB020;border-radius:50%"></span>Variação indisponível no momento — escolha outra opção ou consulte o atendente.</div>
+          </sc-if>
+        </div>
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;border:1px solid #341052;border-radius:10px;overflow:hidden">
+            <button onClick="{{ qtyDown }}" style="width:40px;height:44px;background:#1D0333;border:none;color:#FFFFFF;font:700 18px 'Space Grotesk',sans-serif;cursor:pointer" style-hover="background:#2A0A45">−</button>
+            <span style="width:48px;text-align:center;font:700 15px 'Space Grotesk',sans-serif">{{ qty }}</span>
+            <button onClick="{{ qtyUp }}" style="width:40px;height:44px;background:#1D0333;border:none;color:#FFFFFF;font:700 18px 'Space Grotesk',sans-serif;cursor:pointer" style-hover="background:#2A0A45">+</button>
+          </div>
+          <span style="font:500 12.5px 'Manrope',sans-serif;color:#9690A3">Subtotal: <span style="color:#8CFF00;font:700 14px 'Space Grotesk',sans-serif">{{ pSubtotalF }}</span></span>
+        </div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <sc-if value="{{ pCanBuy }}" hint-placeholder-val="{{ true }}">
+            <button onClick="{{ pAdd }}" style="flex:1;min-width:180px;background:#8CFF00;color:#09050D;border:none;border-radius:11px;padding:16px 20px;font:700 14.5px 'Space Grotesk',sans-serif;cursor:pointer;box-shadow:0 0 24px rgba(140,255,0,.28);transition:background .15s" style-hover="background:#65C900" style-active="transform:translateY(1px)">Adicionar à lista</button>
+            <a href="{{ pBuyNowUrl }}" target="_blank" style="flex:1;min-width:180px;display:inline-flex;align-items:center;justify-content:center;gap:8px;background:#25D366;color:#062e17;border-radius:11px;padding:16px 20px;font:700 14.5px 'Space Grotesk',sans-serif;transition:filter .15s" style-hover="filter:brightness(1.1);color:#062e17"><span style="width:9px;height:9px;background:#062e17;border-radius:50%"></span>Comprar pelo WhatsApp</a>
+          </sc-if>
+          <sc-if value="{{ pIsOut }}" hint-placeholder-val="{{ false }}">
+            <button disabled="{{ true }}" style="flex:1;min-width:180px;background:#341052;color:#9690A3;border:none;border-radius:11px;padding:16px 20px;font:700 14.5px 'Space Grotesk',sans-serif;cursor:not-allowed">Produto indisponível</button>
+            <a href="{{ pNotifyUrl }}" target="_blank" style="flex:1;min-width:180px;display:inline-flex;align-items:center;justify-content:center;background:transparent;border:1px solid #25D366;color:#25D366;border-radius:11px;padding:15px 20px;font:700 14.5px 'Space Grotesk',sans-serif" style-hover="background:rgba(37,211,102,.1);color:#25D366">Avise-me quando chegar</a>
+          </sc-if>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:9px;background:#1D0333;border:1px solid #341052;border-radius:14px;padding:16px 20px">
+          <span style="font:600 13px 'Manrope',sans-serif;color:#D8D5E0"><span style="color:#8CFF00">✓</span> Garantia: {{ pWarranty }}</span>
+          <span style="font:600 13px 'Manrope',sans-serif;color:#D8D5E0"><span style="color:#8CFF00">✓</span> Retirada na loja ou entrega combinada com o atendente</span>
+          <span style="font:600 13px 'Manrope',sans-serif;color:#D8D5E0"><span style="color:#8CFF00">✓</span> Produto original, lacrado e com nota fiscal</span>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;background:rgba(37,211,102,.07);border:1px solid rgba(37,211,102,.35);border-radius:12px;padding:13px 16px">
+          <span style="width:9px;height:9px;margin-top:4px;background:#25D366;border-radius:50%;flex:none"></span>
+          <span style="font:600 12.5px/1.55 'Manrope',sans-serif;color:#D8D5E0">A compra é concluída com um atendente pelo WhatsApp. Nenhum pagamento é feito neste site.</span>
+        </div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;margin-top:52px">
+      <div style="background:#1D0333;border:1px solid #341052;border-radius:16px;padding:26px">
+        <h3 style="margin:0 0 16px;font:700 17px 'Space Grotesk',sans-serif;color:#B056FF">Especificações técnicas</h3>
+        <sc-for list="{{ pSpecs }}" as="s" hint-placeholder-count="4">
+          <div style="display:flex;justify-content:space-between;gap:16px;padding:10px 0;border-bottom:1px solid #22003D">
+            <span style="font:600 13px 'Manrope',sans-serif;color:#9690A3">{{ s.k }}</span>
+            <span style="font:600 13px 'Manrope',sans-serif;color:#FFFFFF;text-align:right">{{ s.v }}</span>
+          </div>
+        </sc-for>
+      </div>
+      <div style="background:#1D0333;border:1px solid #341052;border-radius:16px;padding:26px">
+        <h3 style="margin:0 0 12px;font:700 17px 'Space Grotesk',sans-serif;color:#B056FF">Descrição</h3>
+        <p style="margin:0;font:500 14px/1.7 'Manrope',sans-serif;color:#D8D5E0">{{ pDesc }}</p>
+        <h3 style="margin:22px 0 12px;font:700 17px 'Space Grotesk',sans-serif;color:#B056FF">Entrega e retirada</h3>
+        <p style="margin:0;font:500 14px/1.7 'Manrope',sans-serif;color:#D8D5E0">Retire na loja em Macapá-AP ou combine a entrega diretamente com o atendente. Prazos e valores de frete são confirmados no WhatsApp antes da compra.</p>
+      </div>
+    </div>
+    <h2 style="margin:52px 0 20px;font:700 24px 'Space Grotesk',sans-serif">Produtos relacionados</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px">
+      <sc-for list="{{ related }}" as="it" hint-placeholder-count="4">
+        <dc-import name="Card Produto" p="{{ it }}" open="{{ it.open }}" add="{{ it.add }}" hint-size="100%,420px"></dc-import>
+      </sc-for>
+    </div>
+  </section>
+</sc-if>
+
+<!-- ===== INTEREST LIST ===== -->
+<sc-if value="{{ isCart }}" hint-placeholder-val="{{ false }}">
+  <section style="max-width:1240px;margin:0 auto;padding:40px 24px;width:100%">
+    <p style="margin:0 0 6px;font:600 12px 'Space Grotesk',sans-serif;color:#9690A3"><span onClick="{{ goHome }}" style="cursor:pointer;color:#B056FF">Início</span> / Minha lista</p>
+    <h1 style="margin:0 0 26px;font:700 34px 'Space Grotesk',sans-serif">Minha lista de interesse</h1>
+    <sc-if value="{{ cartEmpty }}" hint-placeholder-val="{{ false }}">
+      <div style="text-align:center;padding:70px 24px;background:#1D0333;border:1px dashed #341052;border-radius:16px">
+        <span style="display:inline-block;width:16px;height:16px;border:3px solid #8CFF00;border-radius:4px;margin-bottom:14px"></span>
+        <h3 style="margin:0 0 8px;font:700 20px 'Space Grotesk',sans-serif">Sua lista está vazia</h3>
+        <p style="margin:0 0 20px;font:500 14px 'Manrope',sans-serif;color:#9690A3">Explore o catálogo e adicione os produtos que você quer negociar com nosso time.</p>
+        <button onClick="{{ goHome }}" style="background:#8CFF00;color:#09050D;border:none;border-radius:10px;padding:14px 26px;font:700 14px 'Space Grotesk',sans-serif;cursor:pointer" style-hover="background:#65C900">Explorar produtos</button>
+      </div>
+    </sc-if>
+    <sc-if value="{{ cartCount }}" hint-placeholder-val="{{ false }}">
+      <div style="display:grid;grid-template-columns:1fr;gap:28px;max-width:1100px">
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <sc-for list="{{ cartRows }}" as="r" hint-placeholder-count="2">
+            <div style="display:flex;gap:16px;align-items:center;background:#1D0333;border:1px solid #341052;border-radius:14px;padding:16px;flex-wrap:wrap">
+              <div onClick="{{ r.open }}" style="width:76px;height:76px;flex:none;background:repeating-linear-gradient(45deg,#2A0A45 0 8px,#24063C 8px 16px);border:1px solid #341052;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer"><span style="font:500 9px ui-monospace,monospace;color:#9690A3">[foto]</span></div>
+              <div style="flex:1;min-width:170px;display:flex;flex-direction:column;gap:3px">
+                <span onClick="{{ r.open }}" style="font:700 14.5px 'Space Grotesk',sans-serif;cursor:pointer" style-hover="color:#8CFF00">{{ r.name }}</span>
+                <span style="font:500 12px 'Manrope',sans-serif;color:#9690A3">{{ r.variant }}</span>
+                <span style="font:600 12.5px 'Manrope',sans-serif;color:#D8D5E0">{{ r.unitF }} /un.</span>
+              </div>
+              <div style="display:flex;align-items:center;border:1px solid #341052;border-radius:9px;overflow:hidden">
+                <button onClick="{{ r.down }}" style="width:34px;height:38px;background:#22003D;border:none;color:#FFFFFF;font:700 16px 'Space Grotesk',sans-serif;cursor:pointer" style-hover="background:#2A0A45">−</button>
+                <span style="width:38px;text-align:center;font:700 14px 'Space Grotesk',sans-serif">{{ r.qty }}</span>
+                <button onClick="{{ r.up }}" style="width:34px;height:38px;background:#22003D;border:none;color:#FFFFFF;font:700 16px 'Space Grotesk',sans-serif;cursor:pointer" style-hover="background:#2A0A45">+</button>
+              </div>
+              <span style="min-width:100px;text-align:right;font:700 17px 'Space Grotesk',sans-serif;color:#8CFF00">{{ r.subF }}</span>
+              <button onClick="{{ r.remove }}" title="Remover" style="width:34px;height:34px;background:transparent;border:1px solid #341052;border-radius:9px;color:#9690A3;font:600 14px 'Space Grotesk',sans-serif;cursor:pointer;transition:border-color .12s,color .12s" style-hover="border-color:#FF4D6D;color:#FF4D6D">✕</button>
+            </div>
+          </sc-for>
+        </div>
+        <div style="background:linear-gradient(160deg,#22003D,#1D0333);border:1px solid #341052;border-radius:16px;padding:26px;display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-content:space-between">
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <span style="font:600 13px 'Manrope',sans-serif;color:#9690A3">Valor total estimado ({{ cartCount }} item(ns))</span>
+            <span style="font:700 30px 'Space Grotesk',sans-serif;color:#8CFF00">{{ cartTotalF }}</span>
+            <span style="font:500 12px 'Manrope',sans-serif;color:#9690A3">Valores confirmados com o atendente no WhatsApp</span>
+          </div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            <button onClick="{{ goHome }}" style="background:transparent;border:1px solid #8B2CF5;color:#FFFFFF;border-radius:11px;padding:15px 24px;font:600 14px 'Space Grotesk',sans-serif;cursor:pointer" style-hover="background:rgba(139,44,245,.18)">Continuar explorando</button>
+            <button onClick="{{ goReview }}" style="background:#8CFF00;color:#09050D;border:none;border-radius:11px;padding:15px 28px;font:700 14px 'Space Grotesk',sans-serif;cursor:pointer;box-shadow:0 0 24px rgba(140,255,0,.28)" style-hover="background:#65C900">Revisar solicitação →</button>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+  </section>
+</sc-if>
+
+<!-- ===== REVIEW ===== -->
+<sc-if value="{{ isReview }}" hint-placeholder-val="{{ false }}">
+  <section style="max-width:860px;margin:0 auto;padding:40px 24px;width:100%">
+    <div style="display:flex;gap:8px;align-items:center;justify-content:center;margin-bottom:30px;flex-wrap:wrap">
+      <span style="font:700 12px 'Space Grotesk',sans-serif;color:#8CFF00">✓ 1. Lista</span><span style="width:28px;height:1px;background:#341052"></span>
+      <span style="font:700 12px 'Space Grotesk',sans-serif;color:#FFFFFF;background:#8B2CF5;padding:6px 12px;border-radius:16px">2. Revisão</span><span style="width:28px;height:1px;background:#341052"></span>
+      <span style="font:700 12px 'Space Grotesk',sans-serif;color:#9690A3">3. WhatsApp</span>
+    </div>
+    <h1 style="margin:0 0 8px;font:700 30px 'Space Grotesk',sans-serif;text-align:center">Revise sua solicitação</h1>
+    <p style="margin:0 0 28px;font:500 14px 'Manrope',sans-serif;color:#9690A3;text-align:center">Confira os itens e informe seu nome — nosso atendente vai te chamar pelo nome.</p>
+    <div style="background:#1D0333;border:1px solid #341052;border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:12px;margin-bottom:18px">
+      <sc-for list="{{ cartRows }}" as="r" hint-placeholder-count="2">
+        <div style="display:flex;justify-content:space-between;gap:14px;padding-bottom:12px;border-bottom:1px solid #22003D;flex-wrap:wrap">
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <span style="font:700 14px 'Space Grotesk',sans-serif">{{ r.qty }}× {{ r.name }}</span>
+            <span style="font:500 12px 'Manrope',sans-serif;color:#9690A3">{{ r.variant }}</span>
+          </div>
+          <span style="font:700 15px 'Space Grotesk',sans-serif;color:#8CFF00">{{ r.subF }}</span>
+        </div>
+      </sc-for>
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font:700 14px 'Space Grotesk',sans-serif;color:#D8D5E0">Total estimado</span>
+        <span style="font:700 24px 'Space Grotesk',sans-serif;color:#8CFF00">{{ cartTotalF }}</span>
+      </div>
+    </div>
+    <div style="background:#1D0333;border:1px solid #341052;border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:14px;margin-bottom:18px">
+      <label style="font:700 12.5px 'Space Grotesk',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#D8D5E0">Seu nome *</label>
+      <input value="{{ name }}" onChange="{{ onName }}" placeholder="Como podemos te chamar?" style="background:#120020;border:1px solid #341052;border-radius:10px;padding:14px 16px;color:#FFFFFF;font:500 14px 'Manrope',sans-serif;outline:none;transition:border-color .15s" style-focus="border-color:#8B2CF5;box-shadow:0 0 0 3px rgba(139,44,245,.25)"></input>
+      <span style="font:700 12.5px 'Space Grotesk',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#D8D5E0;margin-top:6px">Prévia da mensagem</span>
+      <div style="background:#0b141a;border-radius:14px;padding:16px;border:1px solid #1f2c34">
+        <div style="background:#005c4b;border-radius:12px 12px 4px 12px;padding:14px 16px;max-width:92%;margin-left:auto">
+          <pre style="margin:0;white-space:pre-wrap;font:500 12.5px/1.6 'Manrope',sans-serif;color:#e9edef">{{ waPreview }}</pre>
+        </div>
+      </div>
+    </div>
+    <sc-if value="{{ nameOk }}" hint-placeholder-val="{{ true }}">
+      <button onClick="{{ finalize }}" style="width:100%;display:flex;align-items:center;justify-content:center;gap:10px;background:#25D366;color:#062e17;border:none;border-radius:12px;padding:18px;font:700 16px 'Space Grotesk',sans-serif;cursor:pointer;box-shadow:0 0 34px rgba(37,211,102,.35);transition:filter .15s" style-hover="filter:brightness(1.08)"><span style="width:10px;height:10px;background:#062e17;border-radius:50%"></span>Finalizar pelo WhatsApp</button>
+    </sc-if>
+    <sc-if value="{{ nameMissing }}" hint-placeholder-val="{{ false }}">
+      <button disabled="{{ true }}" style="width:100%;background:#341052;color:#9690A3;border:none;border-radius:12px;padding:18px;font:700 16px 'Space Grotesk',sans-serif;cursor:not-allowed">Informe seu nome para continuar</button>
+    </sc-if>
+    <p style="margin:14px 0 0;text-align:center;font:500 12px 'Manrope',sans-serif;color:#9690A3">Você será redirecionado ao WhatsApp com a mensagem pronta. Nenhum pagamento é feito neste site.</p>
+  </section>
+</sc-if>
+
+<!-- ===== SENT ===== -->
+<sc-if value="{{ isSent }}" hint-placeholder-val="{{ false }}">
+  <section style="max-width:620px;margin:0 auto;padding:80px 24px;width:100%;text-align:center">
+    <div style="width:74px;height:74px;margin:0 auto 22px;border-radius:50%;background:rgba(37,211,102,.12);border:2px solid #25D366;display:flex;align-items:center;justify-content:center;font:700 32px 'Space Grotesk',sans-serif;color:#25D366;box-shadow:0 0 40px rgba(37,211,102,.3)">✓</div>
+    <h1 style="margin:0 0 10px;font:700 30px 'Space Grotesk',sans-serif">Solicitação enviada!</h1>
+    <p style="margin:0 0 26px;font:500 14.5px/1.7 'Manrope',sans-serif;color:#D8D5E0">Abrimos o WhatsApp com sua mensagem pronta. Se a janela não abriu, toque no botão abaixo — nosso time responde rapidinho.</p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <a href="{{ waCartUrl }}" target="_blank" style="display:inline-flex;align-items:center;gap:9px;background:#25D366;color:#062e17;border-radius:11px;padding:15px 26px;font:700 14px 'Space Grotesk',sans-serif" style-hover="filter:brightness(1.1);color:#062e17"><span style="width:9px;height:9px;background:#062e17;border-radius:50%"></span>Abrir WhatsApp novamente</a>
+      <button onClick="{{ resetAll }}" style="background:transparent;border:1px solid #8B2CF5;color:#FFFFFF;border-radius:11px;padding:15px 26px;font:600 14px 'Space Grotesk',sans-serif;cursor:pointer" style-hover="background:rgba(139,44,245,.18)">Voltar à loja</button>
+    </div>
+  </section>
+</sc-if>
+
+<!-- ===== ABOUT ===== -->
+<sc-if value="{{ isAbout }}" hint-placeholder-val="{{ false }}">
+  <section style="max-width:980px;margin:0 auto;padding:56px 24px;width:100%">
+    <span style="font:700 11.5px 'Space Grotesk',sans-serif;letter-spacing:.18em;text-transform:uppercase;color:#8CFF00">Sobre a empresa</span>
+    <h1 style="margin:10px 0 16px;font:700 clamp(30px,4vw,42px)/1.1 'Space Grotesk',sans-serif">Tecnologia de verdade,<br><span style="color:#B056FF">atendimento de gente.</span></h1>
+    <p style="margin:0 0 36px;max-width:620px;font:500 15px/1.75 'Manrope',sans-serif;color:#D8D5E0">A Valhalla Tecnologia nasceu em Macapá-AP para facilitar o acesso a eletrônicos originais com preço justo. Aqui não tem robô de checkout: você escolhe no site e fecha negócio conversando com um atendente que entende do assunto.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:36px">
+      <div style="background:#1D0333;border:1px solid #341052;border-radius:14px;padding:24px"><span style="font:700 30px 'Space Grotesk',sans-serif;color:#8CFF00">+5 mil</span><p style="margin:6px 0 0;font:500 13px 'Manrope',sans-serif;color:#9690A3">clientes atendidos pelo WhatsApp</p></div>
+      <div style="background:#1D0333;border:1px solid #341052;border-radius:14px;padding:24px"><span style="font:700 30px 'Space Grotesk',sans-serif;color:#8CFF00">100%</span><p style="margin:6px 0 0;font:500 13px 'Manrope',sans-serif;color:#9690A3">produtos originais com nota fiscal</p></div>
+      <div style="background:#1D0333;border:1px solid #341052;border-radius:14px;padding:24px"><span style="font:700 30px 'Space Grotesk',sans-serif;color:#8CFF00">4,9★</span><p style="margin:6px 0 0;font:500 13px 'Manrope',sans-serif;color:#9690A3">avaliação média dos clientes</p></div>
+    </div>
+    <div style="aspect-ratio:21/9;background:repeating-linear-gradient(45deg,#2A0A45 0 14px,#24063C 14px 28px);border:1px solid #341052;border-radius:18px;display:flex;align-items:center;justify-content:center"><span style="font:500 12px ui-monospace,monospace;color:#9690A3;background:rgba(9,5,13,.55);padding:6px 12px;border-radius:6px">[foto: fachada / equipe da loja]</span></div>
+  </section>
+</sc-if>
+
+<!-- ===== CONTACT ===== -->
+<sc-if value="{{ isContact }}" hint-placeholder-val="{{ false }}">
+  <section style="max-width:980px;margin:0 auto;padding:48px 24px;width:100%">
+    <h1 style="margin:0 0 8px;font:700 34px 'Space Grotesk',sans-serif">Fale com a gente</h1>
+    <p style="margin:0 0 30px;font:500 14px 'Manrope',sans-serif;color:#9690A3">O WhatsApp é nosso canal mais rápido — resposta em minutos no horário comercial.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;align-items:start">
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <a href="{{ waDirectUrl }}" target="_blank" style="display:flex;align-items:center;gap:14px;background:rgba(37,211,102,.08);border:1px solid rgba(37,211,102,.4);border-radius:14px;padding:20px;color:#FFFFFF" style-hover="color:#FFFFFF;filter:brightness(1.15)">
+          <span style="width:40px;height:40px;flex:none;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center"><span style="width:12px;height:12px;background:#062e17;border-radius:50%"></span></span>
+          <span style="display:flex;flex-direction:column;gap:2px"><span style="font:700 15px 'Space Grotesk',sans-serif">WhatsApp</span><span style="font:600 13px 'Manrope',sans-serif;color:#25D366">+55 96 8423-5663 · resposta rápida</span></span>
+        </a>
+        <div style="background:#1D0333;border:1px solid #341052;border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:10px">
+          <span style="font:600 13px 'Manrope',sans-serif;color:#D8D5E0"><span style="color:#B056FF;font-weight:700">E-mail:</span> contato@valhallatecnologia.com.br</span>
+          <span style="font:600 13px 'Manrope',sans-serif;color:#D8D5E0"><span style="color:#B056FF;font-weight:700">Endereço:</span> Macapá - AP (retirada com hora marcada)</span>
+          <span style="font:600 13px 'Manrope',sans-serif;color:#D8D5E0"><span style="color:#B056FF;font-weight:700">Horário:</span> seg. a sáb., 9h às 19h</span>
+        </div>
+      </div>
+      <div style="background:#1D0333;border:1px solid #341052;border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:12px">
+        <span style="font:700 15px 'Space Grotesk',sans-serif">Prefere e-mail? Escreva aqui</span>
+        <input value="{{ cName }}" onChange="{{ onCName }}" placeholder="Seu nome" style="background:#120020;border:1px solid #341052;border-radius:10px;padding:13px 15px;color:#FFFFFF;font:500 13.5px 'Manrope',sans-serif;outline:none" style-focus="border-color:#8B2CF5"></input>
+        <input value="{{ cMail }}" onChange="{{ onCMail }}" placeholder="Seu e-mail" style="background:#120020;border:1px solid #341052;border-radius:10px;padding:13px 15px;color:#FFFFFF;font:500 13.5px 'Manrope',sans-serif;outline:none" style-focus="border-color:#8B2CF5"></input>
+        <textarea value="{{ cMsg }}" onChange="{{ onCMsg }}" placeholder="Sua mensagem" rows="{{ 4 }}" style="background:#120020;border:1px solid #341052;border-radius:10px;padding:13px 15px;color:#FFFFFF;font:500 13.5px 'Manrope',sans-serif;outline:none;resize:vertical" style-focus="border-color:#8B2CF5"></textarea>
+        <button onClick="{{ sendContact }}" style="background:#8CFF00;color:#09050D;border:none;border-radius:10px;padding:14px;font:700 14px 'Space Grotesk',sans-serif;cursor:pointer" style-hover="background:#65C900">Enviar mensagem</button>
+      </div>
+    </div>
+  </section>
+</sc-if>
+
+<!-- ===== FAQ ===== -->
+<sc-if value="{{ isFaq }}" hint-placeholder-val="{{ false }}">
+  <section style="max-width:780px;margin:0 auto;padding:48px 24px;width:100%">
+    <h1 style="margin:0 0 8px;font:700 34px 'Space Grotesk',sans-serif">Perguntas frequentes</h1>
+    <p style="margin:0 0 28px;font:500 14px 'Manrope',sans-serif;color:#9690A3">Não achou sua dúvida? <a href="{{ waDirectUrl }}" target="_blank" style="color:#25D366;font-weight:700">Chama no WhatsApp</a>.</p>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <sc-for list="{{ faqs }}" as="f" hint-placeholder-count="5">
+        <div style="background:#1D0333;border:1px solid {{ f.bc }};border-radius:14px;overflow:hidden;transition:border-color .15s">
+          <div onClick="{{ f.toggle }}" style="display:flex;justify-content:space-between;align-items:center;gap:14px;padding:18px 22px;cursor:pointer" style-hover="background:#22003D">
+            <span style="font:700 14.5px 'Space Grotesk',sans-serif">{{ f.q }}</span>
+            <span style="font:700 18px 'Space Grotesk',sans-serif;color:#8CFF00;flex:none">{{ f.icon }}</span>
+          </div>
+          <sc-if value="{{ f.open }}" hint-placeholder-val="{{ false }}">
+            <p style="margin:0;padding:0 22px 18px;font:500 13.5px/1.7 'Manrope',sans-serif;color:#D8D5E0">{{ f.a }}</p>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+</sc-if>
+
+<!-- ===== POLICIES ===== -->
+<sc-if value="{{ isPolicies }}" hint-placeholder-val="{{ false }}">
+  <section style="max-width:780px;margin:0 auto;padding:48px 24px;width:100%">
+    <h1 style="margin:0 0 28px;font:700 34px 'Space Grotesk',sans-serif">Políticas da empresa</h1>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <sc-for list="{{ policies }}" as="f" hint-placeholder-count="4">
+        <div style="background:#1D0333;border:1px solid {{ f.bc }};border-radius:14px;overflow:hidden">
+          <div onClick="{{ f.toggle }}" style="display:flex;justify-content:space-between;align-items:center;gap:14px;padding:18px 22px;cursor:pointer" style-hover="background:#22003D">
+            <span style="font:700 14.5px 'Space Grotesk',sans-serif">{{ f.q }}</span>
+            <span style="font:700 18px 'Space Grotesk',sans-serif;color:#8CFF00;flex:none">{{ f.icon }}</span>
+          </div>
+          <sc-if value="{{ f.open }}" hint-placeholder-val="{{ false }}">
+            <p style="margin:0;padding:0 22px 18px;font:500 13.5px/1.7 'Manrope',sans-serif;color:#D8D5E0">{{ f.a }}</p>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+</sc-if>
+
+<!-- ===== 404 ===== -->
+<sc-if value="{{ is404 }}" hint-placeholder-val="{{ false }}">
+  <section style="max-width:620px;margin:0 auto;padding:90px 24px;width:100%;text-align:center">
+    <span style="font:700 clamp(80px,14vw,120px)/1 'Space Grotesk',sans-serif;background:linear-gradient(120deg,#8B2CF5,#B056FF);-webkit-background-clip:text;background-clip:text;color:transparent">404</span>
+    <h1 style="margin:14px 0 10px;font:700 26px 'Space Grotesk',sans-serif">Essa página se perdeu no Valhalla</h1>
+    <p style="margin:0 0 26px;font:500 14px/1.7 'Manrope',sans-serif;color:#9690A3">O endereço não existe ou o produto saiu do catálogo. Bora voltar para as ofertas?</p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <button onClick="{{ goHome }}" style="background:#8CFF00;color:#09050D;border:none;border-radius:11px;padding:15px 26px;font:700 14px 'Space Grotesk',sans-serif;cursor:pointer" style-hover="background:#65C900">Voltar ao início</button>
+      <a href="{{ waDirectUrl }}" target="_blank" style="display:inline-flex;align-items:center;background:transparent;border:1px solid #25D366;color:#25D366;border-radius:11px;padding:14px 26px;font:700 14px 'Space Grotesk',sans-serif" style-hover="background:rgba(37,211,102,.1);color:#25D366">Falar com atendente</a>
+    </div>
+  </section>
+</sc-if>
+
+</main>
+
+<!-- ===== FOOTER ===== -->
+<footer style="background:#09050D;border-top:1px solid #22003D;margin-top:72px">
+  <div style="max-width:1240px;margin:0 auto;padding:48px 24px 24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:32px">
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;flex-direction:column;line-height:1">
+        <span style="font:700 20px 'Space Grotesk',sans-serif;letter-spacing:.04em;transform:skewX(-4deg)">VALHALLA</span>
+        <span style="font:700 8.5px 'Space Grotesk',sans-serif;letter-spacing:.42em;color:#8CFF00;margin-top:3px">TECNOLOGIA</span>
+      </div>
+      <p style="margin:0;font:500 12.5px/1.65 'Manrope',sans-serif;color:#9690A3">Eletrônicos originais com atendimento humano pelo WhatsApp. Macapá - AP.</p>
+      <a href="{{ waDirectUrl }}" target="_blank" style="align-self:flex-start;display:inline-flex;align-items:center;gap:8px;background:#25D366;color:#062e17;border-radius:9px;padding:10px 16px;font:700 12.5px 'Space Grotesk',sans-serif" style-hover="filter:brightness(1.1);color:#062e17"><span style="width:8px;height:8px;background:#062e17;border-radius:50%"></span>+55 96 8423-5663</a>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:9px">
+      <span style="font:700 12px 'Space Grotesk',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#B056FF;margin-bottom:4px">Categorias</span>
+      <sc-for list="{{ navCats }}" as="c" hint-placeholder-count="6">
+        <span onClick="{{ c.open }}" style="font:500 13px 'Manrope',sans-serif;color:#9690A3;cursor:pointer" style-hover="color:#8CFF00">{{ c.n }}</span>
+      </sc-for>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:9px">
+      <span style="font:700 12px 'Space Grotesk',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#B056FF;margin-bottom:4px">Institucional</span>
+      <span onClick="{{ goAbout }}" style="font:500 13px 'Manrope',sans-serif;color:#9690A3;cursor:pointer" style-hover="color:#8CFF00">Sobre a empresa</span>
+      <span onClick="{{ goFaq }}" style="font:500 13px 'Manrope',sans-serif;color:#9690A3;cursor:pointer" style-hover="color:#8CFF00">Perguntas frequentes</span>
+      <span onClick="{{ goPolicies }}" style="font:500 13px 'Manrope',sans-serif;color:#9690A3;cursor:pointer" style-hover="color:#8CFF00">Políticas da empresa</span>
+      <span onClick="{{ goContact }}" style="font:500 13px 'Manrope',sans-serif;color:#9690A3;cursor:pointer" style-hover="color:#8CFF00">Contato</span>
+      <span onClick="{{ go404 }}" style="font:500 11px 'Manrope',sans-serif;color:#4d4160;cursor:pointer" style-hover="color:#8CFF00">Página 404 (demo)</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:9px">
+      <span style="font:700 12px 'Space Grotesk',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#B056FF;margin-bottom:4px">Como funciona</span>
+      <p style="margin:0;font:500 12.5px/1.65 'Manrope',sans-serif;color:#9690A3">Este site é um catálogo: você monta sua lista de interesse e a compra é concluída com um atendente pelo WhatsApp. Nenhum pagamento é processado aqui.</p>
+    </div>
+  </div>
+  <div style="border-top:1px solid #22003D">
+    <p style="max-width:1240px;margin:0 auto;padding:16px 24px;font:500 11.5px 'Manrope',sans-serif;color:#4d4160">© 2026 Valhalla Tecnologia · CNPJ 00.000.000/0001-00 · Imagens meramente ilustrativas</p>
+  </div>
+</footer>
+
+<!-- ===== FLOATING WA ===== -->
+<sc-if value="{{ showFab }}" hint-placeholder-val="{{ true }}">
+  <a href="{{ waDirectUrl }}" target="_blank" title="Falar no WhatsApp" style="position:fixed;right:22px;bottom:22px;z-index:80;display:flex;align-items:center;gap:10px;background:#25D366;color:#062e17;border-radius:30px;padding:14px 22px;font:700 13.5px 'Space Grotesk',sans-serif;box-shadow:0 10px 30px rgba(37,211,102,.4);transition:transform .15s,filter .15s" style-hover="transform:translateY(-2px);filter:brightness(1.08);color:#062e17"><span style="width:10px;height:10px;background:#062e17;border-radius:50%"></span>Falar no WhatsApp</a>
+</sc-if>
+
+<!-- ===== TOAST ===== -->
+<sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;bottom:26px;left:50%;transform:translateX(-50%);z-index:90;display:flex;align-items:center;gap:10px;background:#1D0333;border:1px solid {{ toastBc }};border-radius:12px;padding:14px 22px;box-shadow:0 14px 40px rgba(9,5,13,.6);animation:vh-toast .25s ease">
+    <span style="width:9px;height:9px;background:{{ toastBc }};border-radius:50%"></span>
+    <span style="font:700 13.5px 'Space Grotesk',sans-serif;color:#FFFFFF">{{ toastMsg }}</span>
+  </div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;numeroWhatsApp&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;559684235663&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;WhatsApp&quot;},&quot;mostrarFaixaTopo&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Layout&quot;},&quot;botaoFlutuante&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Layout&quot;}}">
+class Component extends DCLogic {
+  state = {page:'home',param:null,cart:[],toast:null,q:'',auto:false,selC:0,selV:0,qty:1,loading:false,sort:'rel',brand:'Todas',name:'',cName:'',cMail:'',cMsg:'',faq:0,pol:0};
+  cats = [
+    {id:'smartphones',n:'Smartphones',d:'Os lançamentos que você quer'},
+    {id:'notebooks',n:'Notebooks',d:'Trabalho, estudo e jogos'},
+    {id:'tablets',n:'Tablets',d:'Tela grande, vida leve'},
+    {id:'smartwatches',n:'Smartwatches',d:'Saúde e estilo no pulso'},
+    {id:'audio',n:'Áudio',d:'Som que envolve'},
+    {id:'acessorios',n:'Acessórios',d:'Complete o seu setup'},
+    {id:'games',n:'Games',d:'Em breve no catálogo'}];
+  db = [
+    {id:'s25u',name:'Galaxy S25 Ultra',brand:'Samsung',cat:'smartphones',price:6799,old:7499,tag:null,stock:'in',vl:'Armazenamento',colors:[{n:'Titânio Preto',hex:'#2b2b30',av:true},{n:'Titânio Cinza',hex:'#8a8a90',av:true},{n:'Titânio Violeta',hex:'#7c6fa0',av:true}],vars:[{l:'256 GB',d:0,av:true},{l:'512 GB',d:700,av:true},{l:'1 TB',d:1800,av:false}],specs:[['Tela','6.9" QHD+ 120 Hz'],['Câmera','200 MP + 50 MP + 12 MP'],['Bateria','5.000 mAh'],['Processador','Snapdragon 8 Elite']],desc:'O topo de linha da Samsung com S Pen integrada, câmera de 200 MP e IA no dia a dia.',w:'12 meses Samsung Brasil'},
+    {id:'ip16p',name:'iPhone 16 Pro',brand:'Apple',cat:'smartphones',price:9299,old:null,tag:'NOVO',stock:'low',vl:'Armazenamento',colors:[{n:'Titânio Deserto',hex:'#c2a88a',av:true},{n:'Titânio Natural',hex:'#b6b4ae',av:true},{n:'Titânio Preto',hex:'#2f2f31',av:false}],vars:[{l:'128 GB',d:0,av:true},{l:'256 GB',d:800,av:true},{l:'512 GB',d:2000,av:true}],specs:[['Tela','6.3" Super Retina XDR'],['Chip','A18 Pro'],['Câmera','48 MP Fusion'],['Bateria','Até 27h de vídeo']],desc:'Titânio, botão de câmera dedicado e o chip mais rápido já colocado em um iPhone.',w:'12 meses Apple Brasil'},
+    {id:'x14t',name:'Xiaomi 14T Pro',brand:'Xiaomi',cat:'smartphones',price:3899,old:4299,tag:null,stock:'in',vl:'Armazenamento',colors:[{n:'Preto',hex:'#232326',av:true},{n:'Cinza Titã',hex:'#9a9aa2',av:true}],vars:[{l:'256 GB',d:0,av:true},{l:'512 GB',d:400,av:true}],specs:[['Tela','6.67" AMOLED 144 Hz'],['Câmera','Leica 50 MP tripla'],['Bateria','5.000 mAh · 120 W'],['Processador','Dimensity 9300+']],desc:'Câmeras Leica, carregamento de 120 W e desempenho de flagship pagando menos.',w:'12 meses Xiaomi Brasil'},
+    {id:'mba',name:'MacBook Air M4 13"',brand:'Apple',cat:'notebooks',price:10999,old:null,tag:'NOVO',stock:'in',vl:'Memória',colors:[{n:'Meia-noite',hex:'#2e3642',av:true},{n:'Estelar',hex:'#d9d2c5',av:true},{n:'Prateado',hex:'#c9cacc',av:true}],vars:[{l:'16 GB / 256 GB',d:0,av:true},{l:'16 GB / 512 GB',d:1300,av:true},{l:'24 GB / 512 GB',d:2500,av:true}],specs:[['Tela','13.6" Liquid Retina'],['Chip','Apple M4'],['Bateria','Até 18 horas'],['Peso','1,24 kg']],desc:'Silencioso, leve e absurdamente rápido: o notebook para quem quer esquecer o carregador.',w:'12 meses Apple Brasil'},
+    {id:'ideapad',name:'Lenovo IdeaPad Slim 5',brand:'Lenovo',cat:'notebooks',price:3399,old:3799,tag:null,stock:'in',vl:'Configuração',colors:[{n:'Cinza Ártico',hex:'#a9adb3',av:true},{n:'Azul Abismo',hex:'#3b4a63',av:true}],vars:[{l:'Ryzen 5 · 16 GB · 512 GB',d:0,av:true},{l:'Ryzen 7 · 16 GB · 1 TB',d:900,av:true}],specs:[['Tela','15.3" WUXGA'],['Processador','AMD Ryzen 5 8645HS'],['Memória','16 GB DDR5'],['SSD','512 GB NVMe']],desc:'O custo-benefício queridinho para estudo e trabalho, com teclado numérico e tela grande.',w:'12 meses Lenovo Brasil'},
+    {id:'nitro',name:'Acer Nitro V15 RTX 4050',brand:'Acer',cat:'notebooks',price:5499,old:null,tag:'NOVO',stock:'in',vl:'Configuração',colors:[{n:'Preto Obsidian',hex:'#1c1c1f',av:true}],vars:[{l:'i5 · 16 GB · 512 GB',d:0,av:true},{l:'i7 · 16 GB · 1 TB',d:1100,av:true}],specs:[['Tela','15.6" FHD 144 Hz'],['GPU','GeForce RTX 4050'],['Processador','Intel Core i5-13420H'],['Memória','16 GB DDR5']],desc:'Roda os títulos do momento em alta taxa de quadros sem estourar o orçamento.',w:'12 meses Acer Brasil'},
+    {id:'ipad11',name:'iPad 11ª geração',brand:'Apple',cat:'tablets',price:4199,old:null,tag:null,stock:'in',vl:'Armazenamento',colors:[{n:'Azul',hex:'#5f7fae',av:true},{n:'Rosa',hex:'#d9a3b2',av:true},{n:'Prateado',hex:'#c9cacc',av:true}],vars:[{l:'128 GB Wi-Fi',d:0,av:true},{l:'256 GB Wi-Fi',d:700,av:true}],specs:[['Tela','10.9" Liquid Retina'],['Chip','A16 Bionic'],['Câmera','12 MP'],['Conector','USB-C']],desc:'O tablet para tudo: aula, série, desenho e trabalho leve, com suporte à Apple Pencil.',w:'12 meses Apple Brasil'},
+    {id:'tabs10',name:'Galaxy Tab S10 FE',brand:'Samsung',cat:'tablets',price:3149,old:3499,tag:null,stock:'in',vl:'Armazenamento',colors:[{n:'Grafite',hex:'#4b4b50',av:true},{n:'Prata',hex:'#c6c6cb',av:true}],vars:[{l:'128 GB',d:0,av:true},{l:'256 GB',d:450,av:true}],specs:[['Tela','10.9" 90 Hz'],['Bateria','8.000 mAh'],['S Pen','Inclusa na caixa'],['Resistência','IP68']],desc:'Vem com S Pen na caixa e resistência à água — perfeito para estudo e produtividade.',w:'12 meses Samsung Brasil'},
+    {id:'aws10',name:'Apple Watch Series 10',brand:'Apple',cat:'smartwatches',price:4699,old:null,tag:'NOVO',stock:'in',vl:'Caixa',colors:[{n:'Preto Espacial',hex:'#2c2c2e',av:true},{n:'Ouro Rosa',hex:'#d8b3a5',av:true}],vars:[{l:'42 mm GPS',d:0,av:true},{l:'46 mm GPS',d:400,av:true}],specs:[['Tela','Retina sempre ativa'],['Saúde','ECG + apneia do sono'],['Resistência','50 m'],['Bateria','18 horas']],desc:'A tela maior e mais fina de um Apple Watch, com sensores de saúde de última geração.',w:'12 meses Apple Brasil'},
+    {id:'gw7',name:'Galaxy Watch7',brand:'Samsung',cat:'smartwatches',price:1999,old:2299,tag:null,stock:'in',vl:'Caixa',colors:[{n:'Verde',hex:'#4a5d4e',av:true},{n:'Creme',hex:'#e3dccb',av:true}],vars:[{l:'40 mm BT',d:0,av:true},{l:'44 mm BT',d:300,av:true}],specs:[['Tela','Super AMOLED'],['Saúde','BioActive Sensor'],['Bateria','425 mAh'],['Sistema','Wear OS']],desc:'Monitoramento completo de saúde e treinos com integração total ao Galaxy.',w:'12 meses Samsung Brasil'},
+    {id:'jbl770',name:'JBL Tune 770NC',brand:'JBL',cat:'audio',price:549,old:699,tag:null,stock:'in',vl:'Modelo',colors:[{n:'Preto',hex:'#222226',av:true},{n:'Azul',hex:'#3d5a8a',av:true},{n:'Branco',hex:'#e8e8ea',av:true}],vars:[{l:'Padrão',d:0,av:true}],specs:[['Tipo','Over-ear sem fio'],['ANC','Cancelamento ativo'],['Bateria','Até 70 h'],['Conexão','Bluetooth 5.3']],desc:'Cancelamento de ruído e até 70 horas de bateria com o grave característico da JBL.',w:'12 meses JBL Brasil'},
+    {id:'app2',name:'AirPods Pro 2',brand:'Apple',cat:'audio',price:2199,old:null,tag:null,stock:'low',vl:'Modelo',colors:[{n:'Branco',hex:'#eceff1',av:true}],vars:[{l:'USB-C',d:0,av:true}],specs:[['ANC','2× mais potente'],['Áudio','Adaptativo + Espacial'],['Bateria','Até 30 h com estojo'],['Extra','Função aparelho auditivo']],desc:'O fone da Apple com áudio adaptativo e o melhor cancelamento de ruído da categoria.',w:'12 meses Apple Brasil'},
+    {id:'sb510',name:'Soundbar JBL Cinema SB510',brand:'JBL',cat:'audio',price:1899,old:null,tag:null,stock:'out',vl:'Modelo',colors:[{n:'Preto',hex:'#1e1e21',av:true}],vars:[{l:'3.1 canais',d:0,av:true}],specs:[['Canais','3.1 com subwoofer'],['Potência','420 W'],['Conexão','HDMI eARC'],['Extra','Dolby Digital']],desc:'Som de cinema na sala com subwoofer sem fio e 420 W de potência.',w:'12 meses JBL Brasil'},
+    {id:'gan65',name:'Carregador GaN 65W',brand:'Baseus',cat:'acessorios',price:199,old:249,tag:null,stock:'in',vl:'Modelo',colors:[{n:'Preto',hex:'#232326',av:true},{n:'Branco',hex:'#eceff1',av:true}],vars:[{l:'2× USB-C + USB-A',d:0,av:true}],specs:[['Potência','65 W GaN'],['Portas','2× USB-C · 1× USB-A'],['Proteção','Sobrecarga e temperatura'],['Tamanho','Ultra compacto']],desc:'Carrega notebook, celular e fone ao mesmo tempo em um corpo minúsculo.',w:'6 meses'},
+    {id:'pb20',name:'Power Bank 20.000 mAh',brand:'Baseus',cat:'acessorios',price:329,old:null,tag:null,stock:'in',vl:'Modelo',colors:[{n:'Preto',hex:'#232326',av:true}],vars:[{l:'22.5 W · USB-C',d:0,av:true}],specs:[['Capacidade','20.000 mAh'],['Potência','22.5 W'],['Display','Digital de carga'],['Portas','USB-C + 2× USB-A']],desc:'Uma semana de tranquilidade: carga rápida para até três aparelhos ao mesmo tempo.',w:'6 meses'},
+    {id:'mx3s',name:'Mouse Logitech MX Master 3S',brand:'Logitech',cat:'acessorios',price:579,old:649,tag:null,stock:'in',vl:'Modelo',colors:[{n:'Grafite',hex:'#3a3a3e',av:true},{n:'Cinza Claro',hex:'#c9c9cd',av:true}],vars:[{l:'Padrão',d:0,av:true}],specs:[['Sensor','8.000 DPI'],['Cliques','90% mais silenciosos'],['Bateria','70 dias'],['Conexão','Bluetooth + Bolt']],desc:'O mouse favorito de quem trabalha: scroll MagSpeed e conforto para o dia inteiro.',w:'12 meses Logitech'},
+    {id:'kumara',name:'Teclado Mecânico Redragon Kumara',brand:'Redragon',cat:'acessorios',price:399,old:null,tag:null,stock:'in',vl:'Switch',colors:[{n:'Preto',hex:'#232326',av:true},{n:'Branco',hex:'#e8e8ea',av:true}],vars:[{l:'Switch Red',d:0,av:true},{l:'Switch Brown',d:0,av:true},{l:'Switch Blue',d:0,av:false}],specs:[['Formato','TKL 87 teclas'],['Switch','Outemu mecânico'],['Iluminação','RGB'],['Layout','ABNT2']],desc:'O mecânico de entrada mais recomendado do Brasil, agora com RGB e layout ABNT2.',w:'12 meses Redragon'},
+    {id:'buds3',name:'Galaxy Buds3 Pro',brand:'Samsung',cat:'audio',price:1399,old:1599,tag:'NOVO',stock:'in',vl:'Modelo',colors:[{n:'Prata',hex:'#c9c9cd',av:true},{n:'Branco',hex:'#eceff1',av:true}],vars:[{l:'Padrão',d:0,av:true}],specs:[['ANC','Adaptativo'],['Áudio','Hi-Fi 24 bit'],['Bateria','Até 30 h com estojo'],['Extra','Interprete ao vivo']],desc:'Design de haste com luz, áudio Hi-Fi e tradução simultânea no ouvido.',w:'12 meses Samsung Brasil'}];
+  fmt(n){return 'R$ ' + n.toLocaleString('pt-BR');}
+  get num(){return (this.props.numeroWhatsApp ?? '559684235663').replace(/\D/g,'');}
+  go(page,param){
+    const upd = {page,param:param??null,auto:false};
+    if(page==='product'){upd.selC=0;upd.selV=0;upd.qty=1;}
+    if(page==='category'||page==='search'){upd.loading=true;upd.brand='Todas';upd.sort='rel';clearTimeout(this._lt);this._lt=setTimeout(()=>this.setState({loading:false}),600);}
+    this.setState(upd);
+    window.scrollTo(0,0);
+  }
+  toast(msg,color){clearTimeout(this._tt);this.setState({toast:{msg,color}});this._tt=setTimeout(()=>this.setState({toast:null}),2600);}
+  addItem(p,ci,vi,qty){
+    const key = p.id+'|'+ci+'|'+vi;
+    this.setState(s=>{
+      const cart=[...s.cart]; const ex=cart.find(x=>x.key===key);
+      if(ex) ex.qty+=qty; else cart.push({key,id:p.id,ci,vi,qty});
+      return {cart};
+    });
+    this.toast('Adicionado à lista de interesse!','#8CFF00');
+  }
+  buildMsg(name){
+    const rows=this.state.cart.map((it,i)=>{
+      const p=this.db.find(x=>x.id===it.id); const v=p.vars[it.vi]; const c=p.colors[it.ci];
+      const unit=p.price+v.d;
+      return (i+1)+'. '+p.name+'\nModelo: '+v.l+'\nCor: '+c.n+'\nQuantidade: '+it.qty+'\nPreço apresentado: '+this.fmt(unit)+'\nLink: valhalla.tec.br/p/'+p.id;
+    }).join('\n\n');
+    const total=this.state.cart.reduce((a,it)=>{const p=this.db.find(x=>x.id===it.id);return a+(p.price+p.vars[it.vi].d)*it.qty;},0);
+    return 'Olá, equipe Valhalla Tecnologia! Meu nome é '+(name||'[seu nome]')+'.\n\nTenho interesse nos seguintes produtos:\n\n'+rows+'\n\nValor total estimado: '+this.fmt(total)+'\n\nGostaria de confirmar a disponibilidade e finalizar a compra com um atendente.';
+  }
+  wa(msg){return 'https://wa.me/'+this.num+'?text='+encodeURIComponent(msg);}
+  vm(p){
+    const disc = p.old ? Math.round((1-p.price/p.old)*100) : 0;
+    const out = p.stock==='out';
+    return {name:p.name,brand:p.brand,priceF:this.fmt(p.price),oldPriceF:p.old?this.fmt(p.old):null,
+      badge: out?null:(p.old?('-'+disc+'%'):(p.tag||null)),
+      badgeBg: p.old?'#8CFF00':'#8B2CF5', badgeFg: p.old?'#09050D':'#FFFFFF',
+      out, canAdd:!out,
+      open:()=>this.go('product',p.id),
+      add:()=>{const ci=p.colors.findIndex(c=>c.av);const vi=p.vars.findIndex(v=>v.av);this.addItem(p,Math.max(ci,0),Math.max(vi,0),1);}};
+  }
+  renderVals(){
+    const s=this.state, db=this.db;
+    const countIn=id=>db.filter(p=>p.cat===id).length;
+    const goP=(pg,pr)=>()=>this.go(pg,pr);
+    const catObjs=this.cats.filter(c=>c.id!=='games').map(c=>({...c,count:countIn(c.id),open:goP('category',c.id)}));
+    const allCats=this.cats.map(c=>({...c,count:countIn(c.id),open:goP('category',c.id)}));
+    // listing (category or search)
+    const isCat=s.page==='category', isSearch=s.page==='search';
+    let base=[];
+    if(isCat) base=db.filter(p=>p.cat===s.param);
+    if(isSearch){const q=(s.param||'').toLowerCase();base=db.filter(p=>(p.name+' '+p.brand+' '+p.cat).toLowerCase().includes(q));}
+    const brandsIn=['Todas',...new Set(base.map(p=>p.brand))];
+    let list=base.filter(p=>s.brand==='Todas'||p.brand===s.brand);
+    if(s.sort==='asc') list=[...list].sort((a,b)=>a.price-b.price);
+    if(s.sort==='desc') list=[...list].sort((a,b)=>b.price-a.price);
+    if(s.sort==='promo') list=[...list].sort((a,b)=>((b.old?b.old-b.price:0)-(a.old?a.old-a.price:0)));
+    const catMeta=this.cats.find(c=>c.id===s.param);
+    // product
+    const p = s.page==='product' ? db.find(x=>x.id===s.param) : null;
+    const is404 = s.page==='404' || (s.page==='product' && !p);
+    let pv={};
+    if(p){
+      const stockMap={in:['Em estoque','rgba(140,255,0,.1)','#8CFF00','rgba(140,255,0,.4)'],low:['Últimas unidades','rgba(255,176,32,.1)','#FFB020','rgba(255,176,32,.4)'],out:['Indisponível','rgba(255,77,109,.1)','#FF4D6D','rgba(255,77,109,.4)']};
+      const st=stockMap[p.stock];
+      const selVar=p.vars[s.selV], selColor=p.colors[s.selC];
+      const unit=p.price+selVar.d;
+      const varBad=!selVar.av||!selColor.av;
+      const out=p.stock==='out';
+      pv={pName:p.name,pBrand:p.brand,pCode:'VLH-'+p.id.toUpperCase(),pCatName:(this.cats.find(c=>c.id===p.cat)||{}).n,
+        pOpenCat:goP('category',p.cat),
+        pStockLabel:st[0],pStockBg:st[1],pStockFg:st[2],pStockBc:st[3],
+        pPriceF:this.fmt(unit),pOldPriceF:p.old?this.fmt(p.old+selVar.d):null,
+        pBadge:p.old?('-'+Math.round((1-p.price/p.old)*100)+'% OFF'):null,
+        pColorName:selColor.n,
+        pColors:p.colors.map((c,i)=>({hex:c.hex,unav:!c.av,op:c.av?1:.45,cursor:c.av?'pointer':'not-allowed',title:c.n+(c.av?'':' (indisponível)'),ring:i===s.selC?'#8CFF00':(c.av?'#341052':'#22003D'),pick:()=>this.setState({selC:i})})),
+        pVarLabel:p.vl,
+        pVars:p.vars.map((v,i)=>{const sel=i===s.selV;return {l:v.l+(v.d?' · +'+this.fmt(v.d):''),cursor:v.av?'pointer':'not-allowed',deco:v.av?'none':'line-through',bc:sel?'#8CFF00':'#341052',fg:v.av?(sel?'#8CFF00':'#FFFFFF'):'#9690A3',bg:sel?'rgba(140,255,0,.08)':'transparent',pick:()=>this.setState({selV:i})};}),
+        pVarUnavailable:varBad&&!out,
+        pIsOut:out, pCanBuy:!out&&!varBad,
+        pSubtotalF:this.fmt(unit*s.qty),
+        pSpecs:p.specs.map(x=>({k:x[0],v:x[1]})),
+        pDesc:p.desc,pWarranty:p.w,
+        pThumbs:['[ângulo 2]','[ângulo 3]','[detalhe]','[caixa]'],
+        qtyUp:()=>this.setState(st2=>({qty:Math.min(st2.qty+1,10)})),
+        qtyDown:()=>this.setState(st2=>({qty:Math.max(st2.qty-1,1)})),
+        pAdd:()=>this.addItem(p,s.selC,s.selV,s.qty),
+        pBuyNowUrl:this.wa('Olá, equipe Valhalla Tecnologia!\n\nTenho interesse neste produto:\n\n1. '+p.name+'\nModelo: '+selVar.l+'\nCor: '+selColor.n+'\nQuantidade: '+s.qty+'\nPreço apresentado: '+this.fmt(unit)+'\nLink: valhalla.tec.br/p/'+p.id+'\n\nGostaria de confirmar a disponibilidade e finalizar a compra com um atendente.'),
+        pNotifyUrl:this.wa('Olá! Quero ser avisado(a) quando o produto "'+p.name+'" voltar ao estoque na Valhalla Tecnologia.'),
+        related:db.filter(x=>x.cat===p.cat&&x.id!==p.id).slice(0,4).map(x=>this.vm(x))};
+    }
+    // cart
+    const cartRows=s.cart.map(it=>{
+      const cp=db.find(x=>x.id===it.id); const v=cp.vars[it.vi]; const c=cp.colors[it.ci]; const unit=cp.price+v.d;
+      return {name:cp.name,variant:v.l+' · '+c.n,qty:it.qty,unitF:this.fmt(unit),subF:this.fmt(unit*it.qty),
+        open:goP('product',cp.id),
+        up:()=>this.setState(st2=>({cart:st2.cart.map(x=>x.key===it.key?{...x,qty:Math.min(x.qty+1,10)}:x)})),
+        down:()=>this.setState(st2=>({cart:st2.cart.map(x=>x.key===it.key?{...x,qty:Math.max(x.qty-1,1)}:x)})),
+        remove:()=>{this.setState(st2=>({cart:st2.cart.filter(x=>x.key!==it.key)}));this.toast('Item removido da lista','#B056FF');}};
+    });
+    const cartTotal=s.cart.reduce((a,it)=>{const cp=db.find(x=>x.id===it.id);return a+(cp.price+cp.vars[it.vi].d)*it.qty;},0);
+    const cartCount=s.cart.reduce((a,it)=>a+it.qty,0);
+    const waCartUrl=this.wa(this.buildMsg(s.name.trim()));
+    // search autocomplete
+    const q=s.q.trim().toLowerCase();
+    const suggestions=q?db.filter(x=>(x.name+' '+x.brand).toLowerCase().includes(q)).slice(0,5).map(x=>({name:x.name,priceF:this.fmt(x.price),open:()=>this.go('product',x.id)})):[];
+    const faqData=[
+      {q:'Como funciona a compra?',a:'Você monta sua lista de interesse no site, revisa e é redirecionado ao WhatsApp com a mensagem pronta. Um atendente confirma disponibilidade, forma de pagamento e entrega — tudo na conversa.'},
+      {q:'Quais formas de pagamento vocês aceitam?',a:'Pix, cartão de crédito (com parcelamento), débito e dinheiro na retirada. As condições são combinadas diretamente com o atendente.'},
+      {q:'Os produtos são originais e têm garantia?',a:'Sim. Trabalhamos apenas com produtos originais, lacrados e com nota fiscal. A garantia é a de fábrica de cada marca, a partir de 6 meses.'},
+      {q:'Vocês entregam?',a:'Fazemos retirada na loja em Macapá-AP e entregas combinadas com o atendente. Prazo e valor do frete são confirmados antes de fechar a compra.'},
+      {q:'Os preços do site são finais?',a:'Os preços exibidos são valores à vista de referência. O valor final, descontos e parcelamento são confirmados no atendimento.'},
+      {q:'Posso trocar ou devolver um produto?',a:'Sim, seguimos o Código de Defesa do Consumidor: 7 dias para arrependimento em compras remotas e troca imediata em caso de defeito de fábrica.'}];
+    const polData=[
+      {q:'Política de privacidade',a:'Usamos seu nome apenas para montar a mensagem do WhatsApp e personalizar o atendimento. Não armazenamos dados de pagamento — nenhuma transação acontece neste site. Seus dados de conversa ficam protegidos pelo WhatsApp.'},
+      {q:'Política de trocas e devoluções',a:'Você tem 7 dias corridos após o recebimento para desistir da compra (CDC, art. 49). Produtos com defeito de fábrica são trocados imediatamente mediante análise. O produto deve estar com a embalagem e os acessórios originais.'},
+      {q:'Política de garantia',a:'Todos os produtos possuem garantia de fábrica (6 a 12 meses conforme a marca). A Valhalla intermedia o acionamento da garantia junto à assistência autorizada quando necessário.'},
+      {q:'Política de entrega e retirada',a:'Retirada na loja com hora marcada, sem custo. Entregas em Macapá e região são combinadas com o atendente; o frete é informado antes da confirmação da compra.'}];
+    const mkAcc=(data,key)=>data.map((f,i)=>{const open=s[key]===i;return {...f,open,icon:open?'−':'+',bc:open?'#8B2CF5':'#341052',toggle:()=>this.setState({[key]:open?-1:i})};});
+    return {
+      showBar:this.props.mostrarFaixaTopo ?? true,
+      showFab:(this.props.botaoFlutuante ?? true)&&s.page!=='review'&&s.page!=='sent',
+      isHome:s.page==='home',isCats:s.page==='cats',isListing:(isCat||isSearch)&&!is404,
+      isProduct:!!p,isCart:s.page==='list',isReview:s.page==='review',isSent:s.page==='sent',
+      isAbout:s.page==='about',isContact:s.page==='contact',isFaq:s.page==='faq',isPolicies:s.page==='policies',is404,
+      goHome:goP('home'),goCats:goP('cats'),goList:goP('list'),goAbout:goP('about'),goContact:goP('contact'),goFaq:goP('faq'),goPolicies:goP('policies'),go404:goP('404'),goReview:goP('review'),
+      heroOpen:goP('product','s25u'),
+      navCats:catObjs.map(c=>({n:c.n,open:c.open})),
+      homeCats:catObjs,allCats,
+      featured:db.slice(0,8).map(x=>this.vm(x)),
+      offers:db.filter(x=>x.old).slice(0,4).map(x=>this.vm(x)),
+      launches:db.filter(x=>x.tag==='NOVO').slice(0,4).map(x=>this.vm(x)),
+      brands:['Samsung','Apple','Xiaomi','Lenovo','Acer','JBL','Logitech','Baseus','Redragon'],
+      benefits:[{i:'✓',t:'Produtos originais',d:'Lacrados, com nota fiscal e garantia de fábrica.'},{i:'⚡',t:'Atendimento rápido',d:'Resposta em minutos no WhatsApp, com gente de verdade.'},{i:'%',t:'Preço negociável',d:'Condições especiais no Pix e no combo — é só perguntar.'},{i:'↺',t:'Troca garantida',d:'7 dias para arrependimento e troca imediata por defeito.'}],
+      steps:[{n:'01',t:'Escolha seus produtos',d:'Navegue pelo catálogo e adicione o que quiser à sua lista de interesse.'},{n:'02',t:'Revise sua lista',d:'Confira itens, variações e quantidades, e informe seu nome.'},{n:'03',t:'Finalize no WhatsApp',d:'Enviamos a mensagem pronta — o atendente confirma tudo e fecha com você.'}],
+      reviews:[{t:'Comprei meu S25 pelo site e em 10 minutos já estava tudo certo no WhatsApp. Atendimento nota mil.',n:'Rafael M.',c:'Macapá-AP'},{t:'Preço melhor que os marketplaces e ainda retirei no mesmo dia. Virei cliente.',n:'Camila S.',c:'Santana-AP'},{t:'Tive dúvida entre dois notebooks e o atendente me explicou tudo com paciência. Recomendo demais.',n:'João P.',c:'Macapá-AP'}],
+      // listing
+      listingCrumb:isSearch?'Busca':'Categorias / '+(catMeta?catMeta.n:''),
+      listingTitle:isSearch?('Resultados para "'+(s.param||'')+'"'):(catMeta?catMeta.n:''),
+      listingCount:list.length,
+      brandChips:brandsIn.map(b=>{const sel=b===s.brand;return {n:b,bc:sel?'#8CFF00':'#341052',fg:sel?'#8CFF00':'#D8D5E0',bg:sel?'rgba(140,255,0,.08)':'#1D0333',pick:()=>this.setState({brand:b})};}),
+      sort:s.sort,onSort:e=>this.setState({sort:e.target.value}),
+      loading:s.loading&&(isCat||isSearch),
+      listingReady:!s.loading&&list.length>0,
+      listingEmpty:!s.loading&&list.length===0,
+      listing:list.map(x=>this.vm(x)),
+      skeletons:[1,2,3,4],
+      emptyTitle:isSearch?'Nenhum resultado encontrado':'Categoria em breve',
+      emptyDesc:isSearch?'Tente outra palavra, confira a ortografia ou fale direto com nosso atendente.':'Estamos preparando novidades para esta categoria. Enquanto isso, veja os destaques ou fale com a gente.',
+      // product page vals
+      ...pv, qty:s.qty,
+      // cart / review
+      cartRows,cartCount,cartEmpty:s.cart.length===0,cartTotalF:this.fmt(cartTotal),
+      name:s.name,onName:e=>this.setState({name:e.target.value}),
+      nameOk:s.name.trim().length>1&&s.cart.length>0,
+      nameMissing:!(s.name.trim().length>1&&s.cart.length>0),
+      waPreview:this.buildMsg(s.name.trim()),
+      waCartUrl,
+      finalize:()=>{window.open(waCartUrl,'_blank');this.go('sent');},
+      resetAll:()=>{this.setState({cart:[],name:''});this.go('home');},
+      // search
+      q:s.q,onQ:e=>this.setState({q:e.target.value,auto:true}),
+      onQKey:e=>{if(e.key==='Enter'&&s.q.trim())this.go('search',s.q.trim());},
+      onQFocus:()=>this.setState({auto:true}),
+      onQBlur:()=>setTimeout(()=>this.setState({auto:false}),150),
+      showAuto:s.auto&&suggestions.length>0,
+      suggestions,
+      doSearch:()=>{if(s.q.trim())this.go('search',s.q.trim());},
+      // misc pages
+      faqs:mkAcc(faqData,'faq'),policies:mkAcc(polData,'pol'),
+      cName:s.cName,cMail:s.cMail,cMsg:s.cMsg,
+      onCName:e=>this.setState({cName:e.target.value}),onCMail:e=>this.setState({cMail:e.target.value}),onCMsg:e=>this.setState({cMsg:e.target.value}),
+      sendContact:()=>{this.setState({cName:'',cMail:'',cMsg:''});this.toast('Mensagem enviada! Retornaremos em breve.','#8CFF00');},
+      waDirectUrl:this.wa('Olá, equipe Valhalla Tecnologia! Gostaria de falar com um atendente.'),
+      toast:!!s.toast,toastMsg:s.toast?s.toast.msg:'',toastBc:s.toast?s.toast.color:'#8CFF00'
+    };
+  }
+}
+</script>
+</body>
+</html>
