@@ -1,6 +1,8 @@
+import Link from "next/link";
 import { css } from "../lib/css";
 
 export interface CardVM {
+  slug: string;
   name: string;
   brand: string;
   priceF: string;
@@ -10,16 +12,17 @@ export interface CardVM {
   badgeFg: string;
   out: boolean;
   canAdd: boolean;
-  open: () => void;
   add: () => void;
 }
 
 export default function ProductCard({ p }: { p: CardVM }) {
   return (
-    <div
+    <Link
+      href={`/p/${p.slug}`}
       className="vh-cardprod"
-      style={css("width:100%;background:#1D0333;border:1px solid #341052;border-radius:14px;overflow:hidden;display:flex;flex-direction:column;cursor:pointer;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease")}
-      onClick={p.open}
+      style={css(
+        "width:100%;background:#1D0333;border:1px solid #341052;border-radius:14px;overflow:hidden;display:flex;flex-direction:column;cursor:pointer;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;text-decoration:none;color:inherit"
+      )}
     >
       <div style={css("position:relative;aspect-ratio:1/1;background:repeating-linear-gradient(45deg,#2A0A45 0 12px,#24063C 12px 24px);display:flex;align-items:center;justify-content:center")}>
         <span style={css("font:500 11px ui-monospace,Menlo,monospace;color:#9690A3;background:rgba(9,5,13,.55);padding:5px 10px;border-radius:6px")}>[foto: {p.name}]</span>
@@ -41,24 +44,33 @@ export default function ProductCard({ p }: { p: CardVM }) {
           <span style={css("font:500 11px 'Manrope',sans-serif;color:#9690A3")}>à combinar no atendimento</span>
         </div>
         <div style={css("display:flex;gap:8px;margin-top:10px")}>
-          <button
+          <span
             className="vh-ghost-violet"
-            style={css("flex:1;font:600 12.5px 'Space Grotesk',sans-serif;color:#FFFFFF;background:transparent;border:1px solid #8B2CF5;border-radius:8px;padding:9px 0;cursor:pointer;transition:background .15s")}
-            onClick={(e) => { e.stopPropagation(); p.open(); }}
-          >Ver detalhes</button>
+            style={css("flex:1;font:600 12.5px 'Space Grotesk',sans-serif;color:#FFFFFF;background:transparent;border:1px solid #8B2CF5;border-radius:8px;padding:9px 0;cursor:pointer;transition:background .15s;text-align:center")}
+          >
+            Ver detalhes
+          </span>
           {p.canAdd && (
             <button
               className="vh-btn-lime"
               title="Adicionar à lista"
               style={css("width:38px;font:700 18px 'Space Grotesk',sans-serif;color:#09050D;background:#8CFF00;border:none;border-radius:8px;cursor:pointer;transition:background .15s")}
-              onClick={(e) => { e.stopPropagation(); p.add(); }}
-            >+</button>
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                p.add();
+              }}
+            >
+              +
+            </button>
           )}
           {p.out && (
-            <button disabled style={css("width:38px;font:700 18px 'Space Grotesk',sans-serif;color:#9690A3;background:#341052;border:none;border-radius:8px;cursor:not-allowed")}>+</button>
+            <button disabled style={css("width:38px;font:700 18px 'Space Grotesk',sans-serif;color:#9690A3;background:#341052;border:none;border-radius:8px;cursor:not-allowed")}>
+              +
+            </button>
           )}
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
