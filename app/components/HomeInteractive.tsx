@@ -65,7 +65,7 @@ export default function HomeInteractive({
         <div style={css("position:relative;max-width:1240px;margin:0 auto;padding:64px 24px 72px;display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:48px;align-items:center")}>
           <div style={css("display:flex;flex-direction:column;gap:18px")}>
             <span style={css("align-self:flex-start;font:700 11.5px 'Space Grotesk',sans-serif;letter-spacing:.18em;text-transform:uppercase;color:#8CFF00;border:1px solid rgba(140,255,0,.4);border-radius:20px;padding:7px 14px")}>{homepage.hero.eyebrow}</span>
-            <h1 style={css("margin:0;font:700 clamp(34px,4.5vw,56px)/1.05 'Space Grotesk',sans-serif;letter-spacing:-.01em;color:#B056FF")}>{homepage.hero.headline}</h1>
+            <h1 style={css("margin:0;font:700 clamp(34px,4.5vw,56px)/1.05 'Space Grotesk',sans-serif;letter-spacing:-.01em")}><span style={css("color:#B056FF")}>{homepage.hero.headlineAccent}</span><br />{homepage.hero.headline}<br /><span style={css("color:#8CFF00")}>{homepage.hero.headlineHighlight}</span></h1>
             <p style={css("margin:0;max-width:440px;font:500 15.5px/1.65 'Manrope',sans-serif;color:#D8D5E0")}>{homepage.hero.subtext}</p>
             <div style={css("display:flex;gap:12px;flex-wrap:wrap;margin-top:6px")}>
               <Link href={homepage.hero.ctaLink} className="vh-btn-lime-lift" style={css("background:#8CFF00;color:#09050D;border:none;border-radius:10px;padding:15px 28px;font:700 14.5px 'Space Grotesk',sans-serif;letter-spacing:.03em;cursor:pointer;box-shadow:0 0 28px rgba(140,255,0,.35);transition:background .15s,transform .12s;text-decoration:none;display:inline-block")}>{homepage.hero.ctaLabel}</Link>

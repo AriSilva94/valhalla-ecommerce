@@ -70,7 +70,9 @@ export interface TrustBadge {
 
 export interface Hero {
   eyebrow: string;
+  headlineAccent: string;
   headline: string;
+  headlineHighlight: string;
   subtext: string;
   ctaLabel: string;
   ctaLink: string;
@@ -242,7 +244,9 @@ export async function getHomepage(): Promise<Homepage> {
   return {
     hero: {
       eyebrow: d.hero.eyebrow,
+      headlineAccent: d.hero.headlineAccent,
       headline: d.hero.headline,
+      headlineHighlight: d.hero.headlineHighlight,
       subtext: d.hero.subtext,
       ctaLabel: d.hero.ctaLabel,
       ctaLink: d.hero.ctaLink,
