@@ -50,6 +50,7 @@ export default function ProductDetailClient({
   // configLabel list from `product.variants`, matching the original data model's `p.colors`/`p.vars`.
   const colors = Array.from(new Map(product.variants.map((v) => [v.color.name, v.color])).values());
   const configLabels = Array.from(new Set(product.variants.map((v) => v.configLabel)));
+  const cheapestPrice = Math.min(...product.variants.map((v) => v.price));
 
   const [selColorName, setSelColorName] = useState(colors[0]?.name ?? "");
   const [selConfigLabel, setSelConfigLabel] = useState(configLabels[0] ?? "");
@@ -69,7 +70,6 @@ export default function ProductDetailClient({
   };
   const st = out ? stockMap.unavailable : stockMap.available;
 
-  const waDirectUrl = waUrl(whatsappNumber, "Olá, equipe Valhalla Tecnologia! Gostaria de falar com um atendente.");
   const buyNowUrl = waUrl(
     whatsappNumber,
     "Olá, equipe Valhalla Tecnologia!\n\nTenho interesse neste produto:\n\n1. " +
@@ -100,7 +100,8 @@ export default function ProductDetailClient({
   return (
     <section style={css("max-width:1240px;margin:0 auto;padding:36px 24px;width:100%")}>
       <p style={css("margin:0 0 20px;font:600 12px 'Space Grotesk',sans-serif;color:#9690A3")}>
-        <Link href="/" style={css("cursor:pointer;color:#B056FF")}>Início</Link> / <Link href={`/c/${product.category?.slug}`} style={css("cursor:pointer;color:#B056FF")}>{product.category?.name}</Link> / {product.name}
+        <Link href="/" style={css("cursor:pointer;color:#B056FF")}>Início</Link> / {product.category && (<>
+          <Link href={`/c/${product.category.slug}`} style={css("cursor:pointer;color:#B056FF")}>{product.category.name}</Link> / </>)}{product.name}
       </p>
       <div style={css("display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:44px;align-items:start")}>
         <div style={css("display:flex;flex-direction:column;gap:12px")}>
@@ -148,10 +149,16 @@ export default function ProductDetailClient({
             <span style={css("font:700 12.5px 'Space Grotesk',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#D8D5E0")}>{product.variantGroupLabel}</span>
             <div style={css("display:flex;gap:10px;flex-wrap:wrap")}>
               {configLabels.map((label, i) => {
-                const unav = product.variants.filter((v) => v.configLabel === label).every((v) => !v.available);
+                const variantsForLabel = product.variants.filter((v) => v.configLabel === label);
+                const unav = variantsForLabel.every((v) => !v.available);
                 const sel = label === selConfigLabel;
+                const repVariant =
+                  variantsForLabel.find((v) => v.color.name === selColorName) ??
+                  variantsForLabel.reduce((a, b) => (b.price < a.price ? b : a), variantsForLabel[0]);
+                const delta = repVariant.price - cheapestPrice;
+                const labelF = label + (delta > 0 ? " · +" + fmt(delta) : "");
                 return (
-                  <span key={i} onClick={() => setSelConfigLabel(label)} style={{ ...css("font:600 13px 'Space Grotesk',sans-serif;padding:10px 16px;border-radius:10px;transition:border-color .12s"), cursor: unav ? "not-allowed" : "pointer", border: "1px solid " + (sel ? "#8CFF00" : "#341052"), color: unav ? "#9690A3" : sel ? "#8CFF00" : "#FFFFFF", background: sel ? "rgba(140,255,0,.08)" : "transparent", textDecoration: unav ? "line-through" : "none" }}>{label}</span>
+                  <span key={i} onClick={() => setSelConfigLabel(label)} style={{ ...css("font:600 13px 'Space Grotesk',sans-serif;padding:10px 16px;border-radius:10px;transition:border-color .12s"), cursor: unav ? "not-allowed" : "pointer", border: "1px solid " + (sel ? "#8CFF00" : "#341052"), color: unav ? "#9690A3" : sel ? "#8CFF00" : "#FFFFFF", background: sel ? "rgba(140,255,0,.08)" : "transparent", textDecoration: unav ? "line-through" : "none" }}>{labelF}</span>
                 );
               })}
             </div>
