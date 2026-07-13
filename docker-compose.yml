@@ -1,0 +1,18 @@
+# Dokploy Compose deploy — Next.js frontend
+# Attach a domain in Dokploy to the "web" service on port 3000.
+# Set STRAPI_URL in the Dokploy "Environment" tab to the deployed Strapi URL.
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOSTNAME: 0.0.0.0
+      # Public URL of the deployed Strapi API (server-side fetch)
+      STRAPI_URL: ${STRAPI_URL:?set STRAPI_URL}
+    expose:
+      - "3000"
