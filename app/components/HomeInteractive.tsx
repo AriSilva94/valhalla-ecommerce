@@ -92,7 +92,7 @@ export default function HomeInteractive({
           <Link href="/categorias" className="vh-lime" style={css("font:600 13px 'Space Grotesk',sans-serif;color:#B056FF;cursor:pointer;text-decoration:none")}>Ver todas →</Link>
         </div>
         <div style={css("display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px")}>
-          {categories.map((c, i) => (
+          {categories.filter((c) => c.productCount > 0).map((c, i) => (
             <Link key={i} href={`/c/${c.slug}`} className="vh-cardcat" style={css("background:linear-gradient(160deg,#22003D,#1D0333);border:1px solid #341052;border-radius:14px;padding:20px 18px;cursor:pointer;display:flex;flex-direction:column;gap:8px;transition:border-color .15s,transform .15s;text-decoration:none;color:inherit")}>
               <span style={css("width:12px;height:12px;background:linear-gradient(135deg,#8B2CF5,#B056FF);transform:rotate(45deg);border-radius:3px")}></span>
               <span style={css("font:700 15px 'Space Grotesk',sans-serif;color:#FFFFFF")}>{c.name}</span>
