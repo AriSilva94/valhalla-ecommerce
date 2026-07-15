@@ -10,7 +10,6 @@ export interface Color {
 
 export interface ProductVariant {
   id: number;
-  documentId: string;
   sku: string;
   color: Color;
   configLabel: string;
@@ -175,10 +174,9 @@ async function strapiFetch<T>(path: string): Promise<T> {
 function mapVariant(raw: any): ProductVariant {
   return {
     id: raw.id,
-    documentId: raw.documentId,
     sku: raw.sku,
-    color: { name: raw.color?.name ?? "", hex: raw.color?.hex ?? "#000000" },
-    configLabel: raw.configLabel,
+    color: { name: raw.colorName ?? "", hex: raw.colorHex ?? "#000000" },
+    configLabel: raw.configLabel ?? "",
     price: raw.price,
     compareAtPrice: raw.compareAtPrice ?? null,
     available: raw.available,
@@ -207,7 +205,7 @@ function mapProduct(raw: any): Product {
 }
 
 const PRODUCT_POPULATE =
-  "populate[brand]=true&populate[category]=true&populate[tags]=true&populate[specs]=true&populate[variants][populate]=color&populate[seo][populate]=*";
+  "populate[brand]=true&populate[category]=true&populate[tags]=true&populate[specs]=true&populate[variants][populate]=image&populate[seo][populate]=*";
 
 export async function getSiteSettings(): Promise<SiteSettings> {
   const json = await strapiFetch<any>(
