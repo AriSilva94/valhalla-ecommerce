@@ -12,6 +12,14 @@ FROM node:20-alpine AS build
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+
+# next.config.ts reads this to build images.remotePatterns, and Next bakes the
+# resolved config into .next/required-server-files.json at build time. Setting
+# it only at runtime has no effect — next/image would reject every remote host
+# with a 400. It must arrive as a build arg.
+ARG NEXT_PUBLIC_MEDIA_HOST
+ENV NEXT_PUBLIC_MEDIA_HOST=$NEXT_PUBLIC_MEDIA_HOST
+
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 
