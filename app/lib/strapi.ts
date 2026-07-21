@@ -1,3 +1,17 @@
+export interface StrapiMedia {
+  url: string;
+  alternativeText: string | null;
+  width: number;
+  height: number;
+}
+
+export interface StrapiMedia {
+  url: string;
+  alternativeText: string | null;
+  width: number;
+  height: number;
+}
+
 export interface Spec {
   key: string;
   value: string;
@@ -61,6 +75,8 @@ export interface Product {
   tags: Tag[];
   variants: ProductVariant[];
   seo: Seo | null;
+  mainImage: StrapiMedia | null;
+  gallery: StrapiMedia[];
 }
 
 export interface TrustBadge {
@@ -77,6 +93,7 @@ export interface Hero {
   ctaLink: string;
   secondaryCtaLabel: string;
   secondaryCtaLink: string;
+  image: StrapiMedia | null;
   trustBadges: TrustBadge[];
 }
 
@@ -183,6 +200,17 @@ function mapVariant(raw: any): ProductVariant {
   };
 }
 
+// Media lives on the storage provider (R2), so `url` is already absolute.
+function mapMedia(raw: any): StrapiMedia | null {
+  if (!raw?.url) return null;
+  return {
+    url: raw.url,
+    alternativeText: raw.alternativeText ?? null,
+    width: raw.width,
+    height: raw.height,
+  };
+}
+
 function mapProduct(raw: any): Product {
   return {
     id: raw.id,
@@ -201,11 +229,13 @@ function mapProduct(raw: any): Product {
     tags: (raw.tags || []).map((t: any) => ({ id: t.id, documentId: t.documentId, name: t.name, slug: t.slug })),
     variants: (raw.variants || []).map(mapVariant),
     seo: raw.seo ? { metaTitle: raw.seo.metaTitle, metaDescription: raw.seo.metaDescription } : null,
+    mainImage: mapMedia(raw.mainImage),
+    gallery: (raw.gallery || []).map(mapMedia).filter(Boolean) as StrapiMedia[],
   };
 }
 
 const PRODUCT_POPULATE =
-  "populate[brand]=true&populate[category]=true&populate[tags]=true&populate[specs]=true&populate[variants][populate]=image&populate[seo][populate]=*";
+  "populate[brand]=true&populate[category]=true&populate[tags]=true&populate[specs]=true&populate[variants][populate]=image&populate[seo][populate]=*&populate[mainImage]=true&populate[gallery]=true";
 
 export async function getSiteSettings(): Promise<SiteSettings> {
   const json = await strapiFetch<any>(
@@ -236,7 +266,7 @@ export async function getSiteSettings(): Promise<SiteSettings> {
 
 export async function getHomepage(): Promise<Homepage> {
   const json = await strapiFetch<any>(
-    "/api/homepage?populate[hero][populate]=trustBadges&populate[benefits]=true&populate[steps]=true&populate[testimonials]=true&populate[whatsappBanner]=true"
+    "/api/homepage?populate[hero][populate][0]=trustBadges&populate[hero][populate][1]=image&populate[benefits]=true&populate[steps]=true&populate[testimonials]=true&populate[whatsappBanner]=true"
   );
   const d = json.data;
   return {
@@ -250,6 +280,7 @@ export async function getHomepage(): Promise<Homepage> {
       ctaLink: d.hero.ctaLink,
       secondaryCtaLabel: d.hero.secondaryCtaLabel,
       secondaryCtaLink: d.hero.secondaryCtaLink,
+      image: mapMedia(d.hero.image),
       trustBadges: (d.hero.trustBadges || []).map((b: any) => ({ text: b.text })),
     },
     benefits: (d.benefits || []).map((b: any) => ({ icon: b.icon, title: b.title, description: b.description })),

@@ -26,6 +26,7 @@ function toCardVM(p: Product, addItem: ReturnType<typeof useCart>["addItem"]): C
     badgeFg: oldPrice ? "#09050D" : "#FFFFFF",
     out: allUnavailable,
     canAdd: !allUnavailable,
+    image: p.mainImage,
     add: () => {
       if (!v) return;
       addItem(

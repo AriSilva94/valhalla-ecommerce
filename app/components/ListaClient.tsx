@@ -26,7 +26,7 @@ export default function ListaClient({ whatsappNumber }: { whatsappNumber: string
           it.qty +
           "\nPreço apresentado: " +
           fmt(it.unitPrice) +
-          "\nLink: valhalla.tec.br/p/" +
+          "\nLink: valhalla.tec.br/produto/" +
           it.productSlug
         );
       })
@@ -65,9 +65,9 @@ export default function ListaClient({ whatsappNumber }: { whatsappNumber: string
               <div style={css("display:flex;flex-direction:column;gap:12px")}>
                 {cart.map((it) => (
                   <div key={it.key} style={css("display:flex;gap:16px;align-items:center;background:#1D0333;border:1px solid #341052;border-radius:14px;padding:16px;flex-wrap:wrap")}>
-                    <Link href={`/p/${it.productSlug}`} style={css("width:76px;height:76px;flex:none;background:repeating-linear-gradient(45deg,#2A0A45 0 8px,#24063C 8px 16px);border:1px solid #341052;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer")}><span style={css("font:500 9px ui-monospace,monospace;color:#9690A3")}>[foto]</span></Link>
+                    <Link href={`/produto/${it.productSlug}`} style={css("width:76px;height:76px;flex:none;background:repeating-linear-gradient(45deg,#2A0A45 0 8px,#24063C 8px 16px);border:1px solid #341052;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer")}><span style={css("font:500 9px ui-monospace,monospace;color:#9690A3")}>[foto]</span></Link>
                     <div style={css("flex:1;min-width:170px;display:flex;flex-direction:column;gap:3px")}>
-                      <Link className="vh-lime" href={`/p/${it.productSlug}`} style={css("font:700 14.5px 'Space Grotesk',sans-serif;cursor:pointer")}>{it.productName}</Link>
+                      <Link className="vh-lime" href={`/produto/${it.productSlug}`} style={css("font:700 14.5px 'Space Grotesk',sans-serif;cursor:pointer")}>{it.productName}</Link>
                       <span style={css("font:500 12px 'Manrope',sans-serif;color:#9690A3")}>{`${it.configLabel} · ${it.colorName}`}</span>
                       <span style={css("font:600 12.5px 'Manrope',sans-serif;color:#D8D5E0")}>{fmt(it.unitPrice)} /un.</span>
                     </div>

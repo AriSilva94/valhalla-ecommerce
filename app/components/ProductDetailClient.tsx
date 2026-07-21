@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { css } from "../lib/css";
 import { fmt, waUrl } from "../lib/wa";
 import { useCart } from "./CartProvider";
@@ -26,6 +27,7 @@ function toCardVM(p: Product, addItem: ReturnType<typeof useCart>["addItem"]): C
     badgeFg: oldPrice ? "#09050D" : "#FFFFFF",
     out: allUnavailable,
     canAdd: !allUnavailable,
+    image: p.mainImage,
     add: () => {
       if (!v) return;
       addItem(
@@ -55,6 +57,7 @@ export default function ProductDetailClient({
   const [selColorName, setSelColorName] = useState(colors[0]?.name ?? "");
   const [selConfigLabel, setSelConfigLabel] = useState(configLabels[0] ?? "");
   const [qty, setQty] = useState(1);
+  const [selImageIdx, setSelImageIdx] = useState(0);
 
   const selectedVariant =
     product.variants.find((v) => v.color.name === selColorName && v.configLabel === selConfigLabel) ?? product.variants[0];
@@ -82,7 +85,7 @@ export default function ProductDetailClient({
       qty +
       "\nPreço apresentado: " +
       fmt(unit) +
-      "\nLink: valhalla.tec.br/p/" +
+      "\nLink: valhalla.tec.br/produto/" +
       product.slug +
       "\n\nGostaria de confirmar a disponibilidade e finalizar a compra com um atendente."
   );
@@ -91,7 +94,9 @@ export default function ProductDetailClient({
   const pCode = "VLH-" + product.slug.toUpperCase();
   const pBadge = selectedVariant?.compareAtPrice ? "-" + Math.round((1 - selectedVariant.price / selectedVariant.compareAtPrice) * 100) + "% OFF" : null;
 
-  const pThumbs = ["[ângulo 2]", "[ângulo 3]", "[detalhe]", "[caixa]"];
+  // mainImage first, then the gallery, so index 0 is always the cover.
+  const photos = [product.mainImage, ...product.gallery].filter(Boolean) as NonNullable<typeof product.mainImage>[];
+  const selPhoto = photos[selImageIdx] ?? photos[0] ?? null;
   const pOldPriceF = selectedVariant?.compareAtPrice ? fmt(selectedVariant.compareAtPrice) : null;
   const pCanBuy = !out && !varBad;
   const pVarUnavailable = varBad && !out;
@@ -101,19 +106,42 @@ export default function ProductDetailClient({
     <section style={css("max-width:1240px;margin:0 auto;padding:36px 24px;width:100%")}>
       <p style={css("margin:0 0 20px;font:600 12px 'Space Grotesk',sans-serif;color:#9690A3")}>
         <Link href="/" style={css("cursor:pointer;color:#B056FF")}>Início</Link> / {product.category && (<>
-          <Link href={`/c/${product.category.slug}`} style={css("cursor:pointer;color:#B056FF")}>{product.category.name}</Link> / </>)}{product.name}
+          <Link href={`/categoria/${product.category.slug}`} style={css("cursor:pointer;color:#B056FF")}>{product.category.name}</Link> / </>)}{product.name}
       </p>
       <div style={css("display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:44px;align-items:start")}>
         <div style={css("display:flex;flex-direction:column;gap:12px")}>
           <div style={css("position:relative;aspect-ratio:1/1;background:repeating-linear-gradient(45deg,#2A0A45 0 14px,#24063C 14px 28px);border:1px solid #341052;border-radius:18px;display:flex;align-items:center;justify-content:center")}>
-            <span style={css("font:500 12px ui-monospace,Menlo,monospace;color:#9690A3;background:rgba(9,5,13,.55);padding:6px 12px;border-radius:6px")}>[foto principal: {product.name}]</span>
+            {selPhoto ? (
+              <Image
+                src={selPhoto.url}
+                alt={selPhoto.alternativeText ?? product.name}
+                fill
+                priority
+                sizes="(max-width:768px) 100vw, 560px"
+                style={{ objectFit: "contain", borderRadius: 18 }}
+              />
+            ) : (
+              <span style={css("font:500 12px ui-monospace,Menlo,monospace;color:#9690A3;background:rgba(9,5,13,.55);padding:6px 12px;border-radius:6px")}>[foto principal: {product.name}]</span>
+            )}
             {pBadge && (
               <span style={css("position:absolute;top:14px;left:14px;font:700 12px 'Space Grotesk',sans-serif;letter-spacing:.06em;text-transform:uppercase;padding:6px 11px;border-radius:7px;background:#8CFF00;color:#09050D")}>{pBadge}</span>
             )}
           </div>
           <div style={css("display:grid;grid-template-columns:repeat(4,1fr);gap:10px")}>
-            {pThumbs.map((t, i) => (
-              <div key={i} className="vh-thumb" style={css("aspect-ratio:1/1;background:repeating-linear-gradient(45deg,#2A0A45 0 8px,#24063C 8px 16px);border:1px solid #341052;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .12s")}><span style={css("font:500 10px ui-monospace,monospace;color:#9690A3")}>{t}</span></div>
+            {photos.slice(0, 8).map((ph, i) => (
+              <button
+                key={ph.url}
+                type="button"
+                className="vh-thumb"
+                onClick={() => setSelImageIdx(i)}
+                aria-label={`Ver foto ${i + 1} de ${photos.length}`}
+                style={{
+                  ...css("position:relative;aspect-ratio:1/1;background:#1D0333;border-radius:10px;cursor:pointer;transition:border-color .12s;padding:0;overflow:hidden"),
+                  border: "1px solid " + (i === selImageIdx ? "#8CFF00" : "#341052"),
+                }}
+              >
+                <Image src={ph.url} alt="" fill sizes="120px" style={{ objectFit: "contain" }} />
+              </button>
             ))}
           </div>
         </div>

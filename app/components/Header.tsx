@@ -56,7 +56,7 @@ export default function Header({
             {auto && suggestions.length > 0 && (
               <div style={css("position:absolute;top:calc(100% + 6px);left:0;right:0;background:#1D0333;border:1px solid #8B2CF5;border-radius:12px;overflow:hidden;box-shadow:0 16px 40px rgba(9,5,13,.6);z-index:70")}>
                 {suggestions.map((s, i) => (
-                  <div key={i} className="vh-autorow" onMouseDown={() => router.push('/p/' + s.slug)} style={css("display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 16px;cursor:pointer;border-bottom:1px solid #2A0A45;transition:background .12s")}>
+                  <div key={i} className="vh-autorow" onMouseDown={() => router.push('/produto/' + s.slug)} style={css("display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 16px;cursor:pointer;border-bottom:1px solid #2A0A45;transition:background .12s")}>
                     <span style={css("font:600 13px 'Manrope',sans-serif;color:#FFFFFF")}>{s.name}</span>
                     <span style={css("font:700 12.5px 'Space Grotesk',sans-serif;color:#8CFF00;white-space:nowrap")}>{s.priceF}</span>
                   </div>
@@ -78,7 +78,7 @@ export default function Header({
         <nav style={css("border-top:1px solid #22003D")}>
           <div style={css("max-width:1240px;margin:0 auto;padding:0 24px;display:flex;gap:4px;overflow-x:auto")}>
             {navCats.map((c, i) => (
-              <Link key={i} href={'/c/' + c.slug} className="vh-navcat" style={css("padding:11px 14px;font:600 12.5px 'Space Grotesk',sans-serif;letter-spacing:.03em;color:#D8D5E0;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:color .12s,border-color .12s")}>{c.name}</Link>
+              <Link key={i} href={'/categoria/' + c.slug} className="vh-navcat" style={css("padding:11px 14px;font:600 12.5px 'Space Grotesk',sans-serif;letter-spacing:.03em;color:#D8D5E0;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:color .12s,border-color .12s")}>{c.name}</Link>
             ))}
             <span style={css("flex:1")}></span>
             <Link href="/sobre" className="vh-lime" style={css("padding:11px 12px;font:600 12.5px 'Space Grotesk',sans-serif;color:#9690A3;cursor:pointer;white-space:nowrap")}>Sobre</Link>

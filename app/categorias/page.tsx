@@ -15,7 +15,7 @@ export default async function CategoriasPage() {
         {categories.map((c, i) => (
           <Link
             key={i}
-            href={`/c/${c.slug}`}
+            href={`/categoria/${c.slug}`}
             className="vh-cardcat"
             style={css(
               "background:linear-gradient(160deg,#22003D,#1D0333);border:1px solid #341052;border-radius:16px;padding:28px 24px;cursor:pointer;display:flex;flex-direction:column;gap:10px;transition:border-color .15s,transform .15s;text-decoration:none;color:inherit"

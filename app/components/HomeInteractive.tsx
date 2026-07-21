@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { css } from "../lib/css";
 import { fmt } from "../lib/wa";
 import { useCart } from "./CartProvider";
@@ -25,6 +26,7 @@ function toCardVM(p: Product, addItem: ReturnType<typeof useCart>["addItem"]): C
     badgeFg: oldPrice ? "#09050D" : "#FFFFFF",
     out: allUnavailable,
     canAdd: !allUnavailable,
+    image: p.mainImage,
     add: () => {
       if (!v) return;
       addItem(
@@ -79,8 +81,19 @@ export default function HomeInteractive({
           </div>
           <div style={css("position:relative;display:flex;align-items:center;justify-content:center;min-height:340px")}>
             <div style={css("position:absolute;bottom:8%;width:70%;height:60px;background:radial-gradient(ellipse,rgba(140,255,0,.4),transparent 70%);filter:blur(18px);animation:vh-glow 3.5s ease-in-out infinite")}></div>
-            <div style={css("position:relative;width:min(340px,80%);aspect-ratio:3/4;background:repeating-linear-gradient(45deg,#2A0A45 0 14px,#24063C 14px 28px);border:1px solid #341052;border-radius:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 24px 60px rgba(9,5,13,.6)")}>
-              <span style={css("font:500 12px ui-monospace,Menlo,monospace;color:#9690A3;background:rgba(9,5,13,.55);padding:6px 12px;border-radius:6px")}>[foto: Galaxy S25 Ultra]</span>
+            <div style={css("position:relative;width:min(340px,80%);aspect-ratio:3/4;background:" + (homepage.hero.image ? "#1D0333" : "repeating-linear-gradient(45deg,#2A0A45 0 14px,#24063C 14px 28px)") + ";border:1px solid #341052;border-radius:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 24px 60px rgba(9,5,13,.6);overflow:hidden")}>
+              {homepage.hero.image ? (
+                <Image
+                  src={homepage.hero.image.url}
+                  alt={homepage.hero.image.alternativeText ?? homepage.hero.headlineAccent}
+                  fill
+                  priority
+                  sizes="(max-width:768px) 80vw, 340px"
+                  style={{ objectFit: "contain" }}
+                />
+              ) : (
+                <span style={css("font:500 12px ui-monospace,Menlo,monospace;color:#9690A3;background:rgba(9,5,13,.55);padding:6px 12px;border-radius:6px")}>[foto do destaque]</span>
+              )}
             </div>
           </div>
         </div>
@@ -93,7 +106,7 @@ export default function HomeInteractive({
         </div>
         <div style={css("display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px")}>
           {categories.filter((c) => c.productCount > 0).map((c, i) => (
-            <Link key={i} href={`/c/${c.slug}`} className="vh-cardcat" style={css("background:linear-gradient(160deg,#22003D,#1D0333);border:1px solid #341052;border-radius:14px;padding:20px 18px;cursor:pointer;display:flex;flex-direction:column;gap:8px;transition:border-color .15s,transform .15s;text-decoration:none;color:inherit")}>
+            <Link key={i} href={`/categoria/${c.slug}`} className="vh-cardcat" style={css("background:linear-gradient(160deg,#22003D,#1D0333);border:1px solid #341052;border-radius:14px;padding:20px 18px;cursor:pointer;display:flex;flex-direction:column;gap:8px;transition:border-color .15s,transform .15s;text-decoration:none;color:inherit")}>
               <span style={css("width:12px;height:12px;background:linear-gradient(135deg,#8B2CF5,#B056FF);transform:rotate(45deg);border-radius:3px")}></span>
               <span style={css("font:700 15px 'Space Grotesk',sans-serif;color:#FFFFFF")}>{c.name}</span>
               <span style={css("font:500 12px 'Manrope',sans-serif;color:#9690A3")}>{c.productCount} produtos</span>

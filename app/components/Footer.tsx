@@ -20,7 +20,7 @@ export default function Footer({ categories, settings }: { categories: Category[
         </div>
         <div style={css("display:flex;flex-direction:column;gap:9px")}>
           <span style={css("font:700 12px 'Space Grotesk',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#B056FF;margin-bottom:4px")}>Categorias</span>
-          {navCats.map((c, i) => (<Link key={i} href={'/c/' + c.slug} className="vh-lime" style={css("font:500 13px 'Manrope',sans-serif;color:#9690A3;cursor:pointer")}>{c.name}</Link>))}
+          {navCats.map((c, i) => (<Link key={i} href={'/categoria/' + c.slug} className="vh-lime" style={css("font:500 13px 'Manrope',sans-serif;color:#9690A3;cursor:pointer")}>{c.name}</Link>))}
         </div>
         <div style={css("display:flex;flex-direction:column;gap:9px")}>
           <span style={css("font:700 12px 'Space Grotesk',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#B056FF;margin-bottom:4px")}>Institucional</span>

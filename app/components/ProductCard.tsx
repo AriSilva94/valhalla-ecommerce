@@ -1,5 +1,7 @@
 import Link from "next/link";
+import Image from "next/image";
 import { css } from "../lib/css";
+import type { StrapiMedia } from "../lib/strapi";
 
 export interface CardVM {
   slug: string;
@@ -12,20 +14,31 @@ export interface CardVM {
   badgeFg: string;
   out: boolean;
   canAdd: boolean;
+  image: StrapiMedia | null;
   add: () => void;
 }
 
 export default function ProductCard({ p }: { p: CardVM }) {
   return (
     <Link
-      href={`/p/${p.slug}`}
+      href={`/produto/${p.slug}`}
       className="vh-cardprod"
       style={css(
         "width:100%;background:#1D0333;border:1px solid #341052;border-radius:14px;overflow:hidden;display:flex;flex-direction:column;cursor:pointer;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;text-decoration:none;color:inherit"
       )}
     >
       <div style={css("position:relative;aspect-ratio:1/1;background:repeating-linear-gradient(45deg,#2A0A45 0 12px,#24063C 12px 24px);display:flex;align-items:center;justify-content:center")}>
-        <span style={css("font:500 11px ui-monospace,Menlo,monospace;color:#9690A3;background:rgba(9,5,13,.55);padding:5px 10px;border-radius:6px")}>[foto: {p.name}]</span>
+        {p.image ? (
+          <Image
+            src={p.image.url}
+            alt={p.image.alternativeText ?? p.name}
+            fill
+            sizes="(max-width:640px) 50vw, (max-width:1240px) 33vw, 300px"
+            style={{ objectFit: "contain" }}
+          />
+        ) : (
+          <span style={css("font:500 11px ui-monospace,Menlo,monospace;color:#9690A3;background:rgba(9,5,13,.55);padding:5px 10px;border-radius:6px")}>[foto: {p.name}]</span>
+        )}
         {p.badge && (
           <span style={{ ...css("position:absolute;top:10px;left:10px;font:700 11px 'Space Grotesk',sans-serif;letter-spacing:.06em;text-transform:uppercase;padding:5px 9px;border-radius:6px"), background: p.badgeBg, color: p.badgeFg }}>{p.badge}</span>
         )}
