@@ -277,63 +277,113 @@ function mapProduct(raw: any): Product {
 const PRODUCT_POPULATE =
   "populate[brand]=true&populate[category]=true&populate[tags]=true&populate[specs]=true&populate[variants][populate]=image&populate[seo][populate]=*&populate[mainImage]=true&populate[gallery]=true";
 
+const DEFAULT_SITE_SETTINGS: SiteSettings = {
+  updatedAt: null,
+  whatsappNumber: "",
+  showTopBar: false,
+  topBarText: "",
+  showFab: false,
+  footerTagline: "",
+  footerLinkColumns: [],
+  footerLegalText: "",
+  contactEmail: "",
+  contactAddress: "",
+  contactHours: "",
+  aboutEyebrow: "",
+  aboutHeadline: "",
+  aboutText: "",
+  aboutStats: [],
+  defaultSeo: null,
+};
+
 export async function getSiteSettings(): Promise<SiteSettings> {
-  const json = await strapiFetch<any>(
-    "/api/site-setting?populate[footerLinkColumns][populate]=links&populate[aboutStats]=true&populate[defaultSeo]=true"
+  const path = "/api/site-setting?populate[footerLinkColumns][populate]=links&populate[aboutStats]=true&populate[defaultSeo]=true";
+  return withCacheFallback(
+    path,
+    async () => {
+      const json = await strapiFetch<any>(path);
+      const d = json.data;
+      return {
+        updatedAt: d.updatedAt ?? d.publishedAt ?? d.createdAt ?? null,
+        whatsappNumber: d.whatsappNumber,
+        showTopBar: d.showTopBar,
+        topBarText: d.topBarText,
+        showFab: d.showFab,
+        footerTagline: d.footerTagline,
+        footerLinkColumns: (d.footerLinkColumns || []).map((c: any) => ({
+          title: c.title,
+          links: (c.links || []).map((l: any) => ({ label: l.label, url: l.url })),
+        })),
+        footerLegalText: d.footerLegalText,
+        contactEmail: d.contactEmail,
+        contactAddress: d.contactAddress,
+        contactHours: d.contactHours,
+        aboutEyebrow: d.aboutEyebrow,
+        aboutHeadline: d.aboutHeadline,
+        aboutText: d.aboutText,
+        aboutStats: (d.aboutStats || []).map((s: any) => ({ value: s.value, label: s.label })),
+        defaultSeo: d.defaultSeo ? { metaTitle: d.defaultSeo.metaTitle, metaDescription: d.defaultSeo.metaDescription } : null,
+      };
+    },
+    DEFAULT_SITE_SETTINGS
   );
-  const d = json.data;
-  return {
-    updatedAt: d.updatedAt ?? d.publishedAt ?? d.createdAt ?? null,
-    whatsappNumber: d.whatsappNumber,
-    showTopBar: d.showTopBar,
-    topBarText: d.topBarText,
-    showFab: d.showFab,
-    footerTagline: d.footerTagline,
-    footerLinkColumns: (d.footerLinkColumns || []).map((c: any) => ({
-      title: c.title,
-      links: (c.links || []).map((l: any) => ({ label: l.label, url: l.url })),
-    })),
-    footerLegalText: d.footerLegalText,
-    contactEmail: d.contactEmail,
-    contactAddress: d.contactAddress,
-    contactHours: d.contactHours,
-    aboutEyebrow: d.aboutEyebrow,
-    aboutHeadline: d.aboutHeadline,
-    aboutText: d.aboutText,
-    aboutStats: (d.aboutStats || []).map((s: any) => ({ value: s.value, label: s.label })),
-    defaultSeo: d.defaultSeo ? { metaTitle: d.defaultSeo.metaTitle, metaDescription: d.defaultSeo.metaDescription } : null,
-  };
 }
 
+const DEFAULT_HOMEPAGE: Homepage = {
+  hero: {
+    eyebrow: "",
+    headlineAccent: "",
+    headline: "",
+    headlineHighlight: "",
+    subtext: "",
+    ctaLabel: "",
+    ctaLink: "",
+    secondaryCtaLabel: "",
+    secondaryCtaLink: "",
+    image: null,
+    trustBadges: [],
+  },
+  benefits: [],
+  steps: [],
+  testimonials: [],
+  whatsappBanner: { headline: "", text: "", buttonLabel: "", buttonLink: "" },
+};
+
 export async function getHomepage(): Promise<Homepage> {
-  const json = await strapiFetch<any>(
-    "/api/homepage?populate[hero][populate][0]=trustBadges&populate[hero][populate][1]=image&populate[benefits]=true&populate[steps]=true&populate[testimonials]=true&populate[whatsappBanner]=true"
+  const path =
+    "/api/homepage?populate[hero][populate][0]=trustBadges&populate[hero][populate][1]=image&populate[benefits]=true&populate[steps]=true&populate[testimonials]=true&populate[whatsappBanner]=true";
+  return withCacheFallback(
+    path,
+    async () => {
+      const json = await strapiFetch<any>(path);
+      const d = json.data;
+      return {
+        hero: {
+          eyebrow: d.hero.eyebrow,
+          headlineAccent: d.hero.headlineAccent,
+          headline: d.hero.headline,
+          headlineHighlight: d.hero.headlineHighlight,
+          subtext: d.hero.subtext,
+          ctaLabel: d.hero.ctaLabel,
+          ctaLink: d.hero.ctaLink,
+          secondaryCtaLabel: d.hero.secondaryCtaLabel,
+          secondaryCtaLink: d.hero.secondaryCtaLink,
+          image: mapMedia(d.hero.image),
+          trustBadges: (d.hero.trustBadges || []).map((b: any) => ({ text: b.text })),
+        },
+        benefits: (d.benefits || []).map((b: any) => ({ icon: b.icon, title: b.title, description: b.description })),
+        steps: (d.steps || []).map((s: any) => ({ number: s.number, title: s.title, description: s.description })),
+        testimonials: (d.testimonials || []).map((t: any) => ({ quote: t.quote, authorName: t.authorName, authorLocation: t.authorLocation })),
+        whatsappBanner: {
+          headline: d.whatsappBanner.headline,
+          text: d.whatsappBanner.text,
+          buttonLabel: d.whatsappBanner.buttonLabel,
+          buttonLink: d.whatsappBanner.buttonLink,
+        },
+      };
+    },
+    DEFAULT_HOMEPAGE
   );
-  const d = json.data;
-  return {
-    hero: {
-      eyebrow: d.hero.eyebrow,
-      headlineAccent: d.hero.headlineAccent,
-      headline: d.hero.headline,
-      headlineHighlight: d.hero.headlineHighlight,
-      subtext: d.hero.subtext,
-      ctaLabel: d.hero.ctaLabel,
-      ctaLink: d.hero.ctaLink,
-      secondaryCtaLabel: d.hero.secondaryCtaLabel,
-      secondaryCtaLink: d.hero.secondaryCtaLink,
-      image: mapMedia(d.hero.image),
-      trustBadges: (d.hero.trustBadges || []).map((b: any) => ({ text: b.text })),
-    },
-    benefits: (d.benefits || []).map((b: any) => ({ icon: b.icon, title: b.title, description: b.description })),
-    steps: (d.steps || []).map((s: any) => ({ number: s.number, title: s.title, description: s.description })),
-    testimonials: (d.testimonials || []).map((t: any) => ({ quote: t.quote, authorName: t.authorName, authorLocation: t.authorLocation })),
-    whatsappBanner: {
-      headline: d.whatsappBanner.headline,
-      text: d.whatsappBanner.text,
-      buttonLabel: d.whatsappBanner.buttonLabel,
-      buttonLink: d.whatsappBanner.buttonLink,
-    },
-  };
 }
 
 export async function getCategories(): Promise<Category[]> {
