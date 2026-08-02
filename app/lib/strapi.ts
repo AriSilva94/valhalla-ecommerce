@@ -1,3 +1,5 @@
+import { unstable_rethrow } from "next/navigation";
+
 export interface StrapiMedia {
   url: string;
   alternativeText: string | null;
@@ -192,6 +194,7 @@ export async function withCacheFallback<T>(key: string, fetcher: () => Promise<T
     cache.set(key, data);
     return data;
   } catch (err) {
+    unstable_rethrow(err);
     console.error(`[strapi] fallback for ${key}:`, err);
     return (cache.get(key) as T) ?? fallback;
   }
@@ -203,6 +206,7 @@ export async function withCacheOrThrow<T>(key: string, fetcher: () => Promise<T>
     cache.set(key, data);
     return data;
   } catch (err) {
+    unstable_rethrow(err);
     if (cache.has(key)) {
       console.error(`[strapi] serving stale cache for ${key}:`, err);
       return cache.get(key) as T;
