@@ -1,27 +1,25 @@
 "use client";
 
 import { useState } from "react";
-import { css } from "../lib/css";
+import { cn } from "../lib/cn";
 
 export default function Accordion({ items }: { items: { q: string; a: string }[] }) {
   const [open, setOpen] = useState<number>(-1);
 
   return (
-    <div style={css("display:flex;flex-direction:column;gap:10px")}>
+    <div className="flex flex-col gap-2.5">
       {items.map((f, i) => {
         const isOpen = open === i;
-        const bc = isOpen ? "#8B2CF5" : "#341052";
         return (
-          <div key={i} style={{ ...css("background:#1D0333;border-radius:14px;overflow:hidden;transition:border-color .15s"), border: "1px solid " + bc }}>
+          <div key={i} className={cn("bg-vh-card rounded-vh-14 overflow-hidden [transition:border-color_.15s] border", isOpen ? "border-vh-violet" : "border-vh-border")}>
             <div
-              className="vh-accordion"
+              className="vh-accordion flex justify-between items-center gap-3.5 py-4.5 px-5.5 cursor-pointer"
               onClick={() => setOpen(isOpen ? -1 : i)}
-              style={css("display:flex;justify-content:space-between;align-items:center;gap:14px;padding:18px 22px;cursor:pointer")}
             >
-              <span style={css("font:700 14.5px 'Space Grotesk',sans-serif")}>{f.q}</span>
-              <span style={css("font:700 18px 'Space Grotesk',sans-serif;color:#8CFF00;flex:none")}>{isOpen ? "−" : "+"}</span>
+              <span className="font-bold text-vh-14-5 font-space-grotesk">{f.q}</span>
+              <span className="font-bold text-vh-18 font-space-grotesk text-vh-lime flex-none">{isOpen ? "−" : "+"}</span>
             </div>
-            {isOpen && <p style={css("margin:0;padding:0 22px 18px;font:500 13.5px/1.7 'Manrope',sans-serif;color:#D8D5E0")}>{f.a}</p>}
+            {isOpen && <p className="m-0 pt-0 px-5.5 pb-4.5 font-medium text-vh-13-5/vh-17 font-manrope text-vh-soft">{f.a}</p>}
           </div>
         );
       })}

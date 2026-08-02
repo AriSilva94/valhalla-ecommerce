@@ -38,7 +38,7 @@ export default async function RootLayout({
               since the original source has it as a sibling immediately before <header>) — do not add a
               second copy of it here. */}
           <Header categories={categories} products={products} whatsappNumber={settings.whatsappNumber} showTopBar={settings.showTopBar} topBarText={settings.topBarText} />
-          <main style={{ flex: 1 }}>{children}</main>
+          <main className="flex-1">{children}</main>
           <Footer categories={categories} settings={settings} />
           <Fab show={settings.showFab} whatsappNumber={settings.whatsappNumber} />
         </CartProvider>

@@ -3,11 +3,12 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { css } from "../lib/css";
 import { fmt, waUrl } from "../lib/wa";
 import { useCart } from "./CartProvider";
 import ProductCard, { CardVM } from "./ProductCard";
 import type { Product } from "../lib/strapi";
+import { bgClass, borderClass, ringShadowClass, textClass } from "../lib/color-classes";
+import { cn } from "../lib/cn";
 
 function toCardVM(p: Product, addItem: ReturnType<typeof useCart>["addItem"]): CardVM {
   const v = p.variants.find((x) => x.available) ?? p.variants[0];
@@ -103,14 +104,14 @@ export default function ProductDetailClient({
   const pSubtotalF = fmt(unit * qty);
 
   return (
-    <section style={css("max-width:1240px;margin:0 auto;padding:36px 24px;width:100%")}>
-      <p style={css("margin:0 0 20px;font:600 12px 'Space Grotesk',sans-serif;color:#9690A3")}>
-        <Link href="/" style={css("cursor:pointer;color:#B056FF")}>Início</Link> / {product.category && (<>
-          <Link href={`/categoria/${product.category.slug}`} style={css("cursor:pointer;color:#B056FF")}>{product.category.name}</Link> / </>)}{product.name}
+    <section className="max-w-310 my-0 mx-auto py-9 px-6 w-full">
+      <p className="mt-0 mx-0 mb-5 font-semibold text-vh-12 font-space-grotesk text-vh-muted">
+        <Link href="/" className="cursor-pointer text-vh-accent">Início</Link> / {product.category && (<>
+          <Link href={`/categoria/${product.category.slug}`} className="cursor-pointer text-vh-accent">{product.category.name}</Link> / </>)}{product.name}
       </p>
-      <div style={css("display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:44px;align-items:start")}>
-        <div style={css("display:flex;flex-direction:column;gap:12px")}>
-          <div style={css("position:relative;aspect-ratio:1/1;background:repeating-linear-gradient(45deg,#2A0A45 0 14px,#24063C 14px 28px);border:1px solid #341052;border-radius:18px;display:flex;align-items:center;justify-content:center")}>
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-11 items-start">
+        <div className="flex flex-col gap-3">
+          <div className="relative aspect-square bg-[repeating-linear-gradient(45deg,#2A0A45_0_14px,#24063C_14px_28px)] border border-vh-border rounded-vh-18 flex items-center justify-center">
             {selPhoto ? (
               <Image
                 src={selPhoto.url}
@@ -118,64 +119,65 @@ export default function ProductDetailClient({
                 fill
                 priority
                 sizes="(max-width:768px) 100vw, 560px"
-                style={{ objectFit: "contain", borderRadius: 18 }}
+                className="rounded-vh-18 object-contain"
               />
             ) : (
-              <span style={css("font:500 12px ui-monospace,Menlo,monospace;color:#9690A3;background:rgba(9,5,13,.55);padding:6px 12px;border-radius:6px")}>[foto principal: {product.name}]</span>
+              <span className="font-medium text-vh-12 font-mono text-vh-muted bg-vh-ink/55 py-1.5 px-3 rounded-md">[foto principal: {product.name}]</span>
             )}
             {pBadge && (
-              <span style={css("position:absolute;top:14px;left:14px;font:700 12px 'Space Grotesk',sans-serif;letter-spacing:.06em;text-transform:uppercase;padding:6px 11px;border-radius:7px;background:#8CFF00;color:#09050D")}>{pBadge}</span>
+              <span className="absolute top-3.5 left-3.5 font-bold text-vh-12 font-space-grotesk tracking-vh-006 uppercase py-1.5 px-2.75 rounded-vh-7 bg-vh-lime text-vh-ink">{pBadge}</span>
             )}
           </div>
-          <div style={css("display:grid;grid-template-columns:repeat(4,1fr);gap:10px")}>
+          <div className="grid grid-cols-4 gap-2.5">
             {photos.slice(0, 8).map((ph, i) => (
               <button
                 key={ph.url}
                 type="button"
-                className="vh-thumb"
+                className={cn("vh-thumb relative aspect-square bg-vh-card rounded-vh-10 cursor-pointer [transition:border-color_.12s] p-0 overflow-hidden border", i === selImageIdx ? "border-vh-lime" : "border-vh-border")}
                 onClick={() => setSelImageIdx(i)}
                 aria-label={`Ver foto ${i + 1} de ${photos.length}`}
-                style={{
-                  ...css("position:relative;aspect-ratio:1/1;background:#1D0333;border-radius:10px;cursor:pointer;transition:border-color .12s;padding:0;overflow:hidden"),
-                  border: "1px solid " + (i === selImageIdx ? "#8CFF00" : "#341052"),
-                }}
               >
-                <Image src={ph.url} alt="" fill sizes="120px" style={{ objectFit: "contain" }} />
+                <Image src={ph.url} alt="" fill sizes="120px" className="object-contain" />
               </button>
             ))}
           </div>
         </div>
-        <div style={css("display:flex;flex-direction:column;gap:16px")}>
-          <div style={css("display:flex;flex-direction:column;gap:6px")}>
-            <span style={css("font:600 11.5px 'Space Grotesk',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#B056FF")}>{product.brand?.name}</span>
-            <h1 style={css("margin:0;font:700 clamp(24px,3vw,32px)/1.15 'Space Grotesk',sans-serif")}>{product.name}</h1>
-            <span style={css("font:500 12px ui-monospace,Menlo,monospace;color:#9690A3")}>Cód. {pCode}</span>
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1.5">
+            <span className="font-semibold text-vh-11-5 font-space-grotesk tracking-vh-014 uppercase text-vh-accent">{product.brand?.name}</span>
+            <h1 className="m-0 font-bold text-[clamp(24px,3vw,32px)]/vh-115 font-space-grotesk">{product.name}</h1>
+            <span className="font-medium text-vh-12 font-mono text-vh-muted">Cód. {pCode}</span>
           </div>
-          <span style={{ ...css("align-self:flex-start;font:700 11.5px 'Space Grotesk',sans-serif;letter-spacing:.08em;text-transform:uppercase;padding:6px 12px;border-radius:20px"), background: st[1], color: st[2], border: "1px solid " + st[3] }}>{st[0]}</span>
-          <div style={css("background:#1D0333;border:1px solid #341052;border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;gap:2px")}>
+          <span className={cn("self-start font-bold text-vh-11-5 font-space-grotesk tracking-vh-008 uppercase py-1.5 px-3 rounded-vh-20 border", bgClass(st[1]), textClass(st[2]), borderClass(st[3]))}>{st[0]}</span>
+          <div className="bg-vh-card border border-vh-border rounded-vh-14 py-4.5 px-5 flex flex-col gap-0.5">
             {pOldPriceF && (
-              <span style={css("font:500 14px 'Manrope',sans-serif;color:#9690A3;text-decoration:line-through")}>{pOldPriceF}</span>
+              <span className="font-medium text-vh-14 font-manrope text-vh-muted line-through">{pOldPriceF}</span>
             )}
-            <span style={css("font:700 34px 'Space Grotesk',sans-serif;color:#8CFF00")}>{fmt(unit)}</span>
-            <span style={css("font:500 12.5px 'Manrope',sans-serif;color:#9690A3")}>Preço à vista de referência · condições finais com o atendente</span>
+            <span className="font-bold text-vh-34 font-space-grotesk text-vh-lime">{fmt(unit)}</span>
+            <span className="font-medium text-vh-12-5 font-manrope text-vh-muted">Preço à vista de referência · condições finais com o atendente</span>
           </div>
-          <div style={css("display:flex;flex-direction:column;gap:8px")}>
-            <span style={css("font:700 12.5px 'Space Grotesk',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#D8D5E0")}>Cor: <span style={css("color:#8CFF00")}>{selColorName}</span></span>
-            <div style={css("display:flex;gap:10px;flex-wrap:wrap")}>
+          <div className="flex flex-col gap-2">
+            <span className="font-bold text-vh-12-5 font-space-grotesk tracking-vh-006 uppercase text-vh-soft">Cor: <span className="text-vh-lime">{selColorName}</span></span>
+            <div className="flex gap-2.5 flex-wrap">
               {colors.map((c, i) => {
                 const unav = product.variants.filter((v) => v.color.name === c.name).every((v) => !v.available);
                 const selected = c.name === selColorName;
                 return (
-                  <span key={i} onClick={() => setSelColorName(c.name)} title={c.name + (unav ? " (indisponível)" : "")} style={{ ...css("position:relative;width:34px;height:34px;border-radius:50%;transition:box-shadow .12s"), background: c.hex, cursor: unav ? "not-allowed" : "pointer", opacity: unav ? 0.45 : 1, boxShadow: "0 0 0 2px #120020,0 0 0 4px " + (selected ? "#8CFF00" : unav ? "#22003D" : "#341052") }}>
-                    {unav && (<span style={css("position:absolute;left:-4px;right:-4px;top:50%;height:2px;background:#9690A3;transform:rotate(-45deg)")}></span>)}
+                  <span
+                    key={i}
+                    onClick={() => setSelColorName(c.name)}
+                    title={c.name + (unav ? " (indisponível)" : "")}
+                    className={cn("relative w-8.5 h-8.5 rounded-full [transition:box-shadow_.12s]", bgClass(c.hex), unav ? "cursor-not-allowed opacity-45" : "cursor-pointer opacity-100", ringShadowClass(selected ? "#8CFF00" : unav ? "#22003D" : "#341052"))}
+                  >
+                    {unav && (<span className="absolute -left-1 -right-1 top-1/2 h-0.5 bg-vh-muted -rotate-45"></span>)}
                   </span>
                 );
               })}
             </div>
           </div>
-          <div style={css("display:flex;flex-direction:column;gap:8px")}>
-            <span style={css("font:700 12.5px 'Space Grotesk',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#D8D5E0")}>{product.variantGroupLabel}</span>
-            <div style={css("display:flex;gap:10px;flex-wrap:wrap")}>
+          <div className="flex flex-col gap-2">
+            <span className="font-bold text-vh-12-5 font-space-grotesk tracking-vh-006 uppercase text-vh-soft">{product.variantGroupLabel}</span>
+            <div className="flex gap-2.5 flex-wrap">
               {configLabels.map((label, i) => {
                 const variantsForLabel = product.variants.filter((v) => v.configLabel === label);
                 const unav = variantsForLabel.every((v) => !v.available);
@@ -186,27 +188,37 @@ export default function ProductDetailClient({
                 const delta = repVariant.price - cheapestPrice;
                 const labelF = label + (delta > 0 ? " · +" + fmt(delta) : "");
                 return (
-                  <span key={i} onClick={() => setSelConfigLabel(label)} style={{ ...css("font:600 13px 'Space Grotesk',sans-serif;padding:10px 16px;border-radius:10px;transition:border-color .12s"), cursor: unav ? "not-allowed" : "pointer", border: "1px solid " + (sel ? "#8CFF00" : "#341052"), color: unav ? "#9690A3" : sel ? "#8CFF00" : "#FFFFFF", background: sel ? "rgba(140,255,0,.08)" : "transparent", textDecoration: unav ? "line-through" : "none" }}>{labelF}</span>
+                  <span
+                    key={i}
+                    onClick={() => setSelConfigLabel(label)}
+                    className={cn(
+                      "font-semibold text-vh-13 font-space-grotesk py-2.5 px-4 rounded-vh-10 [transition:border-color_.12s] border",
+                      unav ? "cursor-not-allowed text-vh-muted line-through" : "cursor-pointer",
+                      sel ? "border-vh-lime text-vh-lime bg-vh-lime/8" : "border-vh-border text-white bg-transparent"
+                    )}
+                  >
+                    {labelF}
+                  </span>
                 );
               })}
             </div>
             {pVarUnavailable && (
-              <div style={css("display:flex;gap:10px;align-items:center;background:rgba(255,176,32,.08);border:1px solid rgba(255,176,32,.4);border-radius:10px;padding:11px 14px;font:600 12.5px 'Manrope',sans-serif;color:#FFB020")}><span style={css("width:8px;height:8px;background:#FFB020;border-radius:50%")}></span>Variação indisponível no momento — escolha outra opção ou consulte o atendente.</div>
+              <div className="flex gap-2.5 items-center bg-vh-warning/8 border border-vh-warning/40 rounded-vh-10 py-2.75 px-3.5 font-semibold text-vh-12-5 font-manrope text-vh-warning"><span className="w-2 h-2 bg-vh-warning rounded-full"></span>Variação indisponível no momento — escolha outra opção ou consulte o atendente.</div>
             )}
           </div>
-          <div style={css("display:flex;gap:12px;align-items:center;flex-wrap:wrap")}>
-            <div style={css("display:flex;align-items:center;border:1px solid #341052;border-radius:10px;overflow:hidden")}>
-              <button className="vh-qty" onClick={() => setQty((n) => Math.max(n - 1, 1))} style={css("width:40px;height:44px;background:#1D0333;border:none;color:#FFFFFF;font:700 18px 'Space Grotesk',sans-serif;cursor:pointer")}>−</button>
-              <span style={css("width:48px;text-align:center;font:700 15px 'Space Grotesk',sans-serif")}>{qty}</span>
-              <button className="vh-qty" onClick={() => setQty((n) => Math.min(n + 1, 10))} style={css("width:40px;height:44px;background:#1D0333;border:none;color:#FFFFFF;font:700 18px 'Space Grotesk',sans-serif;cursor:pointer")}>+</button>
+          <div className="flex gap-3 items-center flex-wrap">
+            <div className="flex items-center border border-vh-border rounded-vh-10 overflow-hidden">
+              <button className="vh-qty w-10 h-11 bg-vh-card border-0 text-white font-bold text-vh-18 font-space-grotesk cursor-pointer" onClick={() => setQty((n) => Math.max(n - 1, 1))}>−</button>
+              <span className="w-12 text-center font-bold text-vh-15 font-space-grotesk">{qty}</span>
+              <button className="vh-qty w-10 h-11 bg-vh-card border-0 text-white font-bold text-vh-18 font-space-grotesk cursor-pointer" onClick={() => setQty((n) => Math.min(n + 1, 10))}>+</button>
             </div>
-            <span style={css("font:500 12.5px 'Manrope',sans-serif;color:#9690A3")}>Subtotal: <span style={css("color:#8CFF00;font:700 14px 'Space Grotesk',sans-serif")}>{pSubtotalF}</span></span>
+            <span className="font-medium text-vh-12-5 font-manrope text-vh-muted">Subtotal: <span className="text-vh-lime font-bold text-vh-14 font-space-grotesk">{pSubtotalF}</span></span>
           </div>
-          <div style={css("display:flex;gap:12px;flex-wrap:wrap")}>
+          <div className="flex gap-3 flex-wrap">
             {pCanBuy && (
               <>
                 <button
-                  className="vh-btn-lime"
+                  className="vh-btn-lime flex-1 min-w-45 bg-vh-lime border-0 rounded-vh-11 py-4 px-5 font-bold text-vh-14-5 font-space-grotesk cursor-pointer shadow-vh-lime-24 [transition:background_.15s] text-vh-ink!"
                   onClick={() =>
                     addItem(
                       {
@@ -220,50 +232,49 @@ export default function ProductDetailClient({
                       qty
                     )
                   }
-                  style={css("flex:1;min-width:180px;background:#8CFF00;color:#09050D;border:none;border-radius:11px;padding:16px 20px;font:700 14.5px 'Space Grotesk',sans-serif;cursor:pointer;box-shadow:0 0 24px rgba(140,255,0,.28);transition:background .15s")}
                 >
                   Adicionar à lista
                 </button>
-                <a className="vh-wa" href={buyNowUrl} target="_blank" style={css("flex:1;min-width:180px;display:inline-flex;align-items:center;justify-content:center;gap:8px;background:#25D366;color:#062e17;border-radius:11px;padding:16px 20px;font:700 14.5px 'Space Grotesk',sans-serif;transition:filter .15s")}><span style={css("width:9px;height:9px;background:#062e17;border-radius:50%")}></span>Comprar pelo WhatsApp</a>
+                <a className="vh-wa flex-1 min-w-45 inline-flex items-center justify-center gap-2 bg-vh-wa rounded-vh-11 py-4 px-5 font-bold text-vh-14-5 font-space-grotesk [transition:filter_.15s] text-vh-wa-dark!" href={buyNowUrl} target="_blank"><span className="w-2.25 h-2.25 bg-vh-wa-dark rounded-full"></span>Comprar pelo WhatsApp</a>
               </>
             )}
             {out && (
               <>
-                <button disabled style={css("flex:1;min-width:180px;background:#341052;color:#9690A3;border:none;border-radius:11px;padding:16px 20px;font:700 14.5px 'Space Grotesk',sans-serif;cursor:not-allowed")}>Produto indisponível</button>
-                <a className="vh-wa-outline" href={notifyUrl} target="_blank" style={css("flex:1;min-width:180px;display:inline-flex;align-items:center;justify-content:center;background:transparent;border:1px solid #25D366;color:#25D366;border-radius:11px;padding:15px 20px;font:700 14.5px 'Space Grotesk',sans-serif")}>Avise-me quando chegar</a>
+                <button disabled className="flex-1 min-w-45 bg-vh-border text-vh-muted border-0 rounded-vh-11 py-4 px-5 font-bold text-vh-14-5 font-space-grotesk cursor-not-allowed">Produto indisponível</button>
+                <a className="vh-wa-outline flex-1 min-w-45 inline-flex items-center justify-center bg-transparent border border-vh-wa rounded-vh-11 py-3.75 px-5 font-bold text-vh-14-5 font-space-grotesk text-vh-wa!" href={notifyUrl} target="_blank">Avise-me quando chegar</a>
               </>
             )}
           </div>
-          <div style={css("display:flex;flex-direction:column;gap:9px;background:#1D0333;border:1px solid #341052;border-radius:14px;padding:16px 20px")}>
-            <span style={css("font:600 13px 'Manrope',sans-serif;color:#D8D5E0")}><span style={css("color:#8CFF00")}>✓</span> Garantia: {product.warranty}</span>
-            <span style={css("font:600 13px 'Manrope',sans-serif;color:#D8D5E0")}><span style={css("color:#8CFF00")}>✓</span> Retirada na loja ou entrega combinada com o atendente</span>
-            <span style={css("font:600 13px 'Manrope',sans-serif;color:#D8D5E0")}><span style={css("color:#8CFF00")}>✓</span> Produto original, lacrado e com nota fiscal</span>
+          <div className="flex flex-col gap-2.25 bg-vh-card border border-vh-border rounded-vh-14 py-4 px-5">
+            <span className="font-semibold text-vh-13 font-manrope text-vh-soft"><span className="text-vh-lime">✓</span> Garantia: {product.warranty}</span>
+            <span className="font-semibold text-vh-13 font-manrope text-vh-soft"><span className="text-vh-lime">✓</span> Retirada na loja ou entrega combinada com o atendente</span>
+            <span className="font-semibold text-vh-13 font-manrope text-vh-soft"><span className="text-vh-lime">✓</span> Produto original, lacrado e com nota fiscal</span>
           </div>
-          <div style={css("display:flex;gap:10px;align-items:flex-start;background:rgba(37,211,102,.07);border:1px solid rgba(37,211,102,.35);border-radius:12px;padding:13px 16px")}>
-            <span style={css("width:9px;height:9px;margin-top:4px;background:#25D366;border-radius:50%;flex:none")}></span>
-            <span style={css("font:600 12.5px/1.55 'Manrope',sans-serif;color:#D8D5E0")}>A compra é concluída com um atendente pelo WhatsApp. Nenhum pagamento é feito neste site.</span>
+          <div className="flex gap-2.5 items-start bg-vh-wa/7 border border-vh-wa/35 rounded-xl py-3.25 px-4">
+            <span className="w-2.25 h-2.25 mt-1 bg-vh-wa rounded-full flex-none"></span>
+            <span className="font-semibold text-vh-12-5/vh-155 font-manrope text-vh-soft">A compra é concluída com um atendente pelo WhatsApp. Nenhum pagamento é feito neste site.</span>
           </div>
         </div>
       </div>
-      <div style={css("display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;margin-top:52px")}>
-        <div style={css("background:#1D0333;border:1px solid #341052;border-radius:16px;padding:26px")}>
-          <h3 style={css("margin:0 0 16px;font:700 17px 'Space Grotesk',sans-serif;color:#B056FF")}>Especificações técnicas</h3>
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-5 mt-13">
+        <div className="bg-vh-card border border-vh-border rounded-2xl p-6.5">
+          <h3 className="mt-0 mx-0 mb-4 font-bold text-vh-17 font-space-grotesk text-vh-accent">Especificações técnicas</h3>
           {product.specs.map((s, i) => (
-            <div key={i} style={css("display:flex;justify-content:space-between;gap:16px;padding:10px 0;border-bottom:1px solid #22003D")}>
-              <span style={css("font:600 13px 'Manrope',sans-serif;color:#9690A3")}>{s.key}</span>
-              <span style={css("font:600 13px 'Manrope',sans-serif;color:#FFFFFF;text-align:right")}>{s.value}</span>
+            <div key={i} className="flex justify-between gap-4 py-2.5 px-0 border-b border-b-vh-panel">
+              <span className="font-semibold text-vh-13 font-manrope text-vh-muted">{s.key}</span>
+              <span className="font-semibold text-vh-13 font-manrope text-white text-right">{s.value}</span>
             </div>
           ))}
         </div>
-        <div style={css("background:#1D0333;border:1px solid #341052;border-radius:16px;padding:26px")}>
-          <h3 style={css("margin:0 0 12px;font:700 17px 'Space Grotesk',sans-serif;color:#B056FF")}>Descrição</h3>
-          <p style={css("margin:0;font:500 14px/1.7 'Manrope',sans-serif;color:#D8D5E0")}>{product.description}</p>
-          <h3 style={css("margin:22px 0 12px;font:700 17px 'Space Grotesk',sans-serif;color:#B056FF")}>Entrega e retirada</h3>
-          <p style={css("margin:0;font:500 14px/1.7 'Manrope',sans-serif;color:#D8D5E0")}>Retire na loja em Macapá-AP ou combine a entrega diretamente com o atendente. Prazos e valores de frete são confirmados no WhatsApp antes da compra.</p>
+        <div className="bg-vh-card border border-vh-border rounded-2xl p-6.5">
+          <h3 className="mt-0 mx-0 mb-3 font-bold text-vh-17 font-space-grotesk text-vh-accent">Descrição</h3>
+          <p className="m-0 font-medium text-vh-14/vh-17 font-manrope text-vh-soft">{product.description}</p>
+          <h3 className="mt-5.5 mx-0 mb-3 font-bold text-vh-17 font-space-grotesk text-vh-accent">Entrega e retirada</h3>
+          <p className="m-0 font-medium text-vh-14/vh-17 font-manrope text-vh-soft">Retire na loja em Macapá-AP ou combine a entrega diretamente com o atendente. Prazos e valores de frete são confirmados no WhatsApp antes da compra.</p>
         </div>
       </div>
-      <h2 style={css("margin:52px 0 20px;font:700 24px 'Space Grotesk',sans-serif")}>Produtos relacionados</h2>
-      <div style={css("display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px")}>
+      <h2 className="mt-13 mx-0 mb-5 font-bold text-vh-24 font-space-grotesk">Produtos relacionados</h2>
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(230px,1fr))] gap-4">
         {related.map((p, i) => (<ProductCard key={i} p={toCardVM(p, addItem)} />))}
       </div>
     </section>

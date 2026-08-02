@@ -1,30 +1,26 @@
 import Link from "next/link";
-import { css } from "../lib/css";
 import { getCategories } from "../lib/strapi";
 
 export default async function CategoriasPage() {
   const categories = await getCategories();
 
   return (
-    <section style={css("max-width:1240px;margin:0 auto;padding:40px 24px;width:100%")}>
-      <p style={css("margin:0 0 6px;font:600 12px 'Space Grotesk',sans-serif;color:#9690A3")}>
-        <Link href="/" style={css("cursor:pointer;color:#B056FF")}>Início</Link> / Categorias
+    <section className="max-w-310 my-0 mx-auto py-10 px-6 w-full">
+      <p className="mt-0 mx-0 mb-1.5 font-semibold text-vh-12 font-space-grotesk text-vh-muted">
+        <Link href="/" className="cursor-pointer text-vh-accent">Início</Link> / Categorias
       </p>
-      <h1 style={css("margin:0 0 26px;font:700 34px 'Space Grotesk',sans-serif")}>Todas as categorias</h1>
-      <div style={css("display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px")}>
+      <h1 className="mt-0 mx-0 mb-6.5 font-bold text-vh-34 font-space-grotesk">Todas as categorias</h1>
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-4">
         {categories.map((c, i) => (
           <Link
             key={i}
             href={`/categoria/${c.slug}`}
-            className="vh-cardcat"
-            style={css(
-              "background:linear-gradient(160deg,#22003D,#1D0333);border:1px solid #341052;border-radius:16px;padding:28px 24px;cursor:pointer;display:flex;flex-direction:column;gap:10px;transition:border-color .15s,transform .15s;text-decoration:none;color:inherit"
-            )}
+            className="vh-cardcat bg-[linear-gradient(160deg,#22003D,#1D0333)] border border-vh-border rounded-2xl py-7 px-6 cursor-pointer flex flex-col gap-2.5 [transition:border-color_.15s,transform_.15s] no-underline text-inherit"
           >
-            <span style={css("width:14px;height:14px;background:linear-gradient(135deg,#8B2CF5,#B056FF);transform:rotate(45deg);border-radius:3px")}></span>
-            <span style={css("font:700 19px 'Space Grotesk',sans-serif")}>{c.name}</span>
-            <span style={css("font:500 13px 'Manrope',sans-serif;color:#9690A3")}>{c.description}</span>
-            <span style={css("font:700 12px 'Space Grotesk',sans-serif;color:#8CFF00")}>{c.productCount} produtos →</span>
+            <span className="w-3.5 h-3.5 bg-[linear-gradient(135deg,#8B2CF5,#B056FF)] rotate-45 rounded-vh-3"></span>
+            <span className="font-bold text-vh-19 font-space-grotesk">{c.name}</span>
+            <span className="font-medium text-vh-13 font-manrope text-vh-muted">{c.description}</span>
+            <span className="font-bold text-vh-12 font-space-grotesk text-vh-lime">{c.productCount} produtos →</span>
           </Link>
         ))}
       </div>
