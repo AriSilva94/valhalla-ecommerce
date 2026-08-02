@@ -51,7 +51,12 @@ export async function generateMetadata(): Promise<Metadata> {
       description,
     },
     icons: {
-      icon: "/favicon.ico",
+      icon: [
+        { url: "/assets/img/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+        { url: "/assets/img/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+        { url: "/assets/img/valhalla-favicon-512.png", sizes: "512x512", type: "image/png" },
+      ],
+      apple: [{ url: "/assets/img/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
     },
   };
 }

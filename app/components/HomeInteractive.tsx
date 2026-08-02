@@ -124,24 +124,28 @@ export default function HomeInteractive({
         </div>
       </section>
 
-      <section className="bg-vh-panel mt-14">
-        <div className="max-w-310 my-0 mx-auto py-12 px-6 w-full">
-          <div className="flex items-baseline gap-3.5 mb-5.5">
-            <h2 className="m-0 font-bold text-vh-26 font-space-grotesk text-vh-lime">Ofertas imperdíveis</h2>
-            <span className="font-bold text-vh-11 font-space-grotesk tracking-widest bg-vh-lime text-vh-ink py-1 px-2.25 rounded-md uppercase">Por tempo limitado</span>
+      {offers.length > 0 && (
+        <section className="bg-vh-panel mt-14">
+          <div className="max-w-310 my-0 mx-auto py-12 px-6 w-full">
+            <div className="flex items-baseline gap-3.5 mb-5.5">
+              <h2 className="m-0 font-bold text-vh-26 font-space-grotesk text-vh-lime">Ofertas imperdíveis</h2>
+              <span className="font-bold text-vh-11 font-space-grotesk tracking-widest bg-vh-lime text-vh-ink py-1 px-2.25 rounded-md uppercase">Por tempo limitado</span>
+            </div>
+            <div className="grid vh-grid-products gap-4">
+              {offers.map((p, i) => (<ProductCard key={i} p={toCardVM(p, addItem)} />))}
+            </div>
           </div>
-          <div className="grid vh-grid-products gap-4">
-            {offers.map((p, i) => (<ProductCard key={i} p={toCardVM(p, addItem)} />))}
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      <section className="max-w-310 my-0 mx-auto pt-14 px-6 pb-2 w-full">
-        <h2 className="mt-0 mx-0 mb-5.5 font-bold text-vh-26 font-space-grotesk">Lançamentos</h2>
-        <div className="grid vh-grid-products gap-4">
-          {launches.map((p, i) => (<ProductCard key={i} p={toCardVM(p, addItem)} />))}
-        </div>
-      </section>
+      {launches.length > 0 && (
+        <section className="max-w-310 my-0 mx-auto pt-14 px-6 pb-2 w-full">
+          <h2 className="mt-0 mx-0 mb-5.5 font-bold text-vh-26 font-space-grotesk">Lançamentos</h2>
+          <div className="grid vh-grid-products gap-4">
+            {launches.map((p, i) => (<ProductCard key={i} p={toCardVM(p, addItem)} />))}
+          </div>
+        </section>
+      )}
 
       <section className="max-w-310 my-0 mx-auto pt-14 px-6 pb-0 w-full">
         <div className="grid vh-grid-benefits gap-3.5">

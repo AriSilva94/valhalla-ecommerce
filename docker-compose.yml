@@ -7,6 +7,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_MEDIA_HOST: ${NEXT_PUBLIC_MEDIA_HOST:?set NEXT_PUBLIC_MEDIA_HOST}
     restart: unless-stopped
     environment:
       NODE_ENV: production

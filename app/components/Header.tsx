@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { fmt, waUrl } from "../lib/wa";
@@ -45,9 +46,8 @@ export default function Header({
       )}
       <header className="sticky top-0 z-60 bg-vh-bg/94 backdrop-blur-vh-backdrop-14 border-b border-b-vh-border">
         <div className="max-w-310 my-0 mx-auto py-3.5 px-6 flex items-center gap-5 flex-wrap">
-          <Link href="/" className="cursor-pointer flex flex-col leading-none select-none">
-            <span className="font-bold text-vh-24 font-space-grotesk tracking-vh-004 text-white -skew-x-4">VALHALLA</span>
-            <span className="flex items-center gap-1.5 mt-0.75"><span className="w-1.25 h-1.25 bg-vh-lime rotate-45"></span><span className="font-bold text-vh-9-5 font-space-grotesk tracking-vh-042 text-vh-lime">TECNOLOGIA</span><span className="w-1.25 h-1.25 bg-vh-lime rotate-45"></span></span>
+          <Link href="/" className="cursor-pointer flex items-center select-none">
+            <Image src="/assets/img/logo-valhalla.png" alt="Valhalla Tecnologia" width={83} height={64} priority />
           </Link>
           <div className="flex-1 min-w-55 relative">
             <input className="vh-input w-full bg-vh-card border border-vh-border rounded-vh-10 pt-3 pr-11 pb-3 pl-4 text-white font-medium text-vh-13-5 font-manrope outline-none [transition:border-color_.15s]" value={q} onChange={(e) => { setQ(e.target.value); setAuto(true); }} onKeyDown={(e) => { if (e.key === "Enter" && q.trim()) router.push('/busca?q=' + encodeURIComponent(q.trim())); }} onFocus={() => setAuto(true)} onBlur={() => setTimeout(() => setAuto(false), 150)} placeholder="Buscar smartphones, notebooks, fones..." />

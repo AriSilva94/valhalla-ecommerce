@@ -1,3 +1,5 @@
+import { unstable_rethrow } from "next/navigation";
+
 export interface StrapiMedia {
   url: string;
   alternativeText: string | null;
@@ -184,6 +186,53 @@ export interface Policy {
 
 const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
 
+const CACHE_MAX_ENTRIES = 500;
+
+// Stores shared references — callers must not mutate cached values in place.
+const cache = new Map<string, unknown>();
+
+// FIFO eviction cap so cache growth stays bounded even when the key space is
+// attacker-controlled (e.g. a slug embedded in the request path). The 500
+// global/list keys are rewritten on every successful request, so they stay
+// "hot" and are never the oldest entry under normal traffic; only cold,
+// rarely-hit slug keys churn, degrading to the already-supported
+// "slug never fetched before" path.
+function cacheSet(key: string, value: unknown): void {
+  if (!cache.has(key) && cache.size >= CACHE_MAX_ENTRIES) {
+    const oldestKey = cache.keys().next().value;
+    if (oldestKey !== undefined) cache.delete(oldestKey);
+  }
+  cache.set(key, value);
+}
+
+export async function withCacheFallback<T>(key: string, fetcher: () => Promise<T>, fallback: T): Promise<T> {
+  try {
+    const data = await fetcher();
+    cacheSet(key, data);
+    return data;
+  } catch (err) {
+    unstable_rethrow(err);
+    console.error(`[strapi] fallback for ${key}:`, err);
+    return (cache.get(key) as T) ?? fallback;
+  }
+}
+
+export async function withCacheOrThrow<T>(key: string, fetcher: () => Promise<T>): Promise<T> {
+  try {
+    const data = await fetcher();
+    cacheSet(key, data);
+    return data;
+  } catch (err) {
+    unstable_rethrow(err);
+    if (cache.has(key)) {
+      console.error(`[strapi] serving stale cache for ${key}:`, err);
+      return cache.get(key) as T;
+    }
+    console.error(`[strapi] no cache available for ${key}, rethrowing:`, err);
+    throw err;
+  }
+}
+
 async function strapiFetch<T>(path: string): Promise<T> {
   const res = await fetch(`${STRAPI_URL}${path}`, { cache: "no-store" });
   if (!res.ok) {
@@ -250,80 +299,138 @@ function mapProduct(raw: any): Product {
 const PRODUCT_POPULATE =
   "populate[brand]=true&populate[category]=true&populate[tags]=true&populate[specs]=true&populate[variants][populate]=image&populate[seo][populate]=*&populate[mainImage]=true&populate[gallery]=true";
 
+const DEFAULT_SITE_SETTINGS: SiteSettings = {
+  updatedAt: null,
+  whatsappNumber: "",
+  showTopBar: false,
+  topBarText: "",
+  showFab: false,
+  footerTagline: "",
+  footerLinkColumns: [],
+  footerLegalText: "",
+  contactEmail: "",
+  contactAddress: "",
+  contactHours: "",
+  aboutEyebrow: "",
+  aboutHeadline: "",
+  aboutText: "",
+  aboutStats: [],
+  defaultSeo: null,
+};
+
 export async function getSiteSettings(): Promise<SiteSettings> {
-  const json = await strapiFetch<any>(
-    "/api/site-setting?populate[footerLinkColumns][populate]=links&populate[aboutStats]=true&populate[defaultSeo]=true"
+  const path = "/api/site-setting?populate[footerLinkColumns][populate]=links&populate[aboutStats]=true&populate[defaultSeo]=true";
+  return withCacheFallback(
+    path,
+    async () => {
+      const json = await strapiFetch<any>(path);
+      const d = json.data;
+      return {
+        updatedAt: d.updatedAt ?? d.publishedAt ?? d.createdAt ?? null,
+        whatsappNumber: d.whatsappNumber,
+        showTopBar: d.showTopBar,
+        topBarText: d.topBarText,
+        showFab: d.showFab,
+        footerTagline: d.footerTagline,
+        footerLinkColumns: (d.footerLinkColumns || []).map((c: any) => ({
+          title: c.title,
+          links: (c.links || []).map((l: any) => ({ label: l.label, url: l.url })),
+        })),
+        footerLegalText: d.footerLegalText,
+        contactEmail: d.contactEmail,
+        contactAddress: d.contactAddress,
+        contactHours: d.contactHours,
+        aboutEyebrow: d.aboutEyebrow,
+        aboutHeadline: d.aboutHeadline,
+        aboutText: d.aboutText,
+        aboutStats: (d.aboutStats || []).map((s: any) => ({ value: s.value, label: s.label })),
+        defaultSeo: d.defaultSeo ? { metaTitle: d.defaultSeo.metaTitle, metaDescription: d.defaultSeo.metaDescription } : null,
+      };
+    },
+    DEFAULT_SITE_SETTINGS
   );
-  const d = json.data;
-  return {
-    updatedAt: d.updatedAt ?? d.publishedAt ?? d.createdAt ?? null,
-    whatsappNumber: d.whatsappNumber,
-    showTopBar: d.showTopBar,
-    topBarText: d.topBarText,
-    showFab: d.showFab,
-    footerTagline: d.footerTagline,
-    footerLinkColumns: (d.footerLinkColumns || []).map((c: any) => ({
-      title: c.title,
-      links: (c.links || []).map((l: any) => ({ label: l.label, url: l.url })),
-    })),
-    footerLegalText: d.footerLegalText,
-    contactEmail: d.contactEmail,
-    contactAddress: d.contactAddress,
-    contactHours: d.contactHours,
-    aboutEyebrow: d.aboutEyebrow,
-    aboutHeadline: d.aboutHeadline,
-    aboutText: d.aboutText,
-    aboutStats: (d.aboutStats || []).map((s: any) => ({ value: s.value, label: s.label })),
-    defaultSeo: d.defaultSeo ? { metaTitle: d.defaultSeo.metaTitle, metaDescription: d.defaultSeo.metaDescription } : null,
-  };
 }
 
+const DEFAULT_HOMEPAGE: Homepage = {
+  hero: {
+    eyebrow: "",
+    headlineAccent: "",
+    headline: "",
+    headlineHighlight: "",
+    subtext: "",
+    ctaLabel: "",
+    ctaLink: "",
+    secondaryCtaLabel: "",
+    secondaryCtaLink: "",
+    image: null,
+    trustBadges: [],
+  },
+  benefits: [],
+  steps: [],
+  testimonials: [],
+  whatsappBanner: { headline: "", text: "", buttonLabel: "", buttonLink: "" },
+};
+
 export async function getHomepage(): Promise<Homepage> {
-  const json = await strapiFetch<any>(
-    "/api/homepage?populate[hero][populate][0]=trustBadges&populate[hero][populate][1]=image&populate[benefits]=true&populate[steps]=true&populate[testimonials]=true&populate[whatsappBanner]=true"
+  const path =
+    "/api/homepage?populate[hero][populate][0]=trustBadges&populate[hero][populate][1]=image&populate[benefits]=true&populate[steps]=true&populate[testimonials]=true&populate[whatsappBanner]=true";
+  return withCacheFallback(
+    path,
+    async () => {
+      const json = await strapiFetch<any>(path);
+      const d = json.data;
+      return {
+        hero: {
+          eyebrow: d.hero.eyebrow,
+          headlineAccent: d.hero.headlineAccent,
+          headline: d.hero.headline,
+          headlineHighlight: d.hero.headlineHighlight,
+          subtext: d.hero.subtext,
+          ctaLabel: d.hero.ctaLabel,
+          ctaLink: d.hero.ctaLink,
+          secondaryCtaLabel: d.hero.secondaryCtaLabel,
+          secondaryCtaLink: d.hero.secondaryCtaLink,
+          image: mapMedia(d.hero.image),
+          trustBadges: (d.hero.trustBadges || []).map((b: any) => ({ text: b.text })),
+        },
+        benefits: (d.benefits || []).map((b: any) => ({ icon: b.icon, title: b.title, description: b.description })),
+        steps: (d.steps || []).map((s: any) => ({ number: s.number, title: s.title, description: s.description })),
+        testimonials: (d.testimonials || []).map((t: any) => ({ quote: t.quote, authorName: t.authorName, authorLocation: t.authorLocation })),
+        whatsappBanner: {
+          headline: d.whatsappBanner.headline,
+          text: d.whatsappBanner.text,
+          buttonLabel: d.whatsappBanner.buttonLabel,
+          buttonLink: d.whatsappBanner.buttonLink,
+        },
+      };
+    },
+    DEFAULT_HOMEPAGE
   );
-  const d = json.data;
-  return {
-    hero: {
-      eyebrow: d.hero.eyebrow,
-      headlineAccent: d.hero.headlineAccent,
-      headline: d.hero.headline,
-      headlineHighlight: d.hero.headlineHighlight,
-      subtext: d.hero.subtext,
-      ctaLabel: d.hero.ctaLabel,
-      ctaLink: d.hero.ctaLink,
-      secondaryCtaLabel: d.hero.secondaryCtaLabel,
-      secondaryCtaLink: d.hero.secondaryCtaLink,
-      image: mapMedia(d.hero.image),
-      trustBadges: (d.hero.trustBadges || []).map((b: any) => ({ text: b.text })),
-    },
-    benefits: (d.benefits || []).map((b: any) => ({ icon: b.icon, title: b.title, description: b.description })),
-    steps: (d.steps || []).map((s: any) => ({ number: s.number, title: s.title, description: s.description })),
-    testimonials: (d.testimonials || []).map((t: any) => ({ quote: t.quote, authorName: t.authorName, authorLocation: t.authorLocation })),
-    whatsappBanner: {
-      headline: d.whatsappBanner.headline,
-      text: d.whatsappBanner.text,
-      buttonLabel: d.whatsappBanner.buttonLabel,
-      buttonLink: d.whatsappBanner.buttonLink,
-    },
-  };
 }
 
 export async function getCategories(): Promise<Category[]> {
-  const json = await strapiFetch<any>("/api/categories?populate=products");
-  return json.data.map((c: any) => ({
-    id: c.id,
-    documentId: c.documentId,
-    updatedAt: c.updatedAt ?? c.publishedAt ?? c.createdAt ?? null,
-    name: c.name,
-    slug: c.slug,
-    description: c.description,
-    productCount: Array.isArray(c.products) ? c.products.length : 0,
-  }));
+  const path = "/api/categories?populate=products";
+  return withCacheFallback(
+    path,
+    async () => {
+      const json = await strapiFetch<any>(path);
+      return json.data.map((c: any) => ({
+        id: c.id,
+        documentId: c.documentId,
+        updatedAt: c.updatedAt ?? c.publishedAt ?? c.createdAt ?? null,
+        name: c.name,
+        slug: c.slug,
+        description: c.description,
+        productCount: Array.isArray(c.products) ? c.products.length : 0,
+      }));
+    },
+    []
+  );
 }
 
 export async function getCategoryBySlug(slug: string): Promise<Category | null> {
-  const json = await strapiFetch<any>(`/api/categories?filters[slug][$eq]=${encodeURIComponent(slug)}&populate=products`);
+  const path = `/api/categories?filters[slug][$eq]=${encodeURIComponent(slug)}&populate=products`;
+  const json = await withCacheOrThrow(path, () => strapiFetch<any>(path));
   const raw = json.data[0];
   if (!raw) return null;
   return {
@@ -338,37 +445,64 @@ export async function getCategoryBySlug(slug: string): Promise<Category | null> 
 }
 
 export async function getProducts(): Promise<Product[]> {
-  const json = await strapiFetch<any>(`/api/products?${PRODUCT_POPULATE}&pagination[pageSize]=100`);
-  return json.data.map(mapProduct);
+  const path = `/api/products?${PRODUCT_POPULATE}&pagination[pageSize]=100`;
+  return withCacheFallback(
+    path,
+    async () => {
+      const json = await strapiFetch<any>(path);
+      return json.data.map(mapProduct);
+    },
+    []
+  );
 }
 
 export async function getProductsByCategorySlug(slug: string): Promise<Product[]> {
-  const json = await strapiFetch<any>(
-    `/api/products?filters[category][slug][$eq]=${encodeURIComponent(slug)}&${PRODUCT_POPULATE}&pagination[pageSize]=100`
+  const path = `/api/products?filters[category][slug][$eq]=${encodeURIComponent(slug)}&${PRODUCT_POPULATE}&pagination[pageSize]=100`;
+  return withCacheFallback(
+    path,
+    async () => {
+      const json = await strapiFetch<any>(path);
+      return json.data.map(mapProduct);
+    },
+    []
   );
-  return json.data.map(mapProduct);
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
-  const json = await strapiFetch<any>(`/api/products?filters[slug][$eq]=${encodeURIComponent(slug)}&${PRODUCT_POPULATE}`);
+  const path = `/api/products?filters[slug][$eq]=${encodeURIComponent(slug)}&${PRODUCT_POPULATE}`;
+  const json = await withCacheOrThrow(path, () => strapiFetch<any>(path));
   const raw = json.data[0];
   if (!raw) return null;
   return mapProduct(raw);
 }
 
 export async function getFaqs(): Promise<Faq[]> {
-  const json = await strapiFetch<any>("/api/faqs?sort=order:asc&pagination[pageSize]=100");
-  return json.data.map((f: any) => ({ id: f.id, question: f.question, answer: f.answer, order: f.order }));
+  const path = "/api/faqs?sort=order:asc&pagination[pageSize]=100";
+  return withCacheFallback(
+    path,
+    async () => {
+      const json = await strapiFetch<any>(path);
+      return json.data.map((f: any) => ({ id: f.id, question: f.question, answer: f.answer, order: f.order }));
+    },
+    []
+  );
 }
 
 export async function getPolicies(): Promise<Policy[]> {
-  const json = await strapiFetch<any>("/api/policies?pagination[pageSize]=100");
-  return json.data.map((p: any) => ({
-    id: p.id,
-    documentId: p.documentId,
-    updatedAt: p.updatedAt ?? p.publishedAt ?? p.createdAt ?? null,
-    title: p.title,
-    slug: p.slug,
-    body: p.body,
-  }));
+  const path = "/api/policies?pagination[pageSize]=100";
+  return withCacheFallback(
+    path,
+    async () => {
+      const json = await strapiFetch<any>(path);
+      return json.data.map((p: any) => ({
+        id: p.id,
+        documentId: p.documentId,
+        updatedAt: p.updatedAt ?? p.publishedAt ?? p.createdAt ?? null,
+        title: p.title,
+        slug: p.slug,
+        body: p.body,
+      }));
+    },
+    []
+  );
 }
