@@ -42,6 +42,7 @@ export interface Brand {
 export interface Category {
   id: number;
   documentId: string;
+  updatedAt: string | null;
   name: string;
   slug: string;
   description: string;
@@ -63,6 +64,7 @@ export interface Seo {
 export interface Product {
   id: number;
   documentId: string;
+  updatedAt: string | null;
   name: string;
   slug: string;
   basePrice: number;
@@ -146,6 +148,7 @@ export interface Stat {
 }
 
 export interface SiteSettings {
+  updatedAt: string | null;
   whatsappNumber: string;
   showTopBar: boolean;
   topBarText: string;
@@ -173,6 +176,7 @@ export interface Faq {
 export interface Policy {
   id: number;
   documentId: string;
+  updatedAt: string | null;
   title: string;
   slug: string;
   body: string;
@@ -215,6 +219,7 @@ function mapProduct(raw: any): Product {
   return {
     id: raw.id,
     documentId: raw.documentId,
+    updatedAt: raw.updatedAt ?? raw.publishedAt ?? raw.createdAt ?? null,
     name: raw.name,
     slug: raw.slug,
     basePrice: raw.basePrice,
@@ -224,7 +229,15 @@ function mapProduct(raw: any): Product {
     warranty: raw.warranty,
     brand: raw.brand ? { id: raw.brand.id, documentId: raw.brand.documentId, name: raw.brand.name, slug: raw.brand.slug } : null,
     category: raw.category
-      ? { id: raw.category.id, documentId: raw.category.documentId, name: raw.category.name, slug: raw.category.slug, description: raw.category.description, productCount: 0 }
+      ? {
+          id: raw.category.id,
+          documentId: raw.category.documentId,
+          updatedAt: raw.category.updatedAt ?? raw.category.publishedAt ?? raw.category.createdAt ?? null,
+          name: raw.category.name,
+          slug: raw.category.slug,
+          description: raw.category.description,
+          productCount: 0,
+        }
       : null,
     tags: (raw.tags || []).map((t: any) => ({ id: t.id, documentId: t.documentId, name: t.name, slug: t.slug })),
     variants: (raw.variants || []).map(mapVariant),
@@ -243,6 +256,7 @@ export async function getSiteSettings(): Promise<SiteSettings> {
   );
   const d = json.data;
   return {
+    updatedAt: d.updatedAt ?? d.publishedAt ?? d.createdAt ?? null,
     whatsappNumber: d.whatsappNumber,
     showTopBar: d.showTopBar,
     topBarText: d.topBarText,
@@ -300,6 +314,7 @@ export async function getCategories(): Promise<Category[]> {
   return json.data.map((c: any) => ({
     id: c.id,
     documentId: c.documentId,
+    updatedAt: c.updatedAt ?? c.publishedAt ?? c.createdAt ?? null,
     name: c.name,
     slug: c.slug,
     description: c.description,
@@ -314,6 +329,7 @@ export async function getCategoryBySlug(slug: string): Promise<Category | null> 
   return {
     id: raw.id,
     documentId: raw.documentId,
+    updatedAt: raw.updatedAt ?? raw.publishedAt ?? raw.createdAt ?? null,
     name: raw.name,
     slug: raw.slug,
     description: raw.description,
@@ -347,5 +363,12 @@ export async function getFaqs(): Promise<Faq[]> {
 
 export async function getPolicies(): Promise<Policy[]> {
   const json = await strapiFetch<any>("/api/policies?pagination[pageSize]=100");
-  return json.data.map((p: any) => ({ id: p.id, documentId: p.documentId, title: p.title, slug: p.slug, body: p.body }));
+  return json.data.map((p: any) => ({
+    id: p.id,
+    documentId: p.documentId,
+    updatedAt: p.updatedAt ?? p.publishedAt ?? p.createdAt ?? null,
+    title: p.title,
+    slug: p.slug,
+    body: p.body,
+  }));
 }
