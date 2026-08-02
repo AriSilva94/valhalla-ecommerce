@@ -16,9 +16,19 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
     theme_color: "#120020",
     icons: [
       {
-        src: "/favicon.ico",
-        sizes: "any",
-        type: "image/x-icon",
+        src: "/assets/img/favicon-16x16.png",
+        sizes: "16x16",
+        type: "image/png",
+      },
+      {
+        src: "/assets/img/favicon-32x32.png",
+        sizes: "32x32",
+        type: "image/png",
+      },
+      {
+        src: "/assets/img/valhalla-favicon-512.png",
+        sizes: "512x512",
+        type: "image/png",
       },
     ],
   };

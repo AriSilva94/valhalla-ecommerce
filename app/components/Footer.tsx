@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { waUrl } from "../lib/wa";
 import type { Category, SiteSettings } from "../lib/strapi";
@@ -19,14 +20,7 @@ export default function Footer({
     <footer className="bg-vh-ink border-t border-t-vh-panel mt-18">
       <div className="max-w-310 my-0 mx-auto pt-12 px-6 pb-6 grid vh-grid-footer gap-8">
         <div className="flex flex-col gap-3">
-          <div className="flex flex-col leading-none">
-            <span className="font-bold text-vh-20 font-space-grotesk tracking-vh-004 -skew-x-4">
-              VALHALLA
-            </span>
-            <span className="font-bold text-vh-8-5 font-space-grotesk tracking-vh-042 text-vh-lime mt-0.75">
-              TECNOLOGIA
-            </span>
-          </div>
+          <Image src="/assets/img/logo-valhalla.png" alt="Valhalla Tecnologia" width={94} height={72} className="self-start h-18 w-auto" />
           <p className="m-0 font-medium text-vh-12-5/vh-165 font-manrope text-vh-muted">
             {settings.footerTagline}
           </p>
