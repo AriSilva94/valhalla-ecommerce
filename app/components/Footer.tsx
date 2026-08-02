@@ -57,7 +57,7 @@ export default function Footer({
           <span className="font-bold text-vh-12 font-space-grotesk tracking-vh-014 uppercase text-vh-accent mb-1">
             Institucional
           </span>
-          {settings.footerLinkColumns[0].links.map((l, i) => (
+          {(settings.footerLinkColumns[0]?.links ?? []).map((l, i) => (
             <Link
               key={i}
               href={l.url}
