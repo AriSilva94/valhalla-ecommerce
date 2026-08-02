@@ -26,7 +26,7 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
         type: "image/png",
       },
       {
-        src: "/assets/img/valhalla-favicon-512.png",
+        src: "/assets/img/valhalla-favicon-final.png",
         sizes: "512x512",
         type: "image/png",
       },

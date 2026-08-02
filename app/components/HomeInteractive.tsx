@@ -120,7 +120,7 @@ export default function HomeInteractive({
           <h2 className="m-0 font-bold text-vh-26 font-space-grotesk">Destaques</h2>
         </div>
         <div className="grid vh-grid-products gap-4">
-          {featured.map((p, i) => (<ProductCard key={i} p={toCardVM(p, addItem)} />))}
+          {featured.map((p, i) => (<ProductCard key={i} p={toCardVM(p, addItem)} priority={i < 4} />))}
         </div>
       </section>
 

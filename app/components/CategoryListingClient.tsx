@@ -118,7 +118,7 @@ export default function CategoryListingClient({
       {listingReady && (
         <div className="grid grid-cols-[repeat(auto-fill,minmax(230px,1fr))] gap-4">
           {list.map((p, i) => (
-            <ProductCard key={i} p={toCardVM(p, addItem)} />
+            <ProductCard key={i} p={toCardVM(p, addItem)} priority={i < 4} />
           ))}
         </div>
       )}
