@@ -2,6 +2,11 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { getSiteSettings, getHomepage } from "./strapi";
 
+// NOTE: these tests share the module-level cache in ./strapi and rely on
+// node:test executing tests within this file in declaration order — a
+// "Strapi up" test must run before its matching "stale cache" test, so
+// don't reorder them.
+
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), { status });
 }
