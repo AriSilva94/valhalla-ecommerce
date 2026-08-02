@@ -205,3 +205,47 @@ test("getPolicies: Strapi up -> returns mapped data, then serves it as stale on 
   const stale = await getPolicies();
   assert.equal(stale[0].title, "Troca");
 });
+
+import { getCategoryBySlug, getProductBySlug } from "./strapi";
+
+test("getCategoryBySlug: Strapi responds with no match -> returns null (genuine not-found, not an outage)", async (t) => {
+  t.mock.method(globalThis, "fetch", async () => jsonResponse({ data: [] }));
+  const category = await getCategoryBySlug("categoria-inexistente");
+  assert.equal(category, null);
+});
+
+test("getCategoryBySlug: Strapi down, slug never fetched before -> rejects instead of returning a fake null", async (t) => {
+  t.mock.method(globalThis, "fetch", async () => jsonResponse(null, 500));
+  await assert.rejects(() => getCategoryBySlug("notebooks-nunca-visto"));
+});
+
+test("getCategoryBySlug: Strapi up then down -> serves the stale cached category for that slug", async (t) => {
+  t.mock.method(globalThis, "fetch", async () => jsonResponse({ data: [RAW_CATEGORY] }));
+  const fresh = await getCategoryBySlug("notebooks");
+  assert.equal(fresh?.name, "Notebooks");
+
+  t.mock.method(globalThis, "fetch", async () => jsonResponse(null, 500));
+  const stale = await getCategoryBySlug("notebooks");
+  assert.equal(stale?.name, "Notebooks");
+});
+
+test("getProductBySlug: Strapi responds with no match -> returns null (genuine not-found, not an outage)", async (t) => {
+  t.mock.method(globalThis, "fetch", async () => jsonResponse({ data: [] }));
+  const product = await getProductBySlug("produto-inexistente");
+  assert.equal(product, null);
+});
+
+test("getProductBySlug: Strapi down, slug never fetched before -> rejects instead of returning a fake null", async (t) => {
+  t.mock.method(globalThis, "fetch", async () => jsonResponse(null, 500));
+  await assert.rejects(() => getProductBySlug("notebook-gamer-nunca-visto"));
+});
+
+test("getProductBySlug: Strapi up then down -> serves the stale cached product for that slug", async (t) => {
+  t.mock.method(globalThis, "fetch", async () => jsonResponse({ data: [RAW_PRODUCT] }));
+  const fresh = await getProductBySlug("notebook-gamer");
+  assert.equal(fresh?.name, "Notebook Gamer");
+
+  t.mock.method(globalThis, "fetch", async () => jsonResponse(null, 500));
+  const stale = await getProductBySlug("notebook-gamer");
+  assert.equal(stale?.name, "Notebook Gamer");
+});

@@ -407,7 +407,8 @@ export async function getCategories(): Promise<Category[]> {
 }
 
 export async function getCategoryBySlug(slug: string): Promise<Category | null> {
-  const json = await strapiFetch<any>(`/api/categories?filters[slug][$eq]=${encodeURIComponent(slug)}&populate=products`);
+  const path = `/api/categories?filters[slug][$eq]=${encodeURIComponent(slug)}&populate=products`;
+  const json = await withCacheOrThrow(path, () => strapiFetch<any>(path));
   const raw = json.data[0];
   if (!raw) return null;
   return {
@@ -446,7 +447,8 @@ export async function getProductsByCategorySlug(slug: string): Promise<Product[]
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
-  const json = await strapiFetch<any>(`/api/products?filters[slug][$eq]=${encodeURIComponent(slug)}&${PRODUCT_POPULATE}`);
+  const path = `/api/products?filters[slug][$eq]=${encodeURIComponent(slug)}&${PRODUCT_POPULATE}`;
+  const json = await withCacheOrThrow(path, () => strapiFetch<any>(path));
   const raw = json.data[0];
   if (!raw) return null;
   return mapProduct(raw);
