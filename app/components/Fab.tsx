@@ -1,7 +1,6 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { css } from "../lib/css";
 import { waUrl } from "../lib/wa";
 
 export default function Fab({ show, whatsappNumber }: { show: boolean; whatsappNumber: string }) {
@@ -10,15 +9,12 @@ export default function Fab({ show, whatsappNumber }: { show: boolean; whatsappN
   const href = waUrl(whatsappNumber, "Olá, equipe Valhalla Tecnologia! Gostaria de falar com um atendente.");
   return (
     <a
-      className="vh-fab"
+      className="vh-fab fixed right-5.5 bottom-5.5 z-80 flex items-center gap-2.5 bg-vh-wa rounded-vh-30 py-3.5 px-5.5 font-bold text-vh-13-5 font-space-grotesk shadow-vh-fab [transition:transform_.15s,filter_.15s] text-vh-wa-dark!"
       href={href}
       target="_blank"
       title="Falar no WhatsApp"
-      style={css(
-        "position:fixed;right:22px;bottom:22px;z-index:80;display:flex;align-items:center;gap:10px;background:#25D366;color:#062e17;border-radius:30px;padding:14px 22px;font:700 13.5px 'Space Grotesk',sans-serif;box-shadow:0 10px 30px rgba(37,211,102,.4);transition:transform .15s,filter .15s"
-      )}
     >
-      <span style={css("width:10px;height:10px;background:#062e17;border-radius:50%")}></span>
+      <span className="w-2.5 h-2.5 bg-vh-wa-dark rounded-full"></span>
       Falar no WhatsApp
     </a>
   );

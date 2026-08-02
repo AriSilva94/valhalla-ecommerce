@@ -1,3 +1,17 @@
+export interface StrapiMedia {
+  url: string;
+  alternativeText: string | null;
+  width: number;
+  height: number;
+}
+
+export interface StrapiMedia {
+  url: string;
+  alternativeText: string | null;
+  width: number;
+  height: number;
+}
+
 export interface Spec {
   key: string;
   value: string;
@@ -10,7 +24,6 @@ export interface Color {
 
 export interface ProductVariant {
   id: number;
-  documentId: string;
   sku: string;
   color: Color;
   configLabel: string;
@@ -29,6 +42,7 @@ export interface Brand {
 export interface Category {
   id: number;
   documentId: string;
+  updatedAt: string | null;
   name: string;
   slug: string;
   description: string;
@@ -50,6 +64,7 @@ export interface Seo {
 export interface Product {
   id: number;
   documentId: string;
+  updatedAt: string | null;
   name: string;
   slug: string;
   basePrice: number;
@@ -62,6 +77,8 @@ export interface Product {
   tags: Tag[];
   variants: ProductVariant[];
   seo: Seo | null;
+  mainImage: StrapiMedia | null;
+  gallery: StrapiMedia[];
 }
 
 export interface TrustBadge {
@@ -78,6 +95,7 @@ export interface Hero {
   ctaLink: string;
   secondaryCtaLabel: string;
   secondaryCtaLink: string;
+  image: StrapiMedia | null;
   trustBadges: TrustBadge[];
 }
 
@@ -130,6 +148,7 @@ export interface Stat {
 }
 
 export interface SiteSettings {
+  updatedAt: string | null;
   whatsappNumber: string;
   showTopBar: boolean;
   topBarText: string;
@@ -157,6 +176,7 @@ export interface Faq {
 export interface Policy {
   id: number;
   documentId: string;
+  updatedAt: string | null;
   title: string;
   slug: string;
   body: string;
@@ -175,13 +195,23 @@ async function strapiFetch<T>(path: string): Promise<T> {
 function mapVariant(raw: any): ProductVariant {
   return {
     id: raw.id,
-    documentId: raw.documentId,
     sku: raw.sku,
-    color: { name: raw.color?.name ?? "", hex: raw.color?.hex ?? "#000000" },
-    configLabel: raw.configLabel,
+    color: { name: raw.colorName ?? "", hex: raw.colorHex ?? "#000000" },
+    configLabel: raw.configLabel ?? "",
     price: raw.price,
     compareAtPrice: raw.compareAtPrice ?? null,
     available: raw.available,
+  };
+}
+
+// Media lives on the storage provider (R2), so `url` is already absolute.
+function mapMedia(raw: any): StrapiMedia | null {
+  if (!raw?.url) return null;
+  return {
+    url: raw.url,
+    alternativeText: raw.alternativeText ?? null,
+    width: raw.width,
+    height: raw.height,
   };
 }
 
@@ -189,6 +219,7 @@ function mapProduct(raw: any): Product {
   return {
     id: raw.id,
     documentId: raw.documentId,
+    updatedAt: raw.updatedAt ?? raw.publishedAt ?? raw.createdAt ?? null,
     name: raw.name,
     slug: raw.slug,
     basePrice: raw.basePrice,
@@ -198,16 +229,26 @@ function mapProduct(raw: any): Product {
     warranty: raw.warranty,
     brand: raw.brand ? { id: raw.brand.id, documentId: raw.brand.documentId, name: raw.brand.name, slug: raw.brand.slug } : null,
     category: raw.category
-      ? { id: raw.category.id, documentId: raw.category.documentId, name: raw.category.name, slug: raw.category.slug, description: raw.category.description, productCount: 0 }
+      ? {
+          id: raw.category.id,
+          documentId: raw.category.documentId,
+          updatedAt: raw.category.updatedAt ?? raw.category.publishedAt ?? raw.category.createdAt ?? null,
+          name: raw.category.name,
+          slug: raw.category.slug,
+          description: raw.category.description,
+          productCount: 0,
+        }
       : null,
     tags: (raw.tags || []).map((t: any) => ({ id: t.id, documentId: t.documentId, name: t.name, slug: t.slug })),
     variants: (raw.variants || []).map(mapVariant),
     seo: raw.seo ? { metaTitle: raw.seo.metaTitle, metaDescription: raw.seo.metaDescription } : null,
+    mainImage: mapMedia(raw.mainImage),
+    gallery: (raw.gallery || []).map(mapMedia).filter(Boolean) as StrapiMedia[],
   };
 }
 
 const PRODUCT_POPULATE =
-  "populate[brand]=true&populate[category]=true&populate[tags]=true&populate[specs]=true&populate[variants][populate]=color&populate[seo][populate]=*";
+  "populate[brand]=true&populate[category]=true&populate[tags]=true&populate[specs]=true&populate[variants][populate]=image&populate[seo][populate]=*&populate[mainImage]=true&populate[gallery]=true";
 
 export async function getSiteSettings(): Promise<SiteSettings> {
   const json = await strapiFetch<any>(
@@ -215,6 +256,7 @@ export async function getSiteSettings(): Promise<SiteSettings> {
   );
   const d = json.data;
   return {
+    updatedAt: d.updatedAt ?? d.publishedAt ?? d.createdAt ?? null,
     whatsappNumber: d.whatsappNumber,
     showTopBar: d.showTopBar,
     topBarText: d.topBarText,
@@ -238,7 +280,7 @@ export async function getSiteSettings(): Promise<SiteSettings> {
 
 export async function getHomepage(): Promise<Homepage> {
   const json = await strapiFetch<any>(
-    "/api/homepage?populate[hero][populate]=trustBadges&populate[benefits]=true&populate[steps]=true&populate[testimonials]=true&populate[whatsappBanner]=true"
+    "/api/homepage?populate[hero][populate][0]=trustBadges&populate[hero][populate][1]=image&populate[benefits]=true&populate[steps]=true&populate[testimonials]=true&populate[whatsappBanner]=true"
   );
   const d = json.data;
   return {
@@ -252,6 +294,7 @@ export async function getHomepage(): Promise<Homepage> {
       ctaLink: d.hero.ctaLink,
       secondaryCtaLabel: d.hero.secondaryCtaLabel,
       secondaryCtaLink: d.hero.secondaryCtaLink,
+      image: mapMedia(d.hero.image),
       trustBadges: (d.hero.trustBadges || []).map((b: any) => ({ text: b.text })),
     },
     benefits: (d.benefits || []).map((b: any) => ({ icon: b.icon, title: b.title, description: b.description })),
@@ -271,6 +314,7 @@ export async function getCategories(): Promise<Category[]> {
   return json.data.map((c: any) => ({
     id: c.id,
     documentId: c.documentId,
+    updatedAt: c.updatedAt ?? c.publishedAt ?? c.createdAt ?? null,
     name: c.name,
     slug: c.slug,
     description: c.description,
@@ -285,6 +329,7 @@ export async function getCategoryBySlug(slug: string): Promise<Category | null> 
   return {
     id: raw.id,
     documentId: raw.documentId,
+    updatedAt: raw.updatedAt ?? raw.publishedAt ?? raw.createdAt ?? null,
     name: raw.name,
     slug: raw.slug,
     description: raw.description,
@@ -318,5 +363,12 @@ export async function getFaqs(): Promise<Faq[]> {
 
 export async function getPolicies(): Promise<Policy[]> {
   const json = await strapiFetch<any>("/api/policies?pagination[pageSize]=100");
-  return json.data.map((p: any) => ({ id: p.id, documentId: p.documentId, title: p.title, slug: p.slug, body: p.body }));
+  return json.data.map((p: any) => ({
+    id: p.id,
+    documentId: p.documentId,
+    updatedAt: p.updatedAt ?? p.publishedAt ?? p.createdAt ?? null,
+    title: p.title,
+    slug: p.slug,
+    body: p.body,
+  }));
 }

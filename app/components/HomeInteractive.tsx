@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { css } from "../lib/css";
+import Image from "next/image";
 import { fmt } from "../lib/wa";
 import { useCart } from "./CartProvider";
 import ProductCard, { CardVM } from "./ProductCard";
 import type { Homepage, Product, Category } from "../lib/strapi";
+import { cn } from "../lib/cn";
 
 function toCardVM(p: Product, addItem: ReturnType<typeof useCart>["addItem"]): CardVM {
   const v = p.variants.find((x) => x.available) ?? p.variants[0];
@@ -25,6 +26,7 @@ function toCardVM(p: Product, addItem: ReturnType<typeof useCart>["addItem"]): C
     badgeFg: oldPrice ? "#09050D" : "#FFFFFF",
     out: allUnavailable,
     canAdd: !allUnavailable,
+    image: p.mainImage,
     add: () => {
       if (!v) return;
       addItem(
@@ -60,123 +62,134 @@ export default function HomeInteractive({
   return (
     <>
       {/* ===== HOME ===== */}
-      <section style={css("position:relative;overflow:hidden;background:radial-gradient(1100px 500px at 75% -10%,rgba(139,44,245,.35),transparent 65%),radial-gradient(circle at 12% 90%,rgba(140,255,0,.07),transparent 40%),#120020")}>
-        <div style={css("position:absolute;inset:0;background:radial-gradient(rgba(176,86,255,.13) 1px,transparent 1.5px);background-size:20px 20px;mask-image:linear-gradient(115deg,transparent 35%,black 75%)")}></div>
-        <div style={css("position:relative;max-width:1240px;margin:0 auto;padding:64px 24px 72px;display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:48px;align-items:center")}>
-          <div style={css("display:flex;flex-direction:column;gap:18px")}>
-            <span style={css("align-self:flex-start;font:700 11.5px 'Space Grotesk',sans-serif;letter-spacing:.18em;text-transform:uppercase;color:#8CFF00;border:1px solid rgba(140,255,0,.4);border-radius:20px;padding:7px 14px")}>{homepage.hero.eyebrow}</span>
-            <h1 style={css("margin:0;font:700 clamp(34px,4.5vw,56px)/1.05 'Space Grotesk',sans-serif;letter-spacing:-.01em")}><span style={css("color:#B056FF")}>{homepage.hero.headlineAccent}</span><br />{homepage.hero.headline}<br /><span style={css("color:#8CFF00")}>{homepage.hero.headlineHighlight}</span></h1>
-            <p style={css("margin:0;max-width:440px;font:500 15.5px/1.65 'Manrope',sans-serif;color:#D8D5E0")}>{homepage.hero.subtext}</p>
-            <div style={css("display:flex;gap:12px;flex-wrap:wrap;margin-top:6px")}>
-              <Link href={homepage.hero.ctaLink} className="vh-btn-lime-lift" style={css("background:#8CFF00;color:#09050D;border:none;border-radius:10px;padding:15px 28px;font:700 14.5px 'Space Grotesk',sans-serif;letter-spacing:.03em;cursor:pointer;box-shadow:0 0 28px rgba(140,255,0,.35);transition:background .15s,transform .12s;text-decoration:none;display:inline-block")}>{homepage.hero.ctaLabel}</Link>
-              <Link href="/categorias" className="vh-ghost-violet" style={css("background:transparent;color:#FFFFFF;border:1px solid #8B2CF5;border-radius:10px;padding:15px 28px;font:600 14.5px 'Space Grotesk',sans-serif;cursor:pointer;transition:background .15s;text-decoration:none;display:inline-block")}>{homepage.hero.secondaryCtaLabel}</Link>
+      <section className="relative overflow-hidden vh-home-hero-bg">
+        <div className="absolute inset-0 vh-hero-pattern"></div>
+        <div className="relative max-w-310 my-0 mx-auto pt-16 px-6 pb-18 grid vh-grid-hero gap-12 items-center">
+          <div className="flex flex-col gap-4.5">
+            <span className="self-start font-bold text-vh-11-5 font-space-grotesk tracking-vh-018 uppercase text-vh-lime border border-vh-lime/40 rounded-vh-20 py-1.75 px-3.5">{homepage.hero.eyebrow}</span>
+            <h1 className="m-0 font-bold text-vh-34/vh-105 vh-hero-title font-space-grotesk -tracking-vh-001"><span className="text-vh-accent">{homepage.hero.headlineAccent}</span><br />{homepage.hero.headline}<br /><span className="text-vh-lime">{homepage.hero.headlineHighlight}</span></h1>
+            <p className="m-0 max-w-110 font-medium text-vh-15-5/vh-165 font-manrope text-vh-soft">{homepage.hero.subtext}</p>
+            <div className="flex gap-3 flex-wrap mt-1.5">
+              <Link href={homepage.hero.ctaLink} className="vh-btn-lime-lift bg-vh-lime border-0 rounded-vh-10 py-3.75 px-7 font-bold text-vh-14-5 font-space-grotesk tracking-vh-003 cursor-pointer shadow-vh-lime-28 vh-button-lift-transition no-underline inline-block text-vh-ink!">{homepage.hero.ctaLabel}</Link>
+              <Link href="/categorias" className="vh-ghost-violet bg-transparent border border-vh-violet rounded-vh-10 py-3.75 px-7 font-semibold text-vh-14-5 font-space-grotesk cursor-pointer vh-button-bg-transition no-underline inline-block text-white!">{homepage.hero.secondaryCtaLabel}</Link>
             </div>
-            <div style={css("display:flex;gap:22px;flex-wrap:wrap;margin-top:10px")}>
+            <div className="flex gap-5.5 flex-wrap mt-2.5">
               {homepage.hero.trustBadges.map((b, i) => (
-                <span key={i} style={css("font:600 12.5px 'Manrope',sans-serif;color:#9690A3")}><span style={css("color:#8CFF00")}>✓</span> {b.text}</span>
+                <span key={i} className="font-semibold text-vh-12-5 font-manrope text-vh-muted"><span className="text-vh-lime">✓</span> {b.text}</span>
               ))}
             </div>
           </div>
-          <div style={css("position:relative;display:flex;align-items:center;justify-content:center;min-height:340px")}>
-            <div style={css("position:absolute;bottom:8%;width:70%;height:60px;background:radial-gradient(ellipse,rgba(140,255,0,.4),transparent 70%);filter:blur(18px);animation:vh-glow 3.5s ease-in-out infinite")}></div>
-            <div style={css("position:relative;width:min(340px,80%);aspect-ratio:3/4;background:repeating-linear-gradient(45deg,#2A0A45 0 14px,#24063C 14px 28px);border:1px solid #341052;border-radius:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 24px 60px rgba(9,5,13,.6)")}>
-              <span style={css("font:500 12px ui-monospace,Menlo,monospace;color:#9690A3;background:rgba(9,5,13,.55);padding:6px 12px;border-radius:6px")}>[foto: Galaxy S25 Ultra]</span>
+          <div className="relative flex items-center justify-center min-h-85">
+            <div className="absolute vh-hero-glow h-15 blur-vh-18 animate-vh-glow"></div>
+            <div className={cn("relative vh-hero-product-frame aspect-3/4 border border-vh-border rounded-vh-20 flex items-center justify-center shadow-vh-product overflow-hidden", homepage.hero.image ? "bg-vh-card" : "vh-product-placeholder-bg")}>
+              {homepage.hero.image ? (
+                <Image
+                  src={homepage.hero.image.url}
+                  alt={homepage.hero.image.alternativeText ?? homepage.hero.headlineAccent}
+                  fill
+                  priority
+                  sizes="(max-width:768px) 80vw, 340px"
+                  className="object-contain"
+                />
+              ) : (
+                <span className="font-medium text-vh-12 font-mono text-vh-muted bg-vh-ink/55 py-1.5 px-3 rounded-md">[foto do destaque]</span>
+              )}
             </div>
           </div>
         </div>
       </section>
 
-      <section style={css("max-width:1240px;margin:0 auto;padding:56px 24px 8px;width:100%")}>
-        <div style={css("display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:22px")}>
-          <h2 style={css("margin:0;font:700 26px 'Space Grotesk',sans-serif;color:#FFFFFF")}>Categorias</h2>
-          <Link href="/categorias" className="vh-lime" style={css("font:600 13px 'Space Grotesk',sans-serif;color:#B056FF;cursor:pointer;text-decoration:none")}>Ver todas →</Link>
+      <section className="max-w-310 my-0 mx-auto pt-14 px-6 pb-2 w-full">
+        <div className="flex items-baseline justify-between gap-4 mb-5.5">
+          <h2 className="m-0 font-bold text-vh-26 font-space-grotesk text-white">Categorias</h2>
+          <Link href="/categorias" className="vh-lime font-semibold text-vh-13 font-space-grotesk text-vh-accent cursor-pointer no-underline">Ver todas →</Link>
         </div>
-        <div style={css("display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px")}>
+        <div className="grid vh-grid-categories gap-3.5">
           {categories.filter((c) => c.productCount > 0).map((c, i) => (
-            <Link key={i} href={`/c/${c.slug}`} className="vh-cardcat" style={css("background:linear-gradient(160deg,#22003D,#1D0333);border:1px solid #341052;border-radius:14px;padding:20px 18px;cursor:pointer;display:flex;flex-direction:column;gap:8px;transition:border-color .15s,transform .15s;text-decoration:none;color:inherit")}>
-              <span style={css("width:12px;height:12px;background:linear-gradient(135deg,#8B2CF5,#B056FF);transform:rotate(45deg);border-radius:3px")}></span>
-              <span style={css("font:700 15px 'Space Grotesk',sans-serif;color:#FFFFFF")}>{c.name}</span>
-              <span style={css("font:500 12px 'Manrope',sans-serif;color:#9690A3")}>{c.productCount} produtos</span>
+            <Link key={i} href={`/categoria/${c.slug}`} className="vh-cardcat vh-cardcat-bg border border-vh-border rounded-vh-14 py-5 px-4.5 cursor-pointer flex flex-col gap-2 vh-card-transition no-underline text-inherit">
+              <span className="w-3 h-3 vh-diamond-bg rotate-45 rounded-vh-3"></span>
+              <span className="font-bold text-vh-15 font-space-grotesk text-white">{c.name}</span>
+              <span className="font-medium text-vh-12 font-manrope text-vh-muted">{c.productCount} produtos</span>
             </Link>
           ))}
         </div>
       </section>
 
-      <section style={css("max-width:1240px;margin:0 auto;padding:48px 24px 8px;width:100%")}>
-        <div style={css("display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:22px")}>
-          <h2 style={css("margin:0;font:700 26px 'Space Grotesk',sans-serif")}>Destaques</h2>
+      <section className="max-w-310 my-0 mx-auto pt-12 px-6 pb-2 w-full">
+        <div className="flex items-baseline justify-between gap-4 mb-5.5">
+          <h2 className="m-0 font-bold text-vh-26 font-space-grotesk">Destaques</h2>
         </div>
-        <div style={css("display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px")}>
+        <div className="grid vh-grid-products gap-4">
           {featured.map((p, i) => (<ProductCard key={i} p={toCardVM(p, addItem)} />))}
         </div>
       </section>
 
-      <section style={css("background:#22003D;margin-top:56px")}>
-        <div style={css("max-width:1240px;margin:0 auto;padding:48px 24px;width:100%")}>
-          <div style={css("display:flex;align-items:baseline;gap:14px;margin-bottom:22px")}>
-            <h2 style={css("margin:0;font:700 26px 'Space Grotesk',sans-serif;color:#8CFF00")}>Ofertas imperdíveis</h2>
-            <span style={css("font:700 11px 'Space Grotesk',sans-serif;letter-spacing:.1em;background:#8CFF00;color:#09050D;padding:4px 9px;border-radius:6px;text-transform:uppercase")}>Por tempo limitado</span>
+      <section className="bg-vh-panel mt-14">
+        <div className="max-w-310 my-0 mx-auto py-12 px-6 w-full">
+          <div className="flex items-baseline gap-3.5 mb-5.5">
+            <h2 className="m-0 font-bold text-vh-26 font-space-grotesk text-vh-lime">Ofertas imperdíveis</h2>
+            <span className="font-bold text-vh-11 font-space-grotesk tracking-widest bg-vh-lime text-vh-ink py-1 px-2.25 rounded-md uppercase">Por tempo limitado</span>
           </div>
-          <div style={css("display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px")}>
+          <div className="grid vh-grid-products gap-4">
             {offers.map((p, i) => (<ProductCard key={i} p={toCardVM(p, addItem)} />))}
           </div>
         </div>
       </section>
 
-      <section style={css("max-width:1240px;margin:0 auto;padding:56px 24px 8px;width:100%")}>
-        <h2 style={css("margin:0 0 22px;font:700 26px 'Space Grotesk',sans-serif")}>Lançamentos</h2>
-        <div style={css("display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px")}>
+      <section className="max-w-310 my-0 mx-auto pt-14 px-6 pb-2 w-full">
+        <h2 className="mt-0 mx-0 mb-5.5 font-bold text-vh-26 font-space-grotesk">Lançamentos</h2>
+        <div className="grid vh-grid-products gap-4">
           {launches.map((p, i) => (<ProductCard key={i} p={toCardVM(p, addItem)} />))}
         </div>
       </section>
 
-      <section style={css("max-width:1240px;margin:0 auto;padding:56px 24px 0;width:100%")}>
-        <div style={css("display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px")}>
+      <section className="max-w-310 my-0 mx-auto pt-14 px-6 pb-0 w-full">
+        <div className="grid vh-grid-benefits gap-3.5">
           {homepage.benefits.map((b, i) => (
-            <div key={i} style={css("background:#1D0333;border:1px solid #341052;border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:10px")}>
-              <span style={css("width:34px;height:34px;border-radius:10px;background:rgba(140,255,0,.12);border:1px solid rgba(140,255,0,.35);display:flex;align-items:center;justify-content:center;color:#8CFF00;font:700 15px 'Space Grotesk',sans-serif")}>{b.icon}</span>
-              <span style={css("font:700 15px 'Space Grotesk',sans-serif;color:#FFFFFF")}>{b.title}</span>
-              <span style={css("font:500 13px/1.55 'Manrope',sans-serif;color:#9690A3")}>{b.description}</span>
+            <div key={i} className="bg-vh-card border border-vh-border rounded-vh-14 p-5.5 flex flex-col gap-2.5">
+              <span className="w-8.5 h-8.5 rounded-vh-10 bg-vh-lime/12 border border-vh-lime/35 flex items-center justify-center text-vh-lime font-bold text-vh-15 font-space-grotesk">{b.icon}</span>
+              <span className="font-bold text-vh-15 font-space-grotesk text-white">{b.title}</span>
+              <span className="font-medium text-vh-13/vh-155 font-manrope text-vh-muted">{b.description}</span>
             </div>
           ))}
         </div>
       </section>
 
-      <section style={css("max-width:1240px;margin:0 auto;padding:64px 24px 0;width:100%")}>
-        <h2 style={css("margin:0 0 8px;font:700 26px 'Space Grotesk',sans-serif;text-align:center")}>Como comprar pelo <span style={css("color:#25D366")}>WhatsApp</span></h2>
-        <p style={css("margin:0 auto 30px;max-width:520px;text-align:center;font:500 14px/1.6 'Manrope',sans-serif;color:#9690A3")}>Sem checkout, sem complicação. Você escolhe no site e finaliza com um atendente de verdade.</p>
-        <div style={css("display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px")}>
+      <section className="max-w-310 my-0 mx-auto pt-16 px-6 pb-0 w-full">
+        <h2 className="mt-0 mx-0 mb-2 font-bold text-vh-26 font-space-grotesk text-center">Como comprar pelo <span className="text-vh-wa">WhatsApp</span></h2>
+        <p className="mt-0 mx-auto mb-7.5 max-w-130 text-center font-medium text-vh-14/vh-16 font-manrope text-vh-muted">Sem checkout, sem complicação. Você escolhe no site e finaliza com um atendente de verdade.</p>
+        <div className="grid vh-grid-steps gap-3.5">
           {homepage.steps.map((s, i) => (
-            <div key={i} style={css("background:linear-gradient(160deg,#22003D,#1D0333);border:1px solid #341052;border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:10px")}>
-              <span style={css("font:700 30px 'Space Grotesk',sans-serif;color:#8CFF00")}>{s.number}</span>
-              <span style={css("font:700 15.5px 'Space Grotesk',sans-serif")}>{s.title}</span>
-              <span style={css("font:500 13px/1.55 'Manrope',sans-serif;color:#9690A3")}>{s.description}</span>
+            <div key={i} className="vh-cardcat-bg border border-vh-border rounded-vh-14 p-6 flex flex-col gap-2.5">
+              <span className="font-bold text-vh-30 font-space-grotesk text-vh-lime">{s.number}</span>
+              <span className="font-bold text-vh-15-5 font-space-grotesk">{s.title}</span>
+              <span className="font-medium text-vh-13/vh-155 font-manrope text-vh-muted">{s.description}</span>
             </div>
           ))}
         </div>
       </section>
 
-      <section style={css("max-width:1240px;margin:0 auto;padding:64px 24px 0;width:100%")}>
-        <h2 style={css("margin:0 0 26px;font:700 26px 'Space Grotesk',sans-serif;text-align:center")}>Quem comprou, recomenda</h2>
-        <div style={css("display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px")}>
+      <section className="max-w-310 my-0 mx-auto pt-16 px-6 pb-0 w-full">
+        <h2 className="mt-0 mx-0 mb-6.5 font-bold text-vh-26 font-space-grotesk text-center">Quem comprou, recomenda</h2>
+        <div className="grid vh-grid-testimonials gap-3.5">
           {homepage.testimonials.map((t, i) => (
-            <div key={i} style={css("background:#1D0333;border:1px solid #341052;border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:12px")}>
-              <span style={css("color:#8CFF00;font:700 14px 'Space Grotesk',sans-serif;letter-spacing:.25em")}>★★★★★</span>
-              <span style={css("font:500 14px/1.6 'Manrope',sans-serif;color:#D8D5E0")}>&quot;{t.quote}&quot;</span>
-              <span style={css("font:700 12.5px 'Space Grotesk',sans-serif;color:#B056FF")}>{t.authorName} <span style={css("color:#9690A3;font-weight:500")}>· {t.authorLocation}</span></span>
+            <div key={i} className="bg-vh-card border border-vh-border rounded-vh-14 p-6 flex flex-col gap-3">
+              <span className="text-vh-lime font-bold text-vh-14 font-space-grotesk tracking-vh-025">★★★★★</span>
+              <span className="font-medium text-vh-14/vh-16 font-manrope text-vh-soft">&quot;{t.quote}&quot;</span>
+              <span className="font-bold text-vh-12-5 font-space-grotesk text-vh-accent">{t.authorName} <span className="text-vh-muted font-medium">· {t.authorLocation}</span></span>
             </div>
           ))}
         </div>
       </section>
 
-      <section style={css("max-width:1240px;margin:64px auto 0;padding:0 24px;width:100%")}>
-        <div style={css("position:relative;overflow:hidden;background:radial-gradient(700px 300px at 85% 0%,rgba(37,211,102,.22),transparent 60%),linear-gradient(160deg,#22003D,#120020);border:1px solid #341052;border-radius:20px;padding:44px 40px;display:flex;flex-wrap:wrap;gap:28px;align-items:center;justify-content:space-between")}>
-          <div style={css("position:absolute;inset:0;background:radial-gradient(rgba(176,86,255,.12) 1px,transparent 1.5px);background-size:18px 18px;mask-image:linear-gradient(100deg,transparent 40%,black 90%)")}></div>
-          <div style={css("position:relative;max-width:560px;display:flex;flex-direction:column;gap:10px")}>
-            <h2 style={css("margin:0;font:700 clamp(24px,3vw,34px)/1.15 'Space Grotesk',sans-serif;color:#B056FF")}>{homepage.whatsappBanner.headline}</h2>
-            <p style={css("margin:0;font:500 14px/1.6 'Manrope',sans-serif;color:#D8D5E0")}>{homepage.whatsappBanner.text}</p>
+      <section className="max-w-310 mt-16 mx-auto mb-0 py-0 px-6 w-full">
+        <div className="relative overflow-hidden vh-whatsapp-banner-bg border border-vh-border rounded-vh-20 py-11 px-10 flex flex-wrap gap-7 items-center justify-between">
+          <div className="absolute inset-0 vh-whatsapp-pattern"></div>
+          <div className="relative max-w-140 flex flex-col gap-2.5">
+            <h2 className="m-0 font-bold text-vh-24/vh-115 vh-whatsapp-title font-space-grotesk text-vh-accent">{homepage.whatsappBanner.headline}</h2>
+            <p className="m-0 font-medium text-vh-14/vh-16 font-manrope text-vh-soft">{homepage.whatsappBanner.text}</p>
           </div>
-          <a className="vh-wa" href={homepage.whatsappBanner.buttonLink} target="_blank" style={css("position:relative;display:inline-flex;align-items:center;gap:10px;background:#25D366;color:#062e17;border-radius:12px;padding:16px 30px;font:700 15px 'Space Grotesk',sans-serif;box-shadow:0 0 34px rgba(37,211,102,.4);transition:filter .15s")}><span style={css("width:10px;height:10px;background:#062e17;border-radius:50%")}></span>{homepage.whatsappBanner.buttonLabel}</a>
+          <a className="vh-wa relative inline-flex items-center gap-2.5 bg-vh-wa rounded-xl py-4 px-7.5 font-bold text-vh-15 font-space-grotesk shadow-vh-wa-34 vh-filter-transition text-vh-wa-dark!" href={homepage.whatsappBanner.buttonLink} target="_blank"><span className="w-2.5 h-2.5 bg-vh-wa-dark rounded-full"></span>{homepage.whatsappBanner.buttonLabel}</a>
         </div>
       </section>
     </>

@@ -1,5 +1,8 @@
 import Link from "next/link";
-import { css } from "../lib/css";
+import Image from "next/image";
+import type { StrapiMedia } from "../lib/strapi";
+import { bgClass, textClass } from "../lib/color-classes";
+import { cn } from "../lib/cn";
 
 export interface CardVM {
   slug: string;
@@ -12,49 +15,55 @@ export interface CardVM {
   badgeFg: string;
   out: boolean;
   canAdd: boolean;
+  image: StrapiMedia | null;
   add: () => void;
 }
 
 export default function ProductCard({ p }: { p: CardVM }) {
   return (
     <Link
-      href={`/p/${p.slug}`}
-      className="vh-cardprod"
-      style={css(
-        "width:100%;background:#1D0333;border:1px solid #341052;border-radius:14px;overflow:hidden;display:flex;flex-direction:column;cursor:pointer;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;text-decoration:none;color:inherit"
-      )}
+      href={`/produto/${p.slug}`}
+      className="vh-cardprod w-full bg-vh-card border border-vh-border rounded-vh-14 overflow-hidden flex flex-col cursor-pointer [transition:transform_.18s_ease,border-color_.18s_ease,box-shadow_.18s_ease] no-underline text-inherit"
     >
-      <div style={css("position:relative;aspect-ratio:1/1;background:repeating-linear-gradient(45deg,#2A0A45 0 12px,#24063C 12px 24px);display:flex;align-items:center;justify-content:center")}>
-        <span style={css("font:500 11px ui-monospace,Menlo,monospace;color:#9690A3;background:rgba(9,5,13,.55);padding:5px 10px;border-radius:6px")}>[foto: {p.name}]</span>
+      <div className="relative aspect-square bg-[repeating-linear-gradient(45deg,#2A0A45_0_12px,#24063C_12px_24px)] flex items-center justify-center">
+        {p.image ? (
+          <Image
+            src={p.image.url}
+            alt={p.image.alternativeText ?? p.name}
+            fill
+            sizes="(max-width:640px) 50vw, (max-width:1240px) 33vw, 300px"
+            className="object-contain"
+          />
+        ) : (
+          <span className="font-medium text-vh-11 font-mono text-vh-muted bg-vh-ink/55 py-1.25 px-2.5 rounded-md">[foto: {p.name}]</span>
+        )}
         {p.badge && (
-          <span style={{ ...css("position:absolute;top:10px;left:10px;font:700 11px 'Space Grotesk',sans-serif;letter-spacing:.06em;text-transform:uppercase;padding:5px 9px;border-radius:6px"), background: p.badgeBg, color: p.badgeFg }}>{p.badge}</span>
+          <span className={cn("absolute top-2.5 left-2.5 font-bold text-vh-11 font-space-grotesk tracking-vh-006 uppercase py-1.25 px-2.25 rounded-md", bgClass(p.badgeBg), textClass(p.badgeFg))}>{p.badge}</span>
         )}
         {p.out && (
-          <span style={css("position:absolute;inset:auto 10px 10px 10px;text-align:center;font:600 11px 'Space Grotesk',sans-serif;letter-spacing:.05em;padding:6px;border-radius:6px;background:rgba(9,5,13,.75);color:#D8D5E0;text-transform:uppercase")}>Esgotado</span>
+          <span className="absolute top-auto right-2.5 bottom-2.5 left-2.5 text-center font-semibold text-vh-11 font-space-grotesk tracking-wider p-1.5 rounded-md bg-vh-ink/75 text-vh-soft uppercase">Esgotado</span>
         )}
       </div>
-      <div style={css("padding:14px 16px 16px;display:flex;flex-direction:column;gap:6px;flex:1")}>
-        <span style={css("font:600 10.5px 'Space Grotesk',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#B056FF")}>{p.brand}</span>
-        <span style={css("font:600 14.5px/1.35 'Space Grotesk',sans-serif;color:#FFFFFF")}>{p.name}</span>
-        <div style={css("margin-top:auto;padding-top:8px;display:flex;flex-direction:column;gap:2px")}>
+      <div className="pt-3.5 px-4 pb-4 flex flex-col gap-1.5 flex-1">
+        <span className="font-semibold text-vh-10-5 font-space-grotesk tracking-vh-012 uppercase text-vh-accent">{p.brand}</span>
+        <span className="font-semibold text-vh-14-5/[1.35] font-space-grotesk text-white">{p.name}</span>
+        <div className="mt-auto pt-2 flex flex-col gap-0.5">
           {p.oldPriceF && (
-            <span style={css("font:500 12px 'Manrope',sans-serif;color:#9690A3;text-decoration:line-through")}>{p.oldPriceF}</span>
+            <span className="font-medium text-vh-12 font-manrope text-vh-muted line-through">{p.oldPriceF}</span>
           )}
-          <span style={css("font:700 19px 'Space Grotesk',sans-serif;color:#8CFF00")}>{p.priceF}</span>
-          <span style={css("font:500 11px 'Manrope',sans-serif;color:#9690A3")}>à combinar no atendimento</span>
+          <span className="font-bold text-vh-19 font-space-grotesk text-vh-lime">{p.priceF}</span>
+          <span className="font-medium text-vh-11 font-manrope text-vh-muted">à combinar no atendimento</span>
         </div>
-        <div style={css("display:flex;gap:8px;margin-top:10px")}>
+        <div className="flex gap-2 mt-2.5">
           <span
-            className="vh-ghost-violet"
-            style={css("flex:1;font:600 12.5px 'Space Grotesk',sans-serif;color:#FFFFFF;background:transparent;border:1px solid #8B2CF5;border-radius:8px;padding:9px 0;cursor:pointer;transition:background .15s;text-align:center")}
+            className="vh-ghost-violet flex-1 font-semibold text-vh-12-5 font-space-grotesk bg-transparent border border-vh-violet rounded-lg py-2.25 px-0 cursor-pointer [transition:background_.15s] text-center text-white!"
           >
             Ver detalhes
           </span>
           {p.canAdd && (
             <button
-              className="vh-btn-lime"
+              className="vh-btn-lime w-9.5 font-bold text-vh-18 font-space-grotesk bg-vh-lime border-0 rounded-lg cursor-pointer [transition:background_.15s] text-vh-ink!"
               title="Adicionar à lista"
-              style={css("width:38px;font:700 18px 'Space Grotesk',sans-serif;color:#09050D;background:#8CFF00;border:none;border-radius:8px;cursor:pointer;transition:background .15s")}
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -65,7 +74,7 @@ export default function ProductCard({ p }: { p: CardVM }) {
             </button>
           )}
           {p.out && (
-            <button disabled style={css("width:38px;font:700 18px 'Space Grotesk',sans-serif;color:#9690A3;background:#341052;border:none;border-radius:8px;cursor:not-allowed")}>
+            <button disabled className="w-9.5 font-bold text-vh-18 font-space-grotesk text-vh-muted bg-vh-border border-0 rounded-lg cursor-not-allowed">
               +
             </button>
           )}
