@@ -5,12 +5,54 @@ import { CartProvider } from "./components/CartProvider";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Fab from "./components/Fab";
+import Analytics from "./components/Analytics";
+import { getCanonicalPath, getSiteUrl, isProductionIndexable } from "./lib/site-url";
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
+  const siteName = "Valhalla Tecnologia";
+  const title = settings.defaultSeo?.metaTitle ?? siteName;
+  const description = settings.defaultSeo?.metaDescription ?? "";
+  const indexable = isProductionIndexable();
+
   return {
-    title: settings.defaultSeo?.metaTitle ?? "Valhalla Tecnologia",
-    description: settings.defaultSeo?.metaDescription ?? "",
+    metadataBase: new URL(getSiteUrl()),
+    applicationName: siteName,
+    title: {
+      default: title,
+      template: `%s | ${siteName}`,
+    },
+    description,
+    alternates: {
+      canonical: getCanonicalPath("/"),
+    },
+    robots: {
+      index: indexable,
+      follow: indexable,
+      googleBot: {
+        index: indexable,
+        follow: indexable,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
+    },
+    openGraph: {
+      title,
+      description,
+      url: getCanonicalPath("/"),
+      siteName,
+      locale: "pt_BR",
+      type: "website",
+    },
+    twitter: {
+      card: "summary",
+      title,
+      description,
+    },
+    icons: {
+      icon: "/favicon.ico",
+    },
   };
 }
 
@@ -23,6 +65,7 @@ export default async function RootLayout({
 
   return (
     <html lang="pt-BR">
+      <Analytics />
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -38,7 +81,7 @@ export default async function RootLayout({
               since the original source has it as a sibling immediately before <header>) — do not add a
               second copy of it here. */}
           <Header categories={categories} products={products} whatsappNumber={settings.whatsappNumber} showTopBar={settings.showTopBar} topBarText={settings.topBarText} />
-          <main style={{ flex: 1 }}>{children}</main>
+          <main className="flex-1">{children}</main>
           <Footer categories={categories} settings={settings} />
           <Fab show={settings.showFab} whatsappNumber={settings.whatsappNumber} />
         </CartProvider>

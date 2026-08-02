@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { css } from "../lib/css";
 
 export default function ContactForm() {
   const [cName, setCName] = useState("");
@@ -10,32 +9,29 @@ export default function ContactForm() {
   const [sent, setSent] = useState(false);
 
   return (
-    <div style={css("background:#1D0333;border:1px solid #341052;border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:12px")}>
-      <span style={css("font:700 15px 'Space Grotesk',sans-serif")}>Prefere e-mail? Escreva aqui</span>
+    <div className="bg-vh-card border border-vh-border rounded-2xl p-6 flex flex-col gap-3">
+      <span className="font-bold text-vh-15 font-space-grotesk">Prefere e-mail? Escreva aqui</span>
       <input
-        className="vh-input"
+        className="vh-input bg-vh-bg border border-vh-border rounded-vh-10 py-3.25 px-3.75 text-white font-medium text-vh-13-5 font-manrope outline-none"
         value={cName}
         onChange={(e) => setCName(e.target.value)}
         placeholder="Seu nome"
-        style={css("background:#120020;border:1px solid #341052;border-radius:10px;padding:13px 15px;color:#FFFFFF;font:500 13.5px 'Manrope',sans-serif;outline:none")}
       />
       <input
-        className="vh-input"
+        className="vh-input bg-vh-bg border border-vh-border rounded-vh-10 py-3.25 px-3.75 text-white font-medium text-vh-13-5 font-manrope outline-none"
         value={cMail}
         onChange={(e) => setCMail(e.target.value)}
         placeholder="Seu e-mail"
-        style={css("background:#120020;border:1px solid #341052;border-radius:10px;padding:13px 15px;color:#FFFFFF;font:500 13.5px 'Manrope',sans-serif;outline:none")}
       />
       <textarea
-        className="vh-input"
+        className="vh-input bg-vh-bg border border-vh-border rounded-vh-10 py-3.25 px-3.75 text-white font-medium text-vh-13-5 font-manrope outline-none resize-y"
         value={cMsg}
         onChange={(e) => setCMsg(e.target.value)}
         placeholder="Sua mensagem"
         rows={4}
-        style={css("background:#120020;border:1px solid #341052;border-radius:10px;padding:13px 15px;color:#FFFFFF;font:500 13.5px 'Manrope',sans-serif;outline:none;resize:vertical")}
       />
       <button
-        className="vh-btn-lime"
+        className="vh-btn-lime bg-vh-lime border-0 rounded-vh-10 p-3.5 font-bold text-vh-14 font-space-grotesk cursor-pointer text-vh-ink!"
         onClick={() => {
           setCName("");
           setCMail("");
@@ -43,11 +39,10 @@ export default function ContactForm() {
           setSent(true);
           setTimeout(() => setSent(false), 2600);
         }}
-        style={css("background:#8CFF00;color:#09050D;border:none;border-radius:10px;padding:14px;font:700 14px 'Space Grotesk',sans-serif;cursor:pointer")}
       >
         Enviar mensagem
       </button>
-      {sent && <span style={css("font:600 12.5px 'Manrope',sans-serif;color:#8CFF00")}>Mensagem enviada! Retornaremos em breve.</span>}
+      {sent && <span className="font-semibold text-vh-12-5 font-manrope text-vh-lime">Mensagem enviada! Retornaremos em breve.</span>}
     </div>
   );
 }

@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { css } from "../lib/css";
 import { fmt, waUrl } from "../lib/wa";
 import { useCart } from "./CartProvider";
 import ProductCard, { CardVM } from "./ProductCard";
 import type { Product } from "../lib/strapi";
+import { cn } from "../lib/cn";
 
 function toCardVM(p: Product, addItem: ReturnType<typeof useCart>["addItem"]): CardVM {
   const v = p.variants.find((x) => x.available) ?? p.variants[0];
@@ -80,31 +80,34 @@ export default function CategoryListingClient({
   const waDirectUrl = waUrl(whatsappNumber, "Olá, equipe Valhalla Tecnologia! Gostaria de falar com um atendente.");
 
   return (
-    <section style={css("max-width:1240px;margin:0 auto;padding:40px 24px;width:100%")}>
-      <p style={css("margin:0 0 6px;font:600 12px 'Space Grotesk',sans-serif;color:#9690A3")}>
-        <Link href="/" style={css("cursor:pointer;color:#B056FF")}>Início</Link> / {crumb}
+    <section className="max-w-310 my-0 mx-auto py-10 px-6 w-full">
+      <p className="mt-0 mx-0 mb-1.5 font-semibold text-vh-12 font-space-grotesk text-vh-muted">
+        <Link href="/" className="cursor-pointer text-vh-accent">Início</Link> / {crumb}
       </p>
-      <div style={css("display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:20px")}>
-        <h1 style={css("margin:0;font:700 34px 'Space Grotesk',sans-serif")}>{title}</h1>
-        <span style={css("font:500 13.5px 'Manrope',sans-serif;color:#9690A3")}>{list.length} resultado(s)</span>
+      <div className="flex items-baseline gap-3.5 flex-wrap mb-5">
+        <h1 className="m-0 font-bold text-vh-34 font-space-grotesk">{title}</h1>
+        <span className="font-medium text-vh-13-5 font-manrope text-vh-muted">{list.length} resultado(s)</span>
       </div>
-      <div style={css("display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:24px")}>
+      <div className="flex gap-2.5 flex-wrap items-center mb-6">
         {brandChips.map((b, i) => (
           <span
             key={i}
-            className="vh-chip"
+            className={cn(
+              "vh-chip font-semibold text-vh-12-5 font-space-grotesk py-2 px-4 rounded-vh-20 cursor-pointer [transition:border-color_.12s] border",
+              b.bc === "#8CFF00" ? "border-vh-lime" : "border-vh-border",
+              b.fg === "#8CFF00" ? "text-vh-lime" : "text-vh-soft",
+              b.bg === "rgba(140,255,0,.08)" ? "bg-vh-lime/8" : "bg-vh-card"
+            )}
             onClick={b.pick}
-            style={{ ...css("font:600 12.5px 'Space Grotesk',sans-serif;padding:8px 16px;border-radius:20px;cursor:pointer;transition:border-color .12s"), border: "1px solid " + b.bc, color: b.fg, background: b.bg }}
           >
             {b.n}
           </span>
         ))}
-        <span style={css("flex:1")}></span>
+        <span className="flex-1"></span>
         <select
-          className="vh-select"
+          className="vh-select bg-vh-card border border-vh-border rounded-vh-10 py-2.5 px-3.5 text-white font-semibold text-vh-12-5 font-space-grotesk outline-none cursor-pointer"
           value={sort}
           onChange={(e) => setSort(e.target.value)}
-          style={css("background:#1D0333;border:1px solid #341052;border-radius:10px;padding:10px 14px;color:#FFFFFF;font:600 12.5px 'Space Grotesk',sans-serif;outline:none;cursor:pointer")}
         >
           <option value="rel">Relevância</option>
           <option value="asc">Menor preço</option>
@@ -113,30 +116,28 @@ export default function CategoryListingClient({
         </select>
       </div>
       {listingReady && (
-        <div style={css("display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px")}>
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(230px,1fr))] gap-4">
           {list.map((p, i) => (
             <ProductCard key={i} p={toCardVM(p, addItem)} />
           ))}
         </div>
       )}
       {listingEmpty && (
-        <div style={css("text-align:center;padding:70px 24px;background:#1D0333;border:1px dashed #341052;border-radius:16px")}>
-          <span style={css("display:inline-block;width:18px;height:18px;border:3px solid #8B2CF5;border-radius:50%;margin-bottom:14px")}></span>
-          <h3 style={css("margin:0 0 8px;font:700 20px 'Space Grotesk',sans-serif")}>{emptyTitle}</h3>
-          <p style={css("margin:0 0 20px;font:500 14px 'Manrope',sans-serif;color:#9690A3")}>{emptyDesc}</p>
-          <div style={css("display:flex;gap:10px;justify-content:center;flex-wrap:wrap")}>
+        <div className="text-center py-17.5 px-6 bg-vh-card border border-dashed border-vh-border rounded-2xl">
+          <span className="inline-block w-4.5 h-4.5 border-3 border-vh-violet rounded-full mb-3.5"></span>
+          <h3 className="mt-0 mx-0 mb-2 font-bold text-vh-20 font-space-grotesk">{emptyTitle}</h3>
+          <p className="mt-0 mx-0 mb-5 font-medium text-vh-14 font-manrope text-vh-muted">{emptyDesc}</p>
+          <div className="flex gap-2.5 justify-center flex-wrap">
             <Link
               href="/"
-              className="vh-btn-lime"
-              style={css("background:#8CFF00;color:#09050D;border:none;border-radius:10px;padding:13px 24px;font:700 13.5px 'Space Grotesk',sans-serif;cursor:pointer;text-decoration:none;display:inline-block")}
+              className="vh-btn-lime bg-vh-lime border-0 rounded-vh-10 py-3.25 px-6 font-bold text-vh-13-5 font-space-grotesk cursor-pointer no-underline inline-block text-vh-ink!"
             >
               Ver destaques
             </Link>
             <a
-              className="vh-wa"
+              className="vh-wa inline-flex items-center bg-vh-wa rounded-vh-10 py-3.25 px-6 font-bold text-vh-13-5 font-space-grotesk text-vh-wa-dark!"
               href={waDirectUrl}
               target="_blank"
-              style={css("display:inline-flex;align-items:center;background:#25D366;color:#062e17;border-radius:10px;padding:13px 24px;font:700 13.5px 'Space Grotesk',sans-serif")}
             >
               Pedir ajuda no WhatsApp
             </a>

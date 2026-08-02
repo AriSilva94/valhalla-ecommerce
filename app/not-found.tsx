@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { css } from "./lib/css";
 import { getSiteSettings } from "./lib/strapi";
 import { waUrl } from "./lib/wa";
 
@@ -8,31 +7,27 @@ export default async function NotFound() {
   const waDirectUrl = waUrl(settings.whatsappNumber, "Olá, equipe Valhalla Tecnologia! Gostaria de falar com um atendente.");
 
   return (
-    <section style={css("max-width:620px;margin:0 auto;padding:90px 24px;width:100%;text-align:center")}>
+    <section className="max-w-155 my-0 mx-auto py-22.5 px-6 w-full text-center">
       <span
-        style={css(
-          "font:700 clamp(80px,14vw,120px)/1 'Space Grotesk',sans-serif;background:linear-gradient(120deg,#8B2CF5,#B056FF);-webkit-background-clip:text;background-clip:text;color:transparent"
-        )}
+        className="font-bold text-[clamp(80px,14vw,120px)]/[1] font-space-grotesk bg-[linear-gradient(120deg,#8B2CF5,#B056FF)] bg-clip-text text-transparent"
       >
         404
       </span>
-      <h1 style={css("margin:14px 0 10px;font:700 26px 'Space Grotesk',sans-serif")}>Essa página se perdeu no Valhalla</h1>
-      <p style={css("margin:0 0 26px;font:500 14px/1.7 'Manrope',sans-serif;color:#9690A3")}>
+      <h1 className="mt-3.5 mx-0 mb-2.5 font-bold text-vh-26 font-space-grotesk">Essa página se perdeu no Valhalla</h1>
+      <p className="mt-0 mx-0 mb-6.5 font-medium text-vh-14/vh-17 font-manrope text-vh-muted">
         O endereço não existe ou o produto saiu do catálogo. Bora voltar para as ofertas?
       </p>
-      <div style={css("display:flex;gap:12px;justify-content:center;flex-wrap:wrap")}>
+      <div className="flex gap-3 justify-center flex-wrap">
         <Link
           href="/"
-          className="vh-btn-lime"
-          style={css("background:#8CFF00;color:#09050D;border:none;border-radius:11px;padding:15px 26px;font:700 14px 'Space Grotesk',sans-serif;cursor:pointer;text-decoration:none;display:inline-block")}
+          className="vh-btn-lime bg-vh-lime border-0 rounded-vh-11 py-3.75 px-6.5 font-bold text-vh-14 font-space-grotesk cursor-pointer no-underline inline-block text-vh-ink!"
         >
           Voltar ao início
         </Link>
         <a
-          className="vh-wa-outline"
+          className="vh-wa-outline inline-flex items-center bg-transparent border border-vh-wa rounded-vh-11 py-3.5 px-6.5 font-bold text-vh-14 font-space-grotesk text-vh-wa!"
           href={waDirectUrl}
           target="_blank"
-          style={css("display:inline-flex;align-items:center;background:transparent;border:1px solid #25D366;color:#25D366;border-radius:11px;padding:14px 26px;font:700 14px 'Space Grotesk',sans-serif")}
         >
           Falar com atendente
         </a>

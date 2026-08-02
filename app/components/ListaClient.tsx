@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { css } from "../lib/css";
 import { fmt, waUrl } from "../lib/wa";
 import { useCart } from "./CartProvider";
 
@@ -49,47 +48,47 @@ export default function ListaClient({ whatsappNumber }: { whatsappNumber: string
     <div>
       {/* ===== INTEREST LIST ===== */}
       {step === "cart" && (
-        <section style={css("max-width:1240px;margin:0 auto;padding:40px 24px;width:100%")}>
-          <p style={css("margin:0 0 6px;font:600 12px 'Space Grotesk',sans-serif;color:#9690A3")}><Link href="/" style={css("cursor:pointer;color:#B056FF")}>Início</Link> / Minha lista</p>
-          <h1 style={css("margin:0 0 26px;font:700 34px 'Space Grotesk',sans-serif")}>Minha lista de interesse</h1>
+        <section className="max-w-310 my-0 mx-auto py-10 px-6 w-full">
+          <p className="mt-0 mx-0 mb-1.5 font-semibold text-vh-12 font-space-grotesk text-vh-muted"><Link href="/" className="cursor-pointer text-vh-accent">Início</Link> / Minha lista</p>
+          <h1 className="mt-0 mx-0 mb-6.5 font-bold text-vh-34 font-space-grotesk">Minha lista de interesse</h1>
           {cart.length === 0 && (
-            <div style={css("text-align:center;padding:70px 24px;background:#1D0333;border:1px dashed #341052;border-radius:16px")}>
-              <span style={css("display:inline-block;width:16px;height:16px;border:3px solid #8CFF00;border-radius:4px;margin-bottom:14px")}></span>
-              <h3 style={css("margin:0 0 8px;font:700 20px 'Space Grotesk',sans-serif")}>Sua lista está vazia</h3>
-              <p style={css("margin:0 0 20px;font:500 14px 'Manrope',sans-serif;color:#9690A3")}>Explore o catálogo e adicione os produtos que você quer negociar com nosso time.</p>
-              <Link className="vh-btn-lime" href="/" style={css("background:#8CFF00;color:#09050D;border:none;border-radius:10px;padding:14px 26px;font:700 14px 'Space Grotesk',sans-serif;cursor:pointer")}>Explorar produtos</Link>
+            <div className="text-center py-17.5 px-6 bg-vh-card border border-dashed border-vh-border rounded-2xl">
+              <span className="inline-block w-4 h-4 border-3 border-vh-lime rounded mb-3.5"></span>
+              <h3 className="mt-0 mx-0 mb-2 font-bold text-vh-20 font-space-grotesk">Sua lista está vazia</h3>
+              <p className="mt-0 mx-0 mb-5 font-medium text-vh-14 font-manrope text-vh-muted">Explore o catálogo e adicione os produtos que você quer negociar com nosso time.</p>
+              <Link className="vh-btn-lime bg-vh-lime border-0 rounded-vh-10 py-3.5 px-6.5 font-bold text-vh-14 font-space-grotesk cursor-pointer text-vh-ink!" href="/">Explorar produtos</Link>
             </div>
           )}
           {cartCount > 0 && (
-            <div style={css("display:grid;grid-template-columns:1fr;gap:28px;max-width:1100px")}>
-              <div style={css("display:flex;flex-direction:column;gap:12px")}>
+            <div className="grid grid-cols-1 gap-7 max-w-275">
+              <div className="flex flex-col gap-3">
                 {cart.map((it) => (
-                  <div key={it.key} style={css("display:flex;gap:16px;align-items:center;background:#1D0333;border:1px solid #341052;border-radius:14px;padding:16px;flex-wrap:wrap")}>
-                    <Link href={`/produto/${it.productSlug}`} style={css("width:76px;height:76px;flex:none;background:repeating-linear-gradient(45deg,#2A0A45 0 8px,#24063C 8px 16px);border:1px solid #341052;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer")}><span style={css("font:500 9px ui-monospace,monospace;color:#9690A3")}>[foto]</span></Link>
-                    <div style={css("flex:1;min-width:170px;display:flex;flex-direction:column;gap:3px")}>
-                      <Link className="vh-lime" href={`/produto/${it.productSlug}`} style={css("font:700 14.5px 'Space Grotesk',sans-serif;cursor:pointer")}>{it.productName}</Link>
-                      <span style={css("font:500 12px 'Manrope',sans-serif;color:#9690A3")}>{`${it.configLabel} · ${it.colorName}`}</span>
-                      <span style={css("font:600 12.5px 'Manrope',sans-serif;color:#D8D5E0")}>{fmt(it.unitPrice)} /un.</span>
+                  <div key={it.key} className="flex gap-4 items-center bg-vh-card border border-vh-border rounded-vh-14 p-4 flex-wrap">
+                    <Link href={`/produto/${it.productSlug}`} className="w-19 h-19 flex-none bg-[repeating-linear-gradient(45deg,#2A0A45_0_8px,#24063C_8px_16px)] border border-vh-border rounded-vh-10 flex items-center justify-center cursor-pointer"><span className="font-medium text-vh-9 font-mono text-vh-muted">[foto]</span></Link>
+                    <div className="flex-1 min-w-42.5 flex flex-col gap-0.75">
+                      <Link className="vh-lime font-bold text-vh-14-5 font-space-grotesk cursor-pointer" href={`/produto/${it.productSlug}`}>{it.productName}</Link>
+                      <span className="font-medium text-vh-12 font-manrope text-vh-muted">{`${it.configLabel} · ${it.colorName}`}</span>
+                      <span className="font-semibold text-vh-12-5 font-manrope text-vh-soft">{fmt(it.unitPrice)} /un.</span>
                     </div>
-                    <div style={css("display:flex;align-items:center;border:1px solid #341052;border-radius:9px;overflow:hidden")}>
-                      <button className="vh-qty" onClick={() => updateQty(it.key, it.qty - 1)} style={css("width:34px;height:38px;background:#22003D;border:none;color:#FFFFFF;font:700 16px 'Space Grotesk',sans-serif;cursor:pointer")}>−</button>
-                      <span style={css("width:38px;text-align:center;font:700 14px 'Space Grotesk',sans-serif")}>{it.qty}</span>
-                      <button className="vh-qty" onClick={() => updateQty(it.key, it.qty + 1)} style={css("width:34px;height:38px;background:#22003D;border:none;color:#FFFFFF;font:700 16px 'Space Grotesk',sans-serif;cursor:pointer")}>+</button>
+                    <div className="flex items-center border border-vh-border rounded-vh-9 overflow-hidden">
+                      <button className="vh-qty w-8.5 h-9.5 bg-vh-panel border-0 text-white font-bold text-vh-16 font-space-grotesk cursor-pointer" onClick={() => updateQty(it.key, it.qty - 1)}>−</button>
+                      <span className="w-9.5 text-center font-bold text-vh-14 font-space-grotesk">{it.qty}</span>
+                      <button className="vh-qty w-8.5 h-9.5 bg-vh-panel border-0 text-white font-bold text-vh-16 font-space-grotesk cursor-pointer" onClick={() => updateQty(it.key, it.qty + 1)}>+</button>
                     </div>
-                    <span style={css("min-width:100px;text-align:right;font:700 17px 'Space Grotesk',sans-serif;color:#8CFF00")}>{fmt(it.unitPrice * it.qty)}</span>
-                    <button className="vh-remove" onClick={() => removeItem(it.key)} title="Remover" style={css("width:34px;height:34px;background:transparent;border:1px solid #341052;border-radius:9px;color:#9690A3;font:600 14px 'Space Grotesk',sans-serif;cursor:pointer;transition:border-color .12s,color .12s")}>✕</button>
+                    <span className="min-w-25 text-right font-bold text-vh-17 font-space-grotesk text-vh-lime">{fmt(it.unitPrice * it.qty)}</span>
+                    <button className="vh-remove w-8.5 h-8.5 bg-transparent border border-vh-border rounded-vh-9 text-vh-muted font-semibold text-vh-14 font-space-grotesk cursor-pointer [transition:border-color_.12s,color_.12s]" onClick={() => removeItem(it.key)} title="Remover">✕</button>
                   </div>
                 ))}
               </div>
-              <div style={css("background:linear-gradient(160deg,#22003D,#1D0333);border:1px solid #341052;border-radius:16px;padding:26px;display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-content:space-between")}>
-                <div style={css("display:flex;flex-direction:column;gap:4px")}>
-                  <span style={css("font:600 13px 'Manrope',sans-serif;color:#9690A3")}>Valor total estimado ({cartCount} item(ns))</span>
-                  <span style={css("font:700 30px 'Space Grotesk',sans-serif;color:#8CFF00")}>{fmt(cartTotal)}</span>
-                  <span style={css("font:500 12px 'Manrope',sans-serif;color:#9690A3")}>Valores confirmados com o atendente no WhatsApp</span>
+              <div className="bg-[linear-gradient(160deg,#22003D,#1D0333)] border border-vh-border rounded-2xl p-6.5 flex flex-wrap gap-5 items-center justify-between">
+                <div className="flex flex-col gap-1">
+                  <span className="font-semibold text-vh-13 font-manrope text-vh-muted">Valor total estimado ({cartCount} item(ns))</span>
+                  <span className="font-bold text-vh-30 font-space-grotesk text-vh-lime">{fmt(cartTotal)}</span>
+                  <span className="font-medium text-vh-12 font-manrope text-vh-muted">Valores confirmados com o atendente no WhatsApp</span>
                 </div>
-                <div style={css("display:flex;gap:12px;flex-wrap:wrap")}>
-                  <Link className="vh-ghost-violet" href="/" style={css("background:transparent;border:1px solid #8B2CF5;color:#FFFFFF;border-radius:11px;padding:15px 24px;font:600 14px 'Space Grotesk',sans-serif;cursor:pointer")}>Continuar explorando</Link>
-                  <button className="vh-btn-lime" onClick={() => setStep("review")} style={css("background:#8CFF00;color:#09050D;border:none;border-radius:11px;padding:15px 28px;font:700 14px 'Space Grotesk',sans-serif;cursor:pointer;box-shadow:0 0 24px rgba(140,255,0,.28)")}>Revisar solicitação →</button>
+                <div className="flex gap-3 flex-wrap">
+                  <Link className="vh-ghost-violet bg-transparent border border-vh-violet rounded-vh-11 py-3.75 px-6 font-semibold text-vh-14 font-space-grotesk cursor-pointer text-white!" href="/">Continuar explorando</Link>
+                  <button className="vh-btn-lime bg-vh-lime border-0 rounded-vh-11 py-3.75 px-7 font-bold text-vh-14 font-space-grotesk cursor-pointer shadow-vh-lime-24 text-vh-ink!" onClick={() => setStep("review")}>Revisar solicitação →</button>
                 </div>
               </div>
             </div>
@@ -99,57 +98,57 @@ export default function ListaClient({ whatsappNumber }: { whatsappNumber: string
 
       {/* ===== REVIEW ===== */}
       {step === "review" && (
-        <section style={css("max-width:860px;margin:0 auto;padding:40px 24px;width:100%")}>
-          <div style={css("display:flex;gap:8px;align-items:center;justify-content:center;margin-bottom:30px;flex-wrap:wrap")}>
-            <span style={css("font:700 12px 'Space Grotesk',sans-serif;color:#8CFF00")}>✓ 1. Lista</span><span style={css("width:28px;height:1px;background:#341052")}></span>
-            <span style={css("font:700 12px 'Space Grotesk',sans-serif;color:#FFFFFF;background:#8B2CF5;padding:6px 12px;border-radius:16px")}>2. Revisão</span><span style={css("width:28px;height:1px;background:#341052")}></span>
-            <span style={css("font:700 12px 'Space Grotesk',sans-serif;color:#9690A3")}>3. WhatsApp</span>
+        <section className="max-w-215 my-0 mx-auto py-10 px-6 w-full">
+          <div className="flex gap-2 items-center justify-center mb-7.5 flex-wrap">
+            <span className="font-bold text-vh-12 font-space-grotesk text-vh-lime">✓ 1. Lista</span><span className="w-7 h-0.25 bg-vh-border"></span>
+            <span className="font-bold text-vh-12 font-space-grotesk text-white bg-vh-violet py-1.5 px-3 rounded-2xl">2. Revisão</span><span className="w-7 h-0.25 bg-vh-border"></span>
+            <span className="font-bold text-vh-12 font-space-grotesk text-vh-muted">3. WhatsApp</span>
           </div>
-          <h1 style={css("margin:0 0 8px;font:700 30px 'Space Grotesk',sans-serif;text-align:center")}>Revise sua solicitação</h1>
-          <p style={css("margin:0 0 28px;font:500 14px 'Manrope',sans-serif;color:#9690A3;text-align:center")}>Confira os itens e informe seu nome — nosso atendente vai te chamar pelo nome.</p>
-          <div style={css("background:#1D0333;border:1px solid #341052;border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:12px;margin-bottom:18px")}>
+          <h1 className="mt-0 mx-0 mb-2 font-bold text-vh-30 font-space-grotesk text-center">Revise sua solicitação</h1>
+          <p className="mt-0 mx-0 mb-7 font-medium text-vh-14 font-manrope text-vh-muted text-center">Confira os itens e informe seu nome — nosso atendente vai te chamar pelo nome.</p>
+          <div className="bg-vh-card border border-vh-border rounded-2xl p-6 flex flex-col gap-3 mb-4.5">
             {cart.map((it) => (
-              <div key={it.key} style={css("display:flex;justify-content:space-between;gap:14px;padding-bottom:12px;border-bottom:1px solid #22003D;flex-wrap:wrap")}>
-                <div style={css("display:flex;flex-direction:column;gap:2px")}>
-                  <span style={css("font:700 14px 'Space Grotesk',sans-serif")}>{it.qty}× {it.productName}</span>
-                  <span style={css("font:500 12px 'Manrope',sans-serif;color:#9690A3")}>{`${it.configLabel} · ${it.colorName}`}</span>
+              <div key={it.key} className="flex justify-between gap-3.5 pb-3 border-b border-b-vh-panel flex-wrap">
+                <div className="flex flex-col gap-0.5">
+                  <span className="font-bold text-vh-14 font-space-grotesk">{it.qty}× {it.productName}</span>
+                  <span className="font-medium text-vh-12 font-manrope text-vh-muted">{`${it.configLabel} · ${it.colorName}`}</span>
                 </div>
-                <span style={css("font:700 15px 'Space Grotesk',sans-serif;color:#8CFF00")}>{fmt(it.unitPrice * it.qty)}</span>
+                <span className="font-bold text-vh-15 font-space-grotesk text-vh-lime">{fmt(it.unitPrice * it.qty)}</span>
               </div>
             ))}
-            <div style={css("display:flex;justify-content:space-between;align-items:baseline")}>
-              <span style={css("font:700 14px 'Space Grotesk',sans-serif;color:#D8D5E0")}>Total estimado</span>
-              <span style={css("font:700 24px 'Space Grotesk',sans-serif;color:#8CFF00")}>{fmt(cartTotal)}</span>
+            <div className="flex justify-between items-baseline">
+              <span className="font-bold text-vh-14 font-space-grotesk text-vh-soft">Total estimado</span>
+              <span className="font-bold text-vh-24 font-space-grotesk text-vh-lime">{fmt(cartTotal)}</span>
             </div>
           </div>
-          <div style={css("background:#1D0333;border:1px solid #341052;border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:14px;margin-bottom:18px")}>
-            <label style={css("font:700 12.5px 'Space Grotesk',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#D8D5E0")}>Seu nome *</label>
-            <input className="vh-input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Como podemos te chamar?" style={css("background:#120020;border:1px solid #341052;border-radius:10px;padding:14px 16px;color:#FFFFFF;font:500 14px 'Manrope',sans-serif;outline:none;transition:border-color .15s")} />
-            <span style={css("font:700 12.5px 'Space Grotesk',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#D8D5E0;margin-top:6px")}>Prévia da mensagem</span>
-            <div style={css("background:#0b141a;border-radius:14px;padding:16px;border:1px solid #1f2c34")}>
-              <div style={css("background:#005c4b;border-radius:12px 12px 4px 12px;padding:14px 16px;max-width:92%;margin-left:auto")}>
-                <pre style={css("margin:0;white-space:pre-wrap;font:500 12.5px/1.6 'Manrope',sans-serif;color:#e9edef")}>{buildMsg(name.trim())}</pre>
+          <div className="bg-vh-card border border-vh-border rounded-2xl p-6 flex flex-col gap-3.5 mb-4.5">
+            <label className="font-bold text-vh-12-5 font-space-grotesk tracking-vh-006 uppercase text-vh-soft">Seu nome *</label>
+            <input className="vh-input bg-vh-bg border border-vh-border rounded-vh-10 py-3.5 px-4 text-white font-medium text-vh-14 font-manrope outline-none [transition:border-color_.15s]" value={name} onChange={(e) => setName(e.target.value)} placeholder="Como podemos te chamar?" />
+            <span className="font-bold text-vh-12-5 font-space-grotesk tracking-vh-006 uppercase text-vh-soft mt-1.5">Prévia da mensagem</span>
+            <div className="bg-vh-chat-bg rounded-vh-14 p-4 border border-vh-chat-border">
+              <div className="bg-vh-teal rounded-[12px_12px_4px_12px] py-3.5 px-4 max-w-[92%] ml-auto">
+                <pre className="m-0 whitespace-pre-wrap font-medium text-vh-12-5/vh-16 font-manrope text-vh-chat-text">{buildMsg(name.trim())}</pre>
               </div>
             </div>
           </div>
           {nameOk ? (
-            <button className="vh-finalize" onClick={() => { window.open(waCartUrl, "_blank"); setStep("sent"); }} style={css("width:100%;display:flex;align-items:center;justify-content:center;gap:10px;background:#25D366;color:#062e17;border:none;border-radius:12px;padding:18px;font:700 16px 'Space Grotesk',sans-serif;cursor:pointer;box-shadow:0 0 34px rgba(37,211,102,.35);transition:filter .15s")}><span style={css("width:10px;height:10px;background:#062e17;border-radius:50%")}></span>Finalizar pelo WhatsApp</button>
+            <button className="vh-finalize w-full flex items-center justify-center gap-2.5 bg-vh-wa border-0 rounded-xl p-4.5 font-bold text-vh-16 font-space-grotesk cursor-pointer shadow-vh-wa-34-soft [transition:filter_.15s] text-vh-wa-dark!" onClick={() => { window.open(waCartUrl, "_blank"); setStep("sent"); }}><span className="w-2.5 h-2.5 bg-vh-wa-dark rounded-full"></span>Finalizar pelo WhatsApp</button>
           ) : (
-            <button disabled style={css("width:100%;background:#341052;color:#9690A3;border:none;border-radius:12px;padding:18px;font:700 16px 'Space Grotesk',sans-serif;cursor:not-allowed")}>Informe seu nome para continuar</button>
+            <button disabled className="w-full bg-vh-border text-vh-muted border-0 rounded-xl p-4.5 font-bold text-vh-16 font-space-grotesk cursor-not-allowed">Informe seu nome para continuar</button>
           )}
-          <p style={css("margin:14px 0 0;text-align:center;font:500 12px 'Manrope',sans-serif;color:#9690A3")}>Você será redirecionado ao WhatsApp com a mensagem pronta. Nenhum pagamento é feito neste site.</p>
+          <p className="mt-3.5 mx-0 mb-0 text-center font-medium text-vh-12 font-manrope text-vh-muted">Você será redirecionado ao WhatsApp com a mensagem pronta. Nenhum pagamento é feito neste site.</p>
         </section>
       )}
 
       {/* ===== SENT ===== */}
       {step === "sent" && (
-        <section style={css("max-width:620px;margin:0 auto;padding:80px 24px;width:100%;text-align:center")}>
-          <div style={css("width:74px;height:74px;margin:0 auto 22px;border-radius:50%;background:rgba(37,211,102,.12);border:2px solid #25D366;display:flex;align-items:center;justify-content:center;font:700 32px 'Space Grotesk',sans-serif;color:#25D366;box-shadow:0 0 40px rgba(37,211,102,.3)")}>✓</div>
-          <h1 style={css("margin:0 0 10px;font:700 30px 'Space Grotesk',sans-serif")}>Solicitação enviada!</h1>
-          <p style={css("margin:0 0 26px;font:500 14.5px/1.7 'Manrope',sans-serif;color:#D8D5E0")}>Abrimos o WhatsApp com sua mensagem pronta. Se a janela não abriu, toque no botão abaixo — nosso time responde rapidinho.</p>
-          <div style={css("display:flex;gap:12px;justify-content:center;flex-wrap:wrap")}>
-            <a className="vh-wa" href={waCartUrl} target="_blank" style={css("display:inline-flex;align-items:center;gap:9px;background:#25D366;color:#062e17;border-radius:11px;padding:15px 26px;font:700 14px 'Space Grotesk',sans-serif")}><span style={css("width:9px;height:9px;background:#062e17;border-radius:50%")}></span>Abrir WhatsApp novamente</a>
-            <Link className="vh-ghost-violet" href="/" onClick={() => { clear(); setName(""); setStep("cart"); }} style={css("background:transparent;border:1px solid #8B2CF5;color:#FFFFFF;border-radius:11px;padding:15px 26px;font:600 14px 'Space Grotesk',sans-serif;cursor:pointer")}>Voltar à loja</Link>
+        <section className="max-w-155 my-0 mx-auto py-20 px-6 w-full text-center">
+          <div className="w-18.5 h-18.5 mt-0 mx-auto mb-5.5 rounded-full bg-vh-wa/12 border-2 border-vh-wa flex items-center justify-center font-bold text-vh-32 font-space-grotesk text-vh-wa shadow-vh-wa-40">✓</div>
+          <h1 className="mt-0 mx-0 mb-2.5 font-bold text-vh-30 font-space-grotesk">Solicitação enviada!</h1>
+          <p className="mt-0 mx-0 mb-6.5 font-medium text-vh-14-5/vh-17 font-manrope text-vh-soft">Abrimos o WhatsApp com sua mensagem pronta. Se a janela não abriu, toque no botão abaixo — nosso time responde rapidinho.</p>
+          <div className="flex gap-3 justify-center flex-wrap">
+            <a className="vh-wa inline-flex items-center gap-2.25 bg-vh-wa rounded-vh-11 py-3.75 px-6.5 font-bold text-vh-14 font-space-grotesk text-vh-wa-dark!" href={waCartUrl} target="_blank"><span className="w-2.25 h-2.25 bg-vh-wa-dark rounded-full"></span>Abrir WhatsApp novamente</a>
+            <Link className="vh-ghost-violet bg-transparent border border-vh-violet rounded-vh-11 py-3.75 px-6.5 font-semibold text-vh-14 font-space-grotesk cursor-pointer text-white!" href="/" onClick={() => { clear(); setName(""); setStep("cart"); }}>Voltar à loja</Link>
           </div>
         </section>
       )}

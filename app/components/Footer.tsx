@@ -1,38 +1,87 @@
 import Link from "next/link";
-import { css } from "../lib/css";
 import { waUrl } from "../lib/wa";
 import type { Category, SiteSettings } from "../lib/strapi";
 
-export default function Footer({ categories, settings }: { categories: Category[]; settings: SiteSettings }) {
-  const waDirectUrl = waUrl(settings.whatsappNumber, "Olá, equipe Valhalla Tecnologia! Gostaria de falar com um atendente.");
+export default function Footer({
+  categories,
+  settings,
+}: {
+  categories: Category[];
+  settings: SiteSettings;
+}) {
+  const waDirectUrl = waUrl(
+    settings.whatsappNumber,
+    "Olá, equipe Valhalla Tecnologia! Gostaria de falar com um atendente.",
+  );
   const navCats = categories.filter((c) => c.productCount > 0);
 
   return (
-    <footer style={css("background:#09050D;border-top:1px solid #22003D;margin-top:72px")}>
-      <div style={css("max-width:1240px;margin:0 auto;padding:48px 24px 24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:32px")}>
-        <div style={css("display:flex;flex-direction:column;gap:12px")}>
-          <div style={css("display:flex;flex-direction:column;line-height:1")}>
-            <span style={css("font:700 20px 'Space Grotesk',sans-serif;letter-spacing:.04em;transform:skewX(-4deg)")}>VALHALLA</span>
-            <span style={css("font:700 8.5px 'Space Grotesk',sans-serif;letter-spacing:.42em;color:#8CFF00;margin-top:3px")}>TECNOLOGIA</span>
+    <footer className="bg-vh-ink border-t border-t-vh-panel mt-18">
+      <div className="max-w-310 my-0 mx-auto pt-12 px-6 pb-6 grid vh-grid-footer gap-8">
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-col leading-none">
+            <span className="font-bold text-vh-20 font-space-grotesk tracking-vh-004 -skew-x-4">
+              VALHALLA
+            </span>
+            <span className="font-bold text-vh-8-5 font-space-grotesk tracking-vh-042 text-vh-lime mt-0.75">
+              TECNOLOGIA
+            </span>
           </div>
-          <p style={css("margin:0;font:500 12.5px/1.65 'Manrope',sans-serif;color:#9690A3")}>{settings.footerTagline}</p>
-          <a className="vh-wa" href={waDirectUrl} target="_blank" style={css("align-self:flex-start;display:inline-flex;align-items:center;gap:8px;background:#25D366;color:#062e17;border-radius:9px;padding:10px 16px;font:700 12.5px 'Space Grotesk',sans-serif")}><span style={css("width:8px;height:8px;background:#062e17;border-radius:50%")}></span>+55 96 8423-5663</a>
+          <p className="m-0 font-medium text-vh-12-5/vh-165 font-manrope text-vh-muted">
+            {settings.footerTagline}
+          </p>
+          <a
+            className="vh-wa self-start inline-flex items-center gap-2 bg-vh-wa rounded-vh-9 py-2.5 px-4 font-bold text-vh-12-5 font-space-grotesk text-vh-wa-dark!"
+            href={waDirectUrl}
+            target="_blank"
+          >
+            <span className="w-2 h-2 bg-vh-wa-dark rounded-full"></span>+55 96
+            98142-5135
+          </a>
         </div>
-        <div style={css("display:flex;flex-direction:column;gap:9px")}>
-          <span style={css("font:700 12px 'Space Grotesk',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#B056FF;margin-bottom:4px")}>Categorias</span>
-          {navCats.map((c, i) => (<Link key={i} href={'/categoria/' + c.slug} className="vh-lime" style={css("font:500 13px 'Manrope',sans-serif;color:#9690A3;cursor:pointer")}>{c.name}</Link>))}
+        <div className="flex flex-col gap-2.25">
+          <span className="font-bold text-vh-12 font-space-grotesk tracking-vh-014 uppercase text-vh-accent mb-1">
+            Categorias
+          </span>
+          {navCats.map((c, i) => (
+            <Link
+              key={i}
+              href={"/categoria/" + c.slug}
+              className="vh-lime font-medium text-vh-13 font-manrope text-vh-muted cursor-pointer"
+            >
+              {c.name}
+            </Link>
+          ))}
         </div>
-        <div style={css("display:flex;flex-direction:column;gap:9px")}>
-          <span style={css("font:700 12px 'Space Grotesk',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#B056FF;margin-bottom:4px")}>Institucional</span>
-          {settings.footerLinkColumns[0].links.map((l, i) => <Link key={i} href={l.url} className="vh-lime" style={css("font:500 13px 'Manrope',sans-serif;color:#9690A3;cursor:pointer")}>{l.label}</Link>)}
+        <div className="flex flex-col gap-2.25">
+          <span className="font-bold text-vh-12 font-space-grotesk tracking-vh-014 uppercase text-vh-accent mb-1">
+            Institucional
+          </span>
+          {settings.footerLinkColumns[0].links.map((l, i) => (
+            <Link
+              key={i}
+              href={l.url}
+              className="vh-lime font-medium text-vh-13 font-manrope text-vh-muted cursor-pointer"
+            >
+              {l.label}
+            </Link>
+          ))}
         </div>
-        <div style={css("display:flex;flex-direction:column;gap:9px")}>
-          <span style={css("font:700 12px 'Space Grotesk',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#B056FF;margin-bottom:4px")}>Como funciona</span>
-          <p style={css("margin:0;font:500 12.5px/1.65 'Manrope',sans-serif;color:#9690A3")}>Este site é um catálogo: você monta sua lista de interesse e a compra é concluída com um atendente pelo WhatsApp. Nenhum pagamento é processado aqui.</p>
+        <div className="flex flex-col gap-2.25">
+          <span className="font-bold text-vh-12 font-space-grotesk tracking-vh-014 uppercase text-vh-accent mb-1">
+            Como funciona
+          </span>
+          <p className="m-0 font-medium text-vh-12-5/vh-165 font-manrope text-vh-muted">
+            Este site é um catálogo: você monta sua lista de interesse e a
+            compra é concluída com um atendente pelo WhatsApp. Nenhum pagamento
+            é processado aqui.
+          </p>
         </div>
       </div>
-      <div style={css("border-top:1px solid #22003D")}>
-        <p style={css("max-width:1240px;margin:0 auto;padding:16px 24px;font:500 11.5px 'Manrope',sans-serif;color:#4d4160")}>{settings.footerLegalText}</p>
+      <div className="border-t border-t-vh-panel">
+        <p className="max-w-310 my-0 mx-auto py-4 px-6 font-medium text-vh-11-5 font-manrope text-vh-footer-muted">
+          {settings.footerLegalText}
+        </p>
       </div>
     </footer>
   );
