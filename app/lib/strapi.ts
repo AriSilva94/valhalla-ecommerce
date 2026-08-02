@@ -186,12 +186,29 @@ export interface Policy {
 
 const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
 
+const CACHE_MAX_ENTRIES = 500;
+
+// Stores shared references — callers must not mutate cached values in place.
 const cache = new Map<string, unknown>();
+
+// FIFO eviction cap so cache growth stays bounded even when the key space is
+// attacker-controlled (e.g. a slug embedded in the request path). The 500
+// global/list keys are rewritten on every successful request, so they stay
+// "hot" and are never the oldest entry under normal traffic; only cold,
+// rarely-hit slug keys churn, degrading to the already-supported
+// "slug never fetched before" path.
+function cacheSet(key: string, value: unknown): void {
+  if (!cache.has(key) && cache.size >= CACHE_MAX_ENTRIES) {
+    const oldestKey = cache.keys().next().value;
+    if (oldestKey !== undefined) cache.delete(oldestKey);
+  }
+  cache.set(key, value);
+}
 
 export async function withCacheFallback<T>(key: string, fetcher: () => Promise<T>, fallback: T): Promise<T> {
   try {
     const data = await fetcher();
-    cache.set(key, data);
+    cacheSet(key, data);
     return data;
   } catch (err) {
     unstable_rethrow(err);
@@ -203,7 +220,7 @@ export async function withCacheFallback<T>(key: string, fetcher: () => Promise<T
 export async function withCacheOrThrow<T>(key: string, fetcher: () => Promise<T>): Promise<T> {
   try {
     const data = await fetcher();
-    cache.set(key, data);
+    cacheSet(key, data);
     return data;
   } catch (err) {
     unstable_rethrow(err);
@@ -211,6 +228,7 @@ export async function withCacheOrThrow<T>(key: string, fetcher: () => Promise<T>
       console.error(`[strapi] serving stale cache for ${key}:`, err);
       return cache.get(key) as T;
     }
+    console.error(`[strapi] no cache available for ${key}, rethrowing:`, err);
     throw err;
   }
 }
