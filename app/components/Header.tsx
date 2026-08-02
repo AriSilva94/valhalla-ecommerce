@@ -47,7 +47,7 @@ export default function Header({
       <header className="sticky top-0 z-60 bg-vh-bg/94 backdrop-blur-vh-backdrop-14 border-b border-b-vh-border">
         <div className="max-w-310 my-0 mx-auto py-3.5 px-6 flex items-center gap-5 flex-wrap">
           <Link href="/" className="cursor-pointer flex items-center select-none">
-            <Image src="/assets/img/logo-valhalla.png" alt="Valhalla Tecnologia" width={83} height={64} className="h-16 w-auto" priority />
+            <Image src="/assets/img/logo-valhalla.png" alt="Valhalla Tecnologia" width={83} height={64} priority />
           </Link>
           <div className="flex-1 min-w-55 relative">
             <input className="vh-input w-full bg-vh-card border border-vh-border rounded-vh-10 pt-3 pr-11 pb-3 pl-4 text-white font-medium text-vh-13-5 font-manrope outline-none [transition:border-color_.15s]" value={q} onChange={(e) => { setQ(e.target.value); setAuto(true); }} onKeyDown={(e) => { if (e.key === "Enter" && q.trim()) router.push('/busca?q=' + encodeURIComponent(q.trim())); }} onFocus={() => setAuto(true)} onBlur={() => setTimeout(() => setAuto(false), 150)} placeholder="Buscar smartphones, notebooks, fones..." />
