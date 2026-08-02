@@ -19,7 +19,7 @@ export interface CardVM {
   add: () => void;
 }
 
-export default function ProductCard({ p }: { p: CardVM }) {
+export default function ProductCard({ p, priority = false }: { p: CardVM; priority?: boolean }) {
   return (
     <Link
       href={`/produto/${p.slug}`}
@@ -31,6 +31,7 @@ export default function ProductCard({ p }: { p: CardVM }) {
             src={p.image.url}
             alt={p.image.alternativeText ?? p.name}
             fill
+            priority={priority}
             sizes="(max-width:640px) 50vw, (max-width:1240px) 33vw, 300px"
             className="object-contain"
           />
