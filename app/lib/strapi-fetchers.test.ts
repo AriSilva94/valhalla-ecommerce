@@ -92,3 +92,116 @@ test("getHomepage: Strapi goes down after a prior success -> returns stale cache
   const homepage = await getHomepage();
   assert.equal(homepage.hero.headline, "loja de tecnologia");
 });
+
+import { getCategories, getProducts, getProductsByCategorySlug, getFaqs, getPolicies } from "./strapi";
+
+const RAW_CATEGORY = {
+  id: 1,
+  documentId: "cat-1",
+  updatedAt: "2026-01-01T00:00:00.000Z",
+  name: "Notebooks",
+  slug: "notebooks",
+  description: "Notebooks para todos os usos",
+  products: [{ id: 10 }, { id: 11 }],
+};
+
+test("getCategories: Strapi down, no prior cache -> returns []", async (t) => {
+  t.mock.method(globalThis, "fetch", async () => jsonResponse(null, 500));
+  const categories = await getCategories();
+  assert.deepEqual(categories, []);
+});
+
+test("getCategories: Strapi up -> returns mapped data, then serves it as stale on the next failure", async (t) => {
+  t.mock.method(globalThis, "fetch", async () => jsonResponse({ data: [RAW_CATEGORY] }));
+  const fresh = await getCategories();
+  assert.equal(fresh[0].name, "Notebooks");
+  assert.equal(fresh[0].productCount, 2);
+
+  t.mock.method(globalThis, "fetch", async () => jsonResponse(null, 500));
+  const stale = await getCategories();
+  assert.equal(stale[0].name, "Notebooks");
+});
+
+const RAW_PRODUCT = {
+  id: 20,
+  documentId: "prod-20",
+  updatedAt: "2026-01-01T00:00:00.000Z",
+  name: "Notebook Gamer",
+  slug: "notebook-gamer",
+  basePrice: 4999,
+  variantGroupLabel: null,
+  specs: [],
+  description: "Notebook para jogos",
+  warranty: "12 meses",
+  brand: null,
+  category: null,
+  tags: [],
+  variants: [],
+  seo: null,
+  mainImage: null,
+  gallery: [],
+};
+
+test("getProducts: Strapi down, no prior cache -> returns []", async (t) => {
+  t.mock.method(globalThis, "fetch", async () => jsonResponse(null, 500));
+  const products = await getProducts();
+  assert.deepEqual(products, []);
+});
+
+test("getProducts: Strapi up -> returns mapped data, then serves it as stale on the next failure", async (t) => {
+  t.mock.method(globalThis, "fetch", async () => jsonResponse({ data: [RAW_PRODUCT] }));
+  const fresh = await getProducts();
+  assert.equal(fresh[0].name, "Notebook Gamer");
+
+  t.mock.method(globalThis, "fetch", async () => jsonResponse(null, 500));
+  const stale = await getProducts();
+  assert.equal(stale[0].name, "Notebook Gamer");
+});
+
+test("getProductsByCategorySlug: Strapi down, no prior cache -> returns []", async (t) => {
+  t.mock.method(globalThis, "fetch", async () => jsonResponse(null, 500));
+  const products = await getProductsByCategorySlug("notebooks");
+  assert.deepEqual(products, []);
+});
+
+test("getProductsByCategorySlug: Strapi up -> returns mapped data, then serves it as stale on the next failure", async (t) => {
+  t.mock.method(globalThis, "fetch", async () => jsonResponse({ data: [RAW_PRODUCT] }));
+  const fresh = await getProductsByCategorySlug("notebooks");
+  assert.equal(fresh[0].name, "Notebook Gamer");
+
+  t.mock.method(globalThis, "fetch", async () => jsonResponse(null, 500));
+  const stale = await getProductsByCategorySlug("notebooks");
+  assert.equal(stale[0].name, "Notebook Gamer");
+});
+
+test("getFaqs: Strapi down, no prior cache -> returns []", async (t) => {
+  t.mock.method(globalThis, "fetch", async () => jsonResponse(null, 500));
+  const faqs = await getFaqs();
+  assert.deepEqual(faqs, []);
+});
+
+test("getFaqs: Strapi up -> returns mapped data, then serves it as stale on the next failure", async (t) => {
+  t.mock.method(globalThis, "fetch", async () => jsonResponse({ data: [{ id: 1, question: "Q?", answer: "A.", order: 1 }] }));
+  const fresh = await getFaqs();
+  assert.equal(fresh[0].question, "Q?");
+
+  t.mock.method(globalThis, "fetch", async () => jsonResponse(null, 500));
+  const stale = await getFaqs();
+  assert.equal(stale[0].question, "Q?");
+});
+
+test("getPolicies: Strapi down, no prior cache -> returns []", async (t) => {
+  t.mock.method(globalThis, "fetch", async () => jsonResponse(null, 500));
+  const policies = await getPolicies();
+  assert.deepEqual(policies, []);
+});
+
+test("getPolicies: Strapi up -> returns mapped data, then serves it as stale on the next failure", async (t) => {
+  t.mock.method(globalThis, "fetch", async () => jsonResponse({ data: [{ id: 1, documentId: "pol-1", updatedAt: null, title: "Troca", slug: "troca", body: "Texto." }] }));
+  const fresh = await getPolicies();
+  assert.equal(fresh[0].title, "Troca");
+
+  t.mock.method(globalThis, "fetch", async () => jsonResponse(null, 500));
+  const stale = await getPolicies();
+  assert.equal(stale[0].title, "Troca");
+});

@@ -387,16 +387,23 @@ export async function getHomepage(): Promise<Homepage> {
 }
 
 export async function getCategories(): Promise<Category[]> {
-  const json = await strapiFetch<any>("/api/categories?populate=products");
-  return json.data.map((c: any) => ({
-    id: c.id,
-    documentId: c.documentId,
-    updatedAt: c.updatedAt ?? c.publishedAt ?? c.createdAt ?? null,
-    name: c.name,
-    slug: c.slug,
-    description: c.description,
-    productCount: Array.isArray(c.products) ? c.products.length : 0,
-  }));
+  const path = "/api/categories?populate=products";
+  return withCacheFallback(
+    path,
+    async () => {
+      const json = await strapiFetch<any>(path);
+      return json.data.map((c: any) => ({
+        id: c.id,
+        documentId: c.documentId,
+        updatedAt: c.updatedAt ?? c.publishedAt ?? c.createdAt ?? null,
+        name: c.name,
+        slug: c.slug,
+        description: c.description,
+        productCount: Array.isArray(c.products) ? c.products.length : 0,
+      }));
+    },
+    []
+  );
 }
 
 export async function getCategoryBySlug(slug: string): Promise<Category | null> {
@@ -415,15 +422,27 @@ export async function getCategoryBySlug(slug: string): Promise<Category | null> 
 }
 
 export async function getProducts(): Promise<Product[]> {
-  const json = await strapiFetch<any>(`/api/products?${PRODUCT_POPULATE}&pagination[pageSize]=100`);
-  return json.data.map(mapProduct);
+  const path = `/api/products?${PRODUCT_POPULATE}&pagination[pageSize]=100`;
+  return withCacheFallback(
+    path,
+    async () => {
+      const json = await strapiFetch<any>(path);
+      return json.data.map(mapProduct);
+    },
+    []
+  );
 }
 
 export async function getProductsByCategorySlug(slug: string): Promise<Product[]> {
-  const json = await strapiFetch<any>(
-    `/api/products?filters[category][slug][$eq]=${encodeURIComponent(slug)}&${PRODUCT_POPULATE}&pagination[pageSize]=100`
+  const path = `/api/products?filters[category][slug][$eq]=${encodeURIComponent(slug)}&${PRODUCT_POPULATE}&pagination[pageSize]=100`;
+  return withCacheFallback(
+    path,
+    async () => {
+      const json = await strapiFetch<any>(path);
+      return json.data.map(mapProduct);
+    },
+    []
   );
-  return json.data.map(mapProduct);
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
@@ -434,18 +453,32 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
 }
 
 export async function getFaqs(): Promise<Faq[]> {
-  const json = await strapiFetch<any>("/api/faqs?sort=order:asc&pagination[pageSize]=100");
-  return json.data.map((f: any) => ({ id: f.id, question: f.question, answer: f.answer, order: f.order }));
+  const path = "/api/faqs?sort=order:asc&pagination[pageSize]=100";
+  return withCacheFallback(
+    path,
+    async () => {
+      const json = await strapiFetch<any>(path);
+      return json.data.map((f: any) => ({ id: f.id, question: f.question, answer: f.answer, order: f.order }));
+    },
+    []
+  );
 }
 
 export async function getPolicies(): Promise<Policy[]> {
-  const json = await strapiFetch<any>("/api/policies?pagination[pageSize]=100");
-  return json.data.map((p: any) => ({
-    id: p.id,
-    documentId: p.documentId,
-    updatedAt: p.updatedAt ?? p.publishedAt ?? p.createdAt ?? null,
-    title: p.title,
-    slug: p.slug,
-    body: p.body,
-  }));
+  const path = "/api/policies?pagination[pageSize]=100";
+  return withCacheFallback(
+    path,
+    async () => {
+      const json = await strapiFetch<any>(path);
+      return json.data.map((p: any) => ({
+        id: p.id,
+        documentId: p.documentId,
+        updatedAt: p.updatedAt ?? p.publishedAt ?? p.createdAt ?? null,
+        title: p.title,
+        slug: p.slug,
+        body: p.body,
+      }));
+    },
+    []
+  );
 }
