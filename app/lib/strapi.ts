@@ -184,6 +184,33 @@ export interface Policy {
 
 const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337";
 
+const cache = new Map<string, unknown>();
+
+export async function withCacheFallback<T>(key: string, fetcher: () => Promise<T>, fallback: T): Promise<T> {
+  try {
+    const data = await fetcher();
+    cache.set(key, data);
+    return data;
+  } catch (err) {
+    console.error(`[strapi] fallback for ${key}:`, err);
+    return (cache.get(key) as T) ?? fallback;
+  }
+}
+
+export async function withCacheOrThrow<T>(key: string, fetcher: () => Promise<T>): Promise<T> {
+  try {
+    const data = await fetcher();
+    cache.set(key, data);
+    return data;
+  } catch (err) {
+    if (cache.has(key)) {
+      console.error(`[strapi] serving stale cache for ${key}:`, err);
+      return cache.get(key) as T;
+    }
+    throw err;
+  }
+}
+
 async function strapiFetch<T>(path: string): Promise<T> {
   const res = await fetch(`${STRAPI_URL}${path}`, { cache: "no-store" });
   if (!res.ok) {
