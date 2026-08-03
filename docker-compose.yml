@@ -7,8 +7,17 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      # NEXT_PUBLIC_* must be build args, not runtime environment: next build
+      # inlines them into the client bundle. In Dokploy these belong in
+      # "Build Arguments", not (only) in the "Environment" tab.
       args:
         NEXT_PUBLIC_MEDIA_HOST: ${NEXT_PUBLIC_MEDIA_HOST:?set NEXT_PUBLIC_MEDIA_HOST}
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:?set NEXT_PUBLIC_SITE_URL}
+        NEXT_PUBLIC_APP_ENV: ${NEXT_PUBLIC_APP_ENV:-production}
+        NEXT_PUBLIC_ANALYTICS_ENABLED: ${NEXT_PUBLIC_ANALYTICS_ENABLED:-false}
+        NEXT_PUBLIC_ANALYTICS_MODE: ${NEXT_PUBLIC_ANALYTICS_MODE:-off}
+        NEXT_PUBLIC_GTM_ID: ${NEXT_PUBLIC_GTM_ID:-}
+        NEXT_PUBLIC_GA_MEASUREMENT_ID: ${NEXT_PUBLIC_GA_MEASUREMENT_ID:-}
     restart: unless-stopped
     environment:
       NODE_ENV: production
@@ -16,5 +25,16 @@ services:
       HOSTNAME: 0.0.0.0
       # Public URL of the deployed Strapi API (server-side fetch)
       STRAPI_URL: ${STRAPI_URL:?set STRAPI_URL}
+      # Repeated at runtime on purpose. They are already build args above (needed
+      # by the statically prerendered /robots.txt and by next/image config), but
+      # this compose file declares an explicit `environment:` map, so anything not
+      # listed here simply does not exist inside the container — and the analytics
+      # config reads process.env dynamically at request time.
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:?set NEXT_PUBLIC_SITE_URL}
+      NEXT_PUBLIC_APP_ENV: ${NEXT_PUBLIC_APP_ENV:-production}
+      NEXT_PUBLIC_ANALYTICS_ENABLED: ${NEXT_PUBLIC_ANALYTICS_ENABLED:-false}
+      NEXT_PUBLIC_ANALYTICS_MODE: ${NEXT_PUBLIC_ANALYTICS_MODE:-off}
+      NEXT_PUBLIC_GTM_ID: ${NEXT_PUBLIC_GTM_ID:-}
+      NEXT_PUBLIC_GA_MEASUREMENT_ID: ${NEXT_PUBLIC_GA_MEASUREMENT_ID:-}
     expose:
       - "3000"
