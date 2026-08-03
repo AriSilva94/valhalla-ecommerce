@@ -44,27 +44,85 @@ NEXT_PUBLIC_SITE_URL=https://seudominio.com
 NEXT_PUBLIC_APP_ENV=production
 
 NEXT_PUBLIC_ANALYTICS_ENABLED=false
-NEXT_PUBLIC_ANALYTICS_MODE=gtm
-NEXT_PUBLIC_GTM_ID=GTM-XXXXXXX
+NEXT_PUBLIC_ANALYTICS_MODE=ga
 NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
+
+# Só necessário se NEXT_PUBLIC_ANALYTICS_MODE=gtm
+NEXT_PUBLIC_GTM_ID=GTM-XXXXXXX
 ```
+
+### Deploy em Docker / Dokploy
+
+As variáveis `NEXT_PUBLIC_*` precisam ser cadastradas nos **dois** lugares do
+Dokploy: **Build Arguments** e **Environment**. O `docker-compose.yml` já as
+repassa para os dois estágios.
+
+| Variável | Build arg | Runtime env |
+| --- | --- | --- |
+| `NEXT_PUBLIC_MEDIA_HOST` | sim | sim |
+| `NEXT_PUBLIC_SITE_URL` | sim | sim |
+| `NEXT_PUBLIC_APP_ENV` | sim | sim |
+| `NEXT_PUBLIC_ANALYTICS_ENABLED` | sim | sim |
+| `NEXT_PUBLIC_ANALYTICS_MODE` | sim | sim |
+| `NEXT_PUBLIC_GA_MEASUREMENT_ID` | sim | sim |
+| `NEXT_PUBLIC_GTM_ID` | só no modo `gtm` | só no modo `gtm` |
+| `STRAPI_URL` | não | sim |
+
+Por que os dois:
+
+- **Build arg** — `next build` prerenderiza `/robots.txt` e resolve
+  `images.remotePatterns` a partir de `next.config.ts`. Esses valores ficam
+  congelados na imagem; definir a variável só em runtime não os altera.
+- **Runtime env** — `app/lib/analytics-config.ts` e `app/lib/site-url.ts` leem
+  `process.env` por acesso dinâmico (`env.NEXT_PUBLIC_*` via parâmetro), o que
+  impede a substituição estática do Next. O layout é renderizado sob demanda, então
+  a tag de analytics é montada a cada request com o env do contêiner. O estágio
+  `runtime` do `Dockerfile` é um `FROM` novo e não herda os `ARG`/`ENV` do estágio de
+  build — sem a variável no `environment:`, ela simplesmente não existe no contêiner.
+
+`ARG` não atravessa estágios de um build multi-stage: se um novo estágio precisar
+da variável, ela tem que ser redeclarada nele.
+
+Validação local:
+
+```bash
+docker compose --env-file .env.dokploy.prod build web
+docker compose --env-file .env.dokploy.prod up -d web
+curl -s localhost:3000 | grep -o "gtag/js?id=G-[A-Z0-9]*"
+curl -s localhost:3000/robots.txt
+```
+
+Se o ID não aparecer no HTML, o problema está na configuração do contêiner, não no GA4.
 
 Arquitetura:
 
-- O Google Tag Manager é o modo principal (`NEXT_PUBLIC_ANALYTICS_MODE=gtm`).
-- O GA4 deve ser configurado dentro do painel do GTM como uma Google Tag usando o Measurement ID `G-...`.
-- A tag GA4 no GTM deve usar um trigger de todas as páginas.
-- Não habilite GTM e GA direto ao mesmo tempo. O código só inicializa um modo por vez.
-- Analytics não carrega sem `NEXT_PUBLIC_ANALYTICS_ENABLED=true` e sem ID válido.
-- Para testar em desenvolvimento, defina explicitamente `NEXT_PUBLIC_ANALYTICS_ENABLED=true` e use um container/ID de teste.
+- O modo ativo é o GA4 direto (`NEXT_PUBLIC_ANALYTICS_MODE=ga`): `app/components/Analytics.tsx`
+  renderiza `<GoogleAnalytics>` do `@next/third-parties/google`, que injeta o `gtag.js` com
+  `NEXT_PUBLIC_GA_MEASUREMENT_ID`. Sem container GTM no caminho, sem etapa de publicação.
+- O modo `gtm` continua implementado como alternativa. Nele o GA4 precisa ser configurado no
+  painel do GTM como Google Tag com o Measurement ID `G-...` e trigger de todas as páginas.
+- Um modo por vez. `getAnalyticsConfig` (`app/lib/analytics-config.ts`) retorna uma união
+  discriminada, então GTM e GA nunca inicializam juntos — o que duplicaria page_view.
+- Analytics não carrega sem `NEXT_PUBLIC_ANALYTICS_ENABLED=true` e sem ID no formato válido
+  (`G-XXXXXXXXXX` para `ga`, `GTM-XXXXXXX` para `gtm`). ID inválido cai em `off` sem lançar erro.
+- Para testar em desenvolvimento, defina explicitamente `NEXT_PUBLIC_ANALYTICS_ENABLED=true`.
 
-Verificação:
+Verificação (modo `ga`):
 
-- Use o GTM Preview Mode para confirmar que o container `NEXT_PUBLIC_GTM_ID` foi carregado.
-- Use o Google Tag Assistant para validar que há apenas uma instalação ativa.
-- Depois de publicar a tag GA4 no GTM, valide eventos nos relatórios Realtime e DebugView do GA4.
+- DevTools → Network: deve aparecer `googletagmanager.com/gtag/js?id=G-...` **uma vez**, seguido
+  de `google-analytics.com/g/collect?v=2`. Nenhum `gtm.js` deve ser carregado.
+- Console: `window.dataLayer` populado.
+- Google Tag Assistant para confirmar que há só uma instalação ativa.
+- GA4 → Relatórios → Tempo real, navegando entre páginas.
+- No GA4: Administrador → Fluxos de dados → stream Web → Medição avançada → Visualizações de
+  página → "Alterações de página com base em eventos do histórico do navegador". Isso cobre a
+  navegação client-side; o page_view do primeiro carregamento independe dessa opção.
+- Não há tracking manual de `page_view`. O `gtag.js` já registra navegação via histórico, então
+  um componente de rota manual dobraria a contagem.
 - Eventos customizados devem usar o helper `trackEvent` em `app/lib/analytics.ts`.
-- Não há tracking manual de `page_view`; GA4/GTM deve medir navegação via histórico do navegador para evitar duplicidade.
+
+No modo `gtm`, o container precisa ter sido publicado (Submit → Publish). Container salvo e não
+publicado = versão live vazia = GA4 sem dados, mesmo com o `gtm.js` carregando normalmente.
 
 Indexação:
 
