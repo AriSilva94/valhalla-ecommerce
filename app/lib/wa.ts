@@ -1,5 +1,8 @@
 export function fmt(n: number): string {
-  return "R$ " + n.toLocaleString("pt-BR");
+  return (
+    "R$ " +
+    n.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  );
 }
 
 export function waUrl(phone: string, msg: string): string {
