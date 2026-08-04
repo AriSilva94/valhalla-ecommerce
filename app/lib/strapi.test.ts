@@ -127,11 +127,6 @@ test("withCacheOrThrow: failure after a prior success returns the stale cached v
   assert.equal(second, "fresh");
 });
 
-// Every request path is built as `${STRAPI_URL}${path}` and each path already
-// starts with "/". The deploy env files carry the value with a trailing slash
-// ("https://api.valhallatecnologia.com.br/"), which yields "//api/products".
-// Strapi tolerates it today, but a proxy that does not would 404 the whole
-// catalogue into the empty fallback.
 test("normalizeStrapiUrl: strips trailing slashes so paths never double up", () => {
   assert.equal(normalizeStrapiUrl("https://api.example.com/"), "https://api.example.com");
   assert.equal(normalizeStrapiUrl("https://api.example.com///"), "https://api.example.com");
