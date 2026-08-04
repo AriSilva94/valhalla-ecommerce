@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { notFound, redirect } from "next/navigation";
-import { withCacheFallback, withCacheOrThrow } from "./strapi";
+import { normalizeStrapiUrl, withCacheFallback, withCacheOrThrow } from "./strapi";
 
 // Regression coverage for the unstable_rethrow bug that broke the production
 // build: a Next.js internal control-flow error (notFound()/redirect()) must
@@ -125,4 +125,25 @@ test("withCacheOrThrow: failure after a prior success returns the stale cached v
     throw new Error("strapi down");
   });
   assert.equal(second, "fresh");
+});
+
+// Every request path is built as `${STRAPI_URL}${path}` and each path already
+// starts with "/". The deploy env files carry the value with a trailing slash
+// ("https://api.valhallatecnologia.com.br/"), which yields "//api/products".
+// Strapi tolerates it today, but a proxy that does not would 404 the whole
+// catalogue into the empty fallback.
+test("normalizeStrapiUrl: strips trailing slashes so paths never double up", () => {
+  assert.equal(normalizeStrapiUrl("https://api.example.com/"), "https://api.example.com");
+  assert.equal(normalizeStrapiUrl("https://api.example.com///"), "https://api.example.com");
+  assert.equal(normalizeStrapiUrl("https://api.example.com"), "https://api.example.com");
+});
+
+test("normalizeStrapiUrl: trims surrounding whitespace", () => {
+  assert.equal(normalizeStrapiUrl("  https://api.example.com/  "), "https://api.example.com");
+});
+
+test("normalizeStrapiUrl: falls back to localhost when unset or blank", () => {
+  assert.equal(normalizeStrapiUrl(undefined), "http://localhost:1337");
+  assert.equal(normalizeStrapiUrl(""), "http://localhost:1337");
+  assert.equal(normalizeStrapiUrl("   "), "http://localhost:1337");
 });
