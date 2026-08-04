@@ -184,10 +184,6 @@ export interface Policy {
   body: string;
 }
 
-// Request URLs are built as `${STRAPI_URL}${path}` with paths that already
-// start with "/", so a trailing slash on the env value produces "//api/...".
-// The deploy env files are written with one, so normalize instead of relying on
-// every proxy in front of Strapi collapsing the duplicate segment.
 export function normalizeStrapiUrl(raw: string | undefined): string {
   return (raw?.trim() || "http://localhost:1337").replace(/\/+$/, "");
 }
