@@ -64,7 +64,7 @@ export default function HomeInteractive({
       {/* ===== HOME ===== */}
       <section className="relative overflow-hidden vh-home-hero-bg">
         <div className="absolute inset-0 vh-hero-pattern"></div>
-        <div className="relative max-w-310 my-0 mx-auto pt-16 px-6 pb-18 grid vh-grid-hero gap-12 items-center">
+        <div className="relative max-w-310 my-0 mx-auto pt-8 sm:pt-16 px-6 pb-18 grid vh-grid-hero gap-12 items-center">
           <div className="flex flex-col gap-4.5">
             <span className="self-start font-bold text-vh-11-5 font-space-grotesk tracking-vh-018 uppercase text-vh-lime border border-vh-lime/40 rounded-vh-20 py-1.75 px-3.5">{homepage.hero.eyebrow}</span>
             <h1 className="m-0 font-bold text-vh-34/vh-105 vh-hero-title font-space-grotesk -tracking-vh-001"><span className="text-vh-accent">{homepage.hero.headlineAccent}</span><br />{homepage.hero.headline}<br /><span className="text-vh-lime">{homepage.hero.headlineHighlight}</span></h1>
@@ -89,7 +89,8 @@ export default function HomeInteractive({
                   fill
                   priority
                   sizes="(max-width:768px) 80vw, 340px"
-                  className="object-contain"
+                  quality={90}
+                  className="object-cover"
                 />
               ) : (
                 <span className="font-medium text-vh-12 font-mono text-vh-muted bg-vh-ink/55 py-1.5 px-3 rounded-md">[foto do destaque]</span>
@@ -142,7 +143,7 @@ export default function HomeInteractive({
         <section className="max-w-310 my-0 mx-auto pt-14 px-6 pb-2 w-full">
           <h2 className="mt-0 mx-0 mb-5.5 font-bold text-vh-26 font-space-grotesk">Lançamentos</h2>
           <div className="grid vh-grid-products gap-4">
-            {launches.map((p, i) => (<ProductCard key={i} p={toCardVM(p, addItem)} />))}
+            {launches.map((p, i) => (<ProductCard key={i} p={toCardVM(p, addItem)} priority={i === 0} />))}
           </div>
         </section>
       )}

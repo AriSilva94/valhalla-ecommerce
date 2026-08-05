@@ -33,7 +33,8 @@ export default function ProductCard({ p, priority = false }: { p: CardVM; priori
             fill
             priority={priority}
             sizes="(max-width:640px) 50vw, (max-width:1240px) 33vw, 300px"
-            className="object-contain"
+            quality={90}
+            className="object-cover"
           />
         ) : (
           <span className="font-medium text-vh-11 font-mono text-vh-muted bg-vh-ink/55 py-1.25 px-2.5 rounded-md">[foto: {p.name}]</span>

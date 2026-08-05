@@ -140,7 +140,7 @@ pre {
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 }
 .vh-grid-hero {
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
 }
 .vh-grid-categories {
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));

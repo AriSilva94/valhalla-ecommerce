@@ -119,7 +119,8 @@ export default function ProductDetailClient({
                 fill
                 priority
                 sizes="(max-width:768px) 100vw, 560px"
-                className="rounded-vh-18 object-contain"
+                quality={90}
+                className="rounded-vh-18 object-cover"
               />
             ) : (
               <span className="font-medium text-vh-12 font-mono text-vh-muted bg-vh-ink/55 py-1.5 px-3 rounded-md">[foto principal: {product.name}]</span>
@@ -137,7 +138,7 @@ export default function ProductDetailClient({
                 onClick={() => setSelImageIdx(i)}
                 aria-label={`Ver foto ${i + 1} de ${photos.length}`}
               >
-                <Image src={ph.url} alt="" fill sizes="120px" className="object-contain" />
+                <Image src={ph.url} alt="" fill sizes="120px" quality={90} className="object-cover" />
               </button>
             ))}
           </div>

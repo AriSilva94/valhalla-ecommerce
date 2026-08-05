@@ -6,7 +6,11 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Fab from "./components/Fab";
 import Analytics from "./components/Analytics";
-import { getCanonicalPath, getSiteUrl, isProductionIndexable } from "./lib/site-url";
+import {
+  getCanonicalPath,
+  getSiteUrl,
+  isProductionIndexable,
+} from "./lib/site-url";
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
@@ -52,11 +56,29 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     icons: {
       icon: [
-        { url: "/assets/img/favicon-16x16.png", sizes: "16x16", type: "image/png" },
-        { url: "/assets/img/favicon-32x32.png", sizes: "32x32", type: "image/png" },
-        { url: "/assets/img/valhalla-favicon-final.png", sizes: "512x512", type: "image/png" },
+        {
+          url: "/assets/img/favicon-16x16.png",
+          sizes: "16x16",
+          type: "image/png",
+        },
+        {
+          url: "/assets/img/favicon-32x32.png",
+          sizes: "32x32",
+          type: "image/png",
+        },
+        {
+          url: "/assets/img/valhalla-favicon-final.png",
+          sizes: "512x512",
+          type: "image/png",
+        },
       ],
-      apple: [{ url: "/assets/img/valhalla-favicon-final.png", sizes: "512x512", type: "image/png" }],
+      apple: [
+        {
+          url: "/assets/img/valhalla-favicon-final.png",
+          sizes: "512x512",
+          type: "image/png",
+        },
+      ],
     },
   };
 }
@@ -66,14 +88,22 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [settings, categories, products] = await Promise.all([getSiteSettings(), getCategories(), getProducts()]);
+  const [settings, categories, products] = await Promise.all([
+    getSiteSettings(),
+    getCategories(),
+    getProducts(),
+  ]);
 
   return (
     <html lang="pt-BR">
       <Analytics />
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link
           href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap"
@@ -82,13 +112,18 @@ export default async function RootLayout({
       </head>
       <body>
         <CartProvider>
-          {/* The top-bar strip is rendered INSIDE Header (ported as part of Header's own JSX in Step 2,
-              since the original source has it as a sibling immediately before <header>) — do not add a
-              second copy of it here. */}
-          <Header categories={categories} products={products} whatsappNumber={settings.whatsappNumber} showTopBar={settings.showTopBar} topBarText={settings.topBarText} />
+          <Header
+            categories={categories}
+            products={products}
+            showTopBar={settings.showTopBar}
+            topBarText={settings.topBarText}
+          />
           <main className="flex-1">{children}</main>
           <Footer categories={categories} settings={settings} />
-          <Fab show={settings.showFab} whatsappNumber={settings.whatsappNumber} />
+          <Fab
+            show={settings.showFab}
+            whatsappNumber={settings.whatsappNumber}
+          />
         </CartProvider>
       </body>
     </html>

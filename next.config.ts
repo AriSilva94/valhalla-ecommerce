@@ -12,6 +12,7 @@ const nextConfig: NextConfig = {
     remotePatterns: mediaHost
       ? [{ protocol: "https", hostname: mediaHost, pathname: "/**" }]
       : [],
+    qualities: [75, 90],
   },
 };
 
