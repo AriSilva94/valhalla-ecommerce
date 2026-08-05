@@ -30,6 +30,7 @@ export default function Header({
   const onCatRowMouseDown = (e: React.MouseEvent) => {
     const el = catRowRef.current;
     if (!el) return;
+    e.preventDefault();
     dragRef.current = {
       dragging: true,
       startX: e.pageX - el.offsetLeft,
@@ -180,6 +181,7 @@ export default function Header({
                 <Link
                   key={i}
                   href={"/categoria/" + c.slug}
+                  draggable={false}
                   className="vh-navcat py-2.75 px-3.5 font-semibold text-vh-12-5 font-space-grotesk tracking-vh-003 text-vh-soft cursor-pointer whitespace-nowrap border-b-2 border-b-transparent [transition:color_.12s,border-color_.12s]"
                 >
                   {c.name}
