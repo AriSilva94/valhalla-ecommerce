@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -23,6 +23,40 @@ export default function Header({
   const { cartCount } = useCart();
   const [q, setQ] = useState("");
   const [auto, setAuto] = useState(false);
+
+  const catRowRef = useRef<HTMLDivElement>(null);
+  const dragRef = useRef({ dragging: false, startX: 0, scrollLeft: 0, moved: false });
+
+  const onCatRowMouseDown = (e: React.MouseEvent) => {
+    const el = catRowRef.current;
+    if (!el) return;
+    dragRef.current = {
+      dragging: true,
+      startX: e.pageX - el.offsetLeft,
+      scrollLeft: el.scrollLeft,
+      moved: false,
+    };
+  };
+  const onCatRowMouseMove = (e: React.MouseEvent) => {
+    const el = catRowRef.current;
+    const d = dragRef.current;
+    if (!d.dragging || !el) return;
+    e.preventDefault();
+    const x = e.pageX - el.offsetLeft;
+    const walk = x - d.startX;
+    if (Math.abs(walk) > 5) d.moved = true;
+    el.scrollLeft = d.scrollLeft - walk;
+  };
+  const stopCatRowDrag = () => {
+    dragRef.current.dragging = false;
+  };
+  const onCatRowClickCapture = (e: React.MouseEvent) => {
+    if (dragRef.current.moved) {
+      e.preventDefault();
+      e.stopPropagation();
+      dragRef.current.moved = false;
+    }
+  };
 
   const query = q.trim().toLowerCase();
   const suggestions = query
@@ -132,7 +166,16 @@ export default function Header({
         </div>
         <nav className="border-t border-t-vh-panel relative">
           <div className="max-w-310 my-0 mx-auto px-6 flex items-center gap-4">
-            <div className="flex-1 min-w-0 flex gap-1 overflow-x-auto py-2.75 [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden [mask-image:linear-gradient(to_left,transparent,black_48px)] [-webkit-mask-image:linear-gradient(to_left,transparent,black_48px)]">
+            <div
+              ref={catRowRef}
+              onMouseDown={onCatRowMouseDown}
+              onMouseMove={onCatRowMouseMove}
+              onMouseUp={stopCatRowDrag}
+              onMouseLeave={stopCatRowDrag}
+              onClickCapture={onCatRowClickCapture}
+              className="flex-1 min-w-0 flex gap-1 overflow-x-auto py-2.75 cursor-grab active:cursor-grabbing select-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden [mask-image:linear-gradient(to_left,transparent,black_48px)] [-webkit-mask-image:linear-gradient(to_left,transparent,black_48px)]"
+            >
+
               {navCats.map((c, i) => (
                 <Link
                   key={i}
