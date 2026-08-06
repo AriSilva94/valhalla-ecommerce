@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { waUrl } from "../lib/wa";
 import type { Category, SiteSettings } from "../lib/strapi";
+import { visibleCategories } from "../lib/categories";
 
 export default function Footer({
   categories,
@@ -14,7 +15,7 @@ export default function Footer({
     settings.whatsappNumber,
     "Olá, equipe Valhalla Tecnologia! Gostaria de falar com um atendente.",
   );
-  const navCats = categories.filter((c) => c.productCount > 0);
+  const navCats = visibleCategories(categories);
 
   return (
     <footer className="bg-vh-ink border-t border-t-vh-panel mt-18">
