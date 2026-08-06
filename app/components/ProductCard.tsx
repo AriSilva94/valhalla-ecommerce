@@ -40,10 +40,10 @@ export default function ProductCard({ p, priority = false }: { p: CardVM; priori
           <span className="font-medium text-vh-11 font-mono text-vh-muted bg-vh-ink/55 py-1.25 px-2.5 rounded-md">[foto: {p.name}]</span>
         )}
         {p.badge && (
-          <span className={cn("absolute top-2.5 left-2.5 font-bold text-vh-11 font-space-grotesk tracking-vh-006 uppercase py-1.25 px-2.25 rounded-md", bgClass(p.badgeBg), textClass(p.badgeFg))}>{p.badge}</span>
+          <span className={cn("absolute top-2.5 left-2.5 font-bold text-vh-16 font-space-grotesk tracking-vh-006 uppercase py-1.25 px-2.25 rounded-md", bgClass(p.badgeBg), textClass(p.badgeFg))}>{p.badge}</span>
         )}
         {p.out && (
-          <span className="absolute top-auto right-2.5 bottom-2.5 left-2.5 text-center font-semibold text-vh-11 font-space-grotesk tracking-wider p-1.5 rounded-md bg-vh-ink/75 text-vh-soft uppercase">Esgotado</span>
+          <span className="absolute top-auto right-2.5 bottom-2.5 left-2.5 text-center font-semibold text-vh-16 font-space-grotesk tracking-wider p-1.5 rounded-md bg-vh-ink/75 text-vh-soft uppercase">Esgotado</span>
         )}
       </div>
       <div className="pt-3.5 px-4 pb-4 flex flex-col gap-1.5 flex-1">

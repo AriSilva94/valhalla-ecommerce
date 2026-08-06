@@ -116,6 +116,19 @@ test("getCategories: Strapi down, no prior cache -> returns []", async (t) => {
   assert.deepEqual(categories, []);
 });
 
+test("getCategories: pede a ordenação que o admin controla no Strapi", async (t) => {
+  let requested = "";
+  t.mock.method(globalThis, "fetch", async (url: string) => {
+    requested = url;
+    return jsonResponse({ data: [RAW_CATEGORY] });
+  });
+
+  await getCategories();
+
+  assert.match(requested, /sort\[0\]=sortOrder:asc/);
+  assert.match(requested, /sort\[1\]=name:asc/);
+});
+
 test("getCategories: Strapi up -> returns mapped data, then serves it as stale on the next failure", async (t) => {
   t.mock.method(globalThis, "fetch", async () => jsonResponse({ data: [RAW_CATEGORY] }));
   const fresh = await getCategories();

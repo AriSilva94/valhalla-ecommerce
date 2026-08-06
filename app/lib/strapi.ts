@@ -7,13 +7,6 @@ export interface StrapiMedia {
   height: number;
 }
 
-export interface StrapiMedia {
-  url: string;
-  alternativeText: string | null;
-  width: number;
-  height: number;
-}
-
 export interface Spec {
   key: string;
   value: string;
@@ -184,6 +177,149 @@ export interface Policy {
   body: string;
 }
 
+
+interface RawTimestamps {
+  updatedAt?: string | null;
+  publishedAt?: string | null;
+  createdAt?: string | null;
+}
+
+interface RawMedia {
+  url?: string | null;
+  alternativeText?: string | null;
+  width: number;
+  height: number;
+}
+
+interface RawVariant {
+  id: number;
+  sku: string;
+  colorName?: string | null;
+  colorHex?: string | null;
+  configLabel?: string | null;
+  price: number;
+  compareAtPrice?: number | null;
+  available: boolean;
+}
+
+interface RawSpec {
+  key: string;
+  value: string;
+}
+
+interface RawBrand {
+  id: number;
+  documentId: string;
+  name: string;
+  slug: string;
+}
+
+interface RawTag {
+  id: number;
+  documentId: string;
+  name: string;
+  slug: string;
+}
+
+interface RawSeo {
+  metaTitle: string;
+  metaDescription: string;
+}
+
+interface RawCategory extends RawTimestamps {
+  id: number;
+  documentId: string;
+  name: string;
+  slug: string;
+  description: string;
+  products?: unknown[] | null;
+}
+
+interface RawProduct extends RawTimestamps {
+  id: number;
+  documentId: string;
+  name: string;
+  slug: string;
+  basePrice: number;
+  variantGroupLabel?: string | null;
+  specs?: RawSpec[] | null;
+  description: string;
+  warranty: string;
+  brand?: RawBrand | null;
+  category?: RawCategory | null;
+  tags?: RawTag[] | null;
+  variants?: RawVariant[] | null;
+  seo?: RawSeo | null;
+  mainImage?: RawMedia | null;
+  gallery?: RawMedia[] | null;
+}
+
+interface RawLinkColumn {
+  title: string;
+  links?: { label: string; url: string }[] | null;
+}
+
+interface RawSiteSetting extends RawTimestamps {
+  whatsappNumber: string;
+  showTopBar: boolean;
+  topBarText: string;
+  showFab: boolean;
+  footerTagline: string;
+  footerLinkColumns?: RawLinkColumn[] | null;
+  footerLegalText: string;
+  contactEmail: string;
+  contactAddress: string;
+  contactHours: string;
+  aboutEyebrow: string;
+  aboutHeadline: string;
+  aboutText: string;
+  aboutStats?: { value: string; label: string }[] | null;
+  defaultSeo?: RawSeo | null;
+}
+
+interface RawHomepage {
+  hero: {
+    eyebrow: string;
+    headlineAccent: string;
+    headline: string;
+    headlineHighlight: string;
+    subtext: string;
+    ctaLabel: string;
+    ctaLink: string;
+    secondaryCtaLabel: string;
+    secondaryCtaLink: string;
+    image?: RawMedia | null;
+    trustBadges?: { text: string }[] | null;
+  };
+  benefits?: { icon: string; title: string; description: string }[] | null;
+  steps?: { number: string; title: string; description: string }[] | null;
+  testimonials?: { quote: string; authorName: string; authorLocation: string }[] | null;
+  whatsappBanner: { headline: string; text: string; buttonLabel: string; buttonLink: string };
+}
+
+interface RawFaq {
+  id: number;
+  question: string;
+  answer: string;
+  order: number;
+}
+
+interface RawPolicy extends RawTimestamps {
+  id: number;
+  documentId: string;
+  title: string;
+  slug: string;
+  body: string;
+}
+
+interface StrapiSingle<T> {
+  data: T;
+}
+
+interface StrapiList<T> {
+  data: T[];
+}
+
 export function normalizeStrapiUrl(raw: string | undefined): string {
   return (raw?.trim() || "http://localhost:1337").replace(/\/+$/, "");
 }
@@ -245,11 +381,11 @@ async function strapiFetch<T>(path: string): Promise<T> {
   return res.json();
 }
 
-function mapVariant(raw: any): ProductVariant {
+function mapVariant(raw: RawVariant): ProductVariant {
   return {
     id: raw.id,
     sku: raw.sku,
-    color: { name: raw.colorName ?? "", hex: raw.colorHex ?? "#000000" },
+    color: { name: raw.colorName ?? "", hex: raw.colorHex ?? "" },
     configLabel: raw.configLabel ?? "",
     price: raw.price,
     compareAtPrice: raw.compareAtPrice ?? null,
@@ -258,7 +394,7 @@ function mapVariant(raw: any): ProductVariant {
 }
 
 // Media lives on the storage provider (R2), so `url` is already absolute.
-function mapMedia(raw: any): StrapiMedia | null {
+function mapMedia(raw: RawMedia | null | undefined): StrapiMedia | null {
   if (!raw?.url) return null;
   return {
     url: raw.url,
@@ -268,7 +404,7 @@ function mapMedia(raw: any): StrapiMedia | null {
   };
 }
 
-function mapProduct(raw: any): Product {
+function mapProduct(raw: RawProduct): Product {
   return {
     id: raw.id,
     documentId: raw.documentId,
@@ -277,7 +413,7 @@ function mapProduct(raw: any): Product {
     slug: raw.slug,
     basePrice: raw.basePrice,
     variantGroupLabel: raw.variantGroupLabel ?? null,
-    specs: (raw.specs || []).map((s: any) => ({ key: s.key, value: s.value })),
+    specs: (raw.specs || []).map((s) => ({ key: s.key, value: s.value })),
     description: raw.description,
     warranty: raw.warranty,
     brand: raw.brand ? { id: raw.brand.id, documentId: raw.brand.documentId, name: raw.brand.name, slug: raw.brand.slug } : null,
@@ -292,7 +428,7 @@ function mapProduct(raw: any): Product {
           productCount: 0,
         }
       : null,
-    tags: (raw.tags || []).map((t: any) => ({ id: t.id, documentId: t.documentId, name: t.name, slug: t.slug })),
+    tags: (raw.tags || []).map((t) => ({ id: t.id, documentId: t.documentId, name: t.name, slug: t.slug })),
     variants: (raw.variants || []).map(mapVariant),
     seo: raw.seo ? { metaTitle: raw.seo.metaTitle, metaDescription: raw.seo.metaDescription } : null,
     mainImage: mapMedia(raw.mainImage),
@@ -327,7 +463,7 @@ export async function getSiteSettings(): Promise<SiteSettings> {
   return withCacheFallback(
     path,
     async () => {
-      const json = await strapiFetch<any>(path);
+      const json = await strapiFetch<StrapiSingle<RawSiteSetting>>(path);
       const d = json.data;
       return {
         updatedAt: d.updatedAt ?? d.publishedAt ?? d.createdAt ?? null,
@@ -336,9 +472,9 @@ export async function getSiteSettings(): Promise<SiteSettings> {
         topBarText: d.topBarText,
         showFab: d.showFab,
         footerTagline: d.footerTagline,
-        footerLinkColumns: (d.footerLinkColumns || []).map((c: any) => ({
+        footerLinkColumns: (d.footerLinkColumns || []).map((c) => ({
           title: c.title,
-          links: (c.links || []).map((l: any) => ({ label: l.label, url: l.url })),
+          links: (c.links || []).map((l) => ({ label: l.label, url: l.url })),
         })),
         footerLegalText: d.footerLegalText,
         contactEmail: d.contactEmail,
@@ -347,7 +483,7 @@ export async function getSiteSettings(): Promise<SiteSettings> {
         aboutEyebrow: d.aboutEyebrow,
         aboutHeadline: d.aboutHeadline,
         aboutText: d.aboutText,
-        aboutStats: (d.aboutStats || []).map((s: any) => ({ value: s.value, label: s.label })),
+        aboutStats: (d.aboutStats || []).map((s) => ({ value: s.value, label: s.label })),
         defaultSeo: d.defaultSeo ? { metaTitle: d.defaultSeo.metaTitle, metaDescription: d.defaultSeo.metaDescription } : null,
       };
     },
@@ -381,7 +517,7 @@ export async function getHomepage(): Promise<Homepage> {
   return withCacheFallback(
     path,
     async () => {
-      const json = await strapiFetch<any>(path);
+      const json = await strapiFetch<StrapiSingle<RawHomepage>>(path);
       const d = json.data;
       return {
         hero: {
@@ -395,11 +531,11 @@ export async function getHomepage(): Promise<Homepage> {
           secondaryCtaLabel: d.hero.secondaryCtaLabel,
           secondaryCtaLink: d.hero.secondaryCtaLink,
           image: mapMedia(d.hero.image),
-          trustBadges: (d.hero.trustBadges || []).map((b: any) => ({ text: b.text })),
+          trustBadges: (d.hero.trustBadges || []).map((b) => ({ text: b.text })),
         },
-        benefits: (d.benefits || []).map((b: any) => ({ icon: b.icon, title: b.title, description: b.description })),
-        steps: (d.steps || []).map((s: any) => ({ number: s.number, title: s.title, description: s.description })),
-        testimonials: (d.testimonials || []).map((t: any) => ({ quote: t.quote, authorName: t.authorName, authorLocation: t.authorLocation })),
+        benefits: (d.benefits || []).map((b) => ({ icon: b.icon, title: b.title, description: b.description })),
+        steps: (d.steps || []).map((s) => ({ number: s.number, title: s.title, description: s.description })),
+        testimonials: (d.testimonials || []).map((t) => ({ quote: t.quote, authorName: t.authorName, authorLocation: t.authorLocation })),
         whatsappBanner: {
           headline: d.whatsappBanner.headline,
           text: d.whatsappBanner.text,
@@ -413,12 +549,12 @@ export async function getHomepage(): Promise<Homepage> {
 }
 
 export async function getCategories(): Promise<Category[]> {
-  const path = "/api/categories?populate=products";
+  const path = "/api/categories?populate=products&sort[0]=sortOrder:asc&sort[1]=name:asc";
   return withCacheFallback(
     path,
     async () => {
-      const json = await strapiFetch<any>(path);
-      return json.data.map((c: any) => ({
+      const json = await strapiFetch<StrapiList<RawCategory>>(path);
+      return json.data.map((c) => ({
         id: c.id,
         documentId: c.documentId,
         updatedAt: c.updatedAt ?? c.publishedAt ?? c.createdAt ?? null,
@@ -434,7 +570,7 @@ export async function getCategories(): Promise<Category[]> {
 
 export async function getCategoryBySlug(slug: string): Promise<Category | null> {
   const path = `/api/categories?filters[slug][$eq]=${encodeURIComponent(slug)}&populate=products`;
-  const json = await withCacheOrThrow(path, () => strapiFetch<any>(path));
+  const json = await withCacheOrThrow(path, () => strapiFetch<StrapiList<RawCategory>>(path));
   const raw = json.data[0];
   if (!raw) return null;
   return {
@@ -453,7 +589,7 @@ export async function getProducts(): Promise<Product[]> {
   return withCacheFallback(
     path,
     async () => {
-      const json = await strapiFetch<any>(path);
+      const json = await strapiFetch<StrapiList<RawProduct>>(path);
       return json.data.map(mapProduct);
     },
     []
@@ -465,7 +601,7 @@ export async function getProductsByCategorySlug(slug: string): Promise<Product[]
   return withCacheFallback(
     path,
     async () => {
-      const json = await strapiFetch<any>(path);
+      const json = await strapiFetch<StrapiList<RawProduct>>(path);
       return json.data.map(mapProduct);
     },
     []
@@ -474,7 +610,7 @@ export async function getProductsByCategorySlug(slug: string): Promise<Product[]
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
   const path = `/api/products?filters[slug][$eq]=${encodeURIComponent(slug)}&${PRODUCT_POPULATE}`;
-  const json = await withCacheOrThrow(path, () => strapiFetch<any>(path));
+  const json = await withCacheOrThrow(path, () => strapiFetch<StrapiList<RawProduct>>(path));
   const raw = json.data[0];
   if (!raw) return null;
   return mapProduct(raw);
@@ -485,8 +621,8 @@ export async function getFaqs(): Promise<Faq[]> {
   return withCacheFallback(
     path,
     async () => {
-      const json = await strapiFetch<any>(path);
-      return json.data.map((f: any) => ({ id: f.id, question: f.question, answer: f.answer, order: f.order }));
+      const json = await strapiFetch<StrapiList<RawFaq>>(path);
+      return json.data.map((f) => ({ id: f.id, question: f.question, answer: f.answer, order: f.order }));
     },
     []
   );
@@ -497,8 +633,8 @@ export async function getPolicies(): Promise<Policy[]> {
   return withCacheFallback(
     path,
     async () => {
-      const json = await strapiFetch<any>(path);
-      return json.data.map((p: any) => ({
+      const json = await strapiFetch<StrapiList<RawPolicy>>(path);
+      return json.data.map((p) => ({
         id: p.id,
         documentId: p.documentId,
         updatedAt: p.updatedAt ?? p.publishedAt ?? p.createdAt ?? null,

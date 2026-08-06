@@ -1,4 +1,5 @@
 import { getSiteSettings } from "../lib/strapi";
+import StoreMap from "../components/StoreMap";
 
 export default async function SobrePage() {
   const settings = await getSiteSettings();
@@ -15,11 +16,7 @@ export default async function SobrePage() {
           </div>
         ))}
       </div>
-      <div
-        className="aspect-21/9 bg-[repeating-linear-gradient(45deg,#2A0A45_0_14px,#24063C_14px_28px)] border border-vh-border rounded-vh-18 flex items-center justify-center"
-      >
-        <span className="font-medium text-vh-12 font-mono text-vh-muted bg-vh-ink/55 py-1.5 px-3 rounded-md">[foto: fachada / equipe da loja]</span>
-      </div>
+      <StoreMap />
     </section>
   );
 }

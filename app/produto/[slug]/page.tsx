@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getProductBySlug, getProductsByCategorySlug, getSiteSettings } from "../../lib/strapi";
+import { sortSoldOutLast } from "../../lib/product-availability";
 import ProductDetailClient from "../../components/ProductDetailClient";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -22,7 +23,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     product.category ? getProductsByCategorySlug(product.category.slug) : Promise.resolve([]),
     getSiteSettings(),
   ]);
-  const related = categoryProducts.filter((p) => p.slug !== product.slug).slice(0, 4);
+  const related = sortSoldOutLast(categoryProducts.filter((p) => p.slug !== product.slug)).slice(0, 4);
 
   return <ProductDetailClient product={product} related={related} whatsappNumber={settings.whatsappNumber} />;
 }

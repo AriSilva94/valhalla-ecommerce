@@ -5,15 +5,26 @@ import Link from "next/link";
 import { fmt, waUrl } from "../lib/wa";
 import { useCart } from "./CartProvider";
 import ProductCard, { CardVM } from "./ProductCard";
+import Select, { type SelectOption } from "./Select";
+import Breadcrumb, { type BreadcrumbItem } from "./Breadcrumb";
 import type { Product } from "../lib/strapi";
+import { isSoldOut, sortSoldOutLast } from "../lib/product-availability";
+import { plural } from "../lib/plural";
 import { cn } from "../lib/cn";
+
+const SORT_OPTIONS: SelectOption[] = [
+  { value: "rel", label: "Relevância" },
+  { value: "asc", label: "Menor preço" },
+  { value: "desc", label: "Maior preço" },
+  { value: "promo", label: "Maiores descontos" },
+];
 
 function toCardVM(p: Product, addItem: ReturnType<typeof useCart>["addItem"]): CardVM {
   const v = p.variants.find((x) => x.available) ?? p.variants[0];
   const price = v?.price ?? p.basePrice;
   const oldPrice = v?.compareAtPrice ?? null;
   const disc = oldPrice ? Math.round((1 - price / oldPrice) * 100) : 0;
-  const allUnavailable = p.variants.length > 0 && p.variants.every((x) => !x.available);
+  const allUnavailable = isSoldOut(p);
   const tagNovo = p.tags.some((t) => t.slug === "novo");
   return {
     slug: p.slug,
@@ -46,7 +57,7 @@ export default function CategoryListingClient({
   whatsappNumber,
 }: {
   products: Product[];
-  crumb: string;
+  crumb: BreadcrumbItem[];
   title: string;
   emptyTitle: string;
   emptyDesc: string;
@@ -57,17 +68,19 @@ export default function CategoryListingClient({
   const [brand, setBrand] = useState("Todas");
 
   const brandsIn = ["Todas", ...Array.from(new Set(products.map((p) => p.brand?.name ?? "").filter(Boolean)))];
-  let list = products.filter((p) => brand === "Todas" || p.brand?.name === brand);
+  const filtered = products.filter((p) => brand === "Todas" || p.brand?.name === brand);
   const priceOf = (p: Product) => p.variants[0]?.price ?? p.basePrice;
   const oldOf = (p: Product) => p.variants[0]?.compareAtPrice ?? null;
-  if (sort === "asc") list = [...list].sort((a, b) => priceOf(a) - priceOf(b));
-  if (sort === "desc") list = [...list].sort((a, b) => priceOf(b) - priceOf(a));
-  if (sort === "promo")
-    list = [...list].sort((a, b) => {
-      const bOld = oldOf(b);
-      const aOld = oldOf(a);
-      return (bOld ? bOld - priceOf(b) : 0) - (aOld ? aOld - priceOf(a) : 0);
-    });
+  const discountOf = (p: Product) => {
+    const old = oldOf(p);
+    return old ? old - priceOf(p) : 0;
+  };
+  const comparators: Record<string, (a: Product, b: Product) => number> = {
+    asc: (a, b) => priceOf(a) - priceOf(b),
+    desc: (a, b) => priceOf(b) - priceOf(a),
+    promo: (a, b) => discountOf(b) - discountOf(a),
+  };
+  const list = sortSoldOutLast(filtered, comparators[sort]);
 
   const brandChips = brandsIn.map((b) => {
     const sel = b === brand;
@@ -81,12 +94,10 @@ export default function CategoryListingClient({
 
   return (
     <section className="max-w-310 my-0 mx-auto py-10 px-6 w-full">
-      <p className="mt-0 mx-0 mb-1.5 font-semibold text-vh-12 font-space-grotesk text-vh-muted">
-        <Link href="/" className="cursor-pointer text-vh-accent">Início</Link> / {crumb}
-      </p>
+      <Breadcrumb items={[{ label: "Início", href: "/" }, ...crumb]} />
       <div className="flex items-baseline gap-3.5 flex-wrap mb-5">
         <h1 className="m-0 font-bold text-vh-34 font-space-grotesk">{title}</h1>
-        <span className="font-medium text-vh-13-5 font-manrope text-vh-muted">{list.length} resultado(s)</span>
+        <span className="font-medium text-vh-13-5 font-manrope text-vh-muted">{plural(list.length, "resultado")}</span>
       </div>
       <div className="flex gap-2.5 flex-wrap items-center mb-6">
         {brandChips.map((b, i) => (
@@ -104,16 +115,13 @@ export default function CategoryListingClient({
           </span>
         ))}
         <span className="flex-1"></span>
-        <select
-          className="vh-select bg-vh-card border border-vh-border rounded-vh-10 py-2.5 px-3.5 text-white font-semibold text-vh-12-5 font-space-grotesk outline-none cursor-pointer"
+        <Select
+          label="Ordenar por"
           value={sort}
-          onChange={(e) => setSort(e.target.value)}
-        >
-          <option value="rel">Relevância</option>
-          <option value="asc">Menor preço</option>
-          <option value="desc">Maior preço</option>
-          <option value="promo">Maiores descontos</option>
-        </select>
+          onChange={setSort}
+          options={SORT_OPTIONS}
+          className="w-full sm:w-auto sm:min-w-52"
+        />
       </div>
       {listingReady && (
         <div className="grid grid-cols-[repeat(auto-fill,minmax(230px,1fr))] gap-4">

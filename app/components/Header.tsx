@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { fmt } from "../lib/wa";
 import { useCart } from "./CartProvider";
 import type { Category, Product } from "../lib/strapi";
+import { visibleCategories } from "../lib/categories";
 
 export default function Header({
   categories,
@@ -24,6 +25,41 @@ export default function Header({
   const [q, setQ] = useState("");
   const [auto, setAuto] = useState(false);
 
+  const catRowRef = useRef<HTMLDivElement>(null);
+  const dragRef = useRef({ dragging: false, startX: 0, scrollLeft: 0, moved: false });
+
+  const onCatRowMouseDown = (e: React.MouseEvent) => {
+    const el = catRowRef.current;
+    if (!el) return;
+    e.preventDefault();
+    dragRef.current = {
+      dragging: true,
+      startX: e.pageX - el.offsetLeft,
+      scrollLeft: el.scrollLeft,
+      moved: false,
+    };
+  };
+  const onCatRowMouseMove = (e: React.MouseEvent) => {
+    const el = catRowRef.current;
+    const d = dragRef.current;
+    if (!d.dragging || !el) return;
+    e.preventDefault();
+    const x = e.pageX - el.offsetLeft;
+    const walk = x - d.startX;
+    if (Math.abs(walk) > 5) d.moved = true;
+    el.scrollLeft = d.scrollLeft - walk;
+  };
+  const stopCatRowDrag = () => {
+    dragRef.current.dragging = false;
+  };
+  const onCatRowClickCapture = (e: React.MouseEvent) => {
+    if (dragRef.current.moved) {
+      e.preventDefault();
+      e.stopPropagation();
+      dragRef.current.moved = false;
+    }
+  };
+
   const query = q.trim().toLowerCase();
   const suggestions = query
     ? products
@@ -38,7 +74,7 @@ export default function Header({
         }))
     : [];
 
-  const navCats = categories.filter((c) => c.productCount > 0);
+  const navCats = visibleCategories(categories);
 
   return (
     <>
@@ -131,37 +167,49 @@ export default function Header({
           </Link>
         </div>
         <nav className="border-t border-t-vh-panel relative">
-          <div className="max-w-310 my-0 mx-auto py-0 px-6 flex gap-1 overflow-x-auto scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-            {navCats.map((c, i) => (
+          <div className="max-w-310 my-0 mx-auto px-6 flex items-center gap-4">
+            <div
+              ref={catRowRef}
+              onMouseDown={onCatRowMouseDown}
+              onMouseMove={onCatRowMouseMove}
+              onMouseUp={stopCatRowDrag}
+              onMouseLeave={stopCatRowDrag}
+              onClickCapture={onCatRowClickCapture}
+              className="flex-1 min-w-0 flex gap-1 overflow-x-auto py-2.75 cursor-grab active:cursor-grabbing select-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden [mask-image:linear-gradient(to_left,transparent,black_48px)] [-webkit-mask-image:linear-gradient(to_left,transparent,black_48px)]"
+            >
+
+              {navCats.map((c, i) => (
+                <Link
+                  key={i}
+                  href={"/categoria/" + c.slug}
+                  draggable={false}
+                  className="vh-navcat py-2.75 px-3.5 font-semibold text-vh-12-5 font-space-grotesk tracking-vh-003 text-vh-soft cursor-pointer whitespace-nowrap border-b-2 border-b-transparent [transition:color_.12s,border-color_.12s]"
+                >
+                  {c.name}
+                </Link>
+              ))}
+            </div>
+            <div className="hidden sm:flex items-center gap-1 shrink-0">
               <Link
-                key={i}
-                href={"/categoria/" + c.slug}
-                className="vh-navcat py-2.75 px-3.5 font-semibold text-vh-12-5 font-space-grotesk tracking-vh-003 text-vh-soft cursor-pointer whitespace-nowrap border-b-2 border-b-transparent [transition:color_.12s,border-color_.12s]"
+                href="/sobre"
+                className="vh-lime py-2.75 px-3 font-semibold text-vh-12-5 font-space-grotesk text-vh-muted cursor-pointer whitespace-nowrap"
               >
-                {c.name}
+                Sobre
               </Link>
-            ))}
-            <span className="flex-1"></span>
-            <Link
-              href="/sobre"
-              className="vh-lime py-2.75 px-3 font-semibold text-vh-12-5 font-space-grotesk text-vh-muted cursor-pointer whitespace-nowrap"
-            >
-              Sobre
-            </Link>
-            <Link
-              href="/faq"
-              className="vh-lime py-2.75 px-3 font-semibold text-vh-12-5 font-space-grotesk text-vh-muted cursor-pointer whitespace-nowrap"
-            >
-              FAQ
-            </Link>
-            <Link
-              href="/contato"
-              className="vh-lime py-2.75 px-3 font-semibold text-vh-12-5 font-space-grotesk text-vh-muted cursor-pointer whitespace-nowrap"
-            >
-              Contato
-            </Link>
+              <Link
+                href="/faq"
+                className="vh-lime py-2.75 px-3 font-semibold text-vh-12-5 font-space-grotesk text-vh-muted cursor-pointer whitespace-nowrap"
+              >
+                FAQ
+              </Link>
+              <Link
+                href="/contato"
+                className="vh-lime py-2.75 px-3 font-semibold text-vh-12-5 font-space-grotesk text-vh-muted cursor-pointer whitespace-nowrap"
+              >
+                Contato
+              </Link>
+            </div>
           </div>
-          <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-linear-to-l from-vh-bg to-transparent sm:hidden"></div>
         </nav>
       </header>
     </>

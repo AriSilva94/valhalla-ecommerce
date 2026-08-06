@@ -6,14 +6,19 @@ import { fmt } from "../lib/wa";
 import { useCart } from "./CartProvider";
 import ProductCard, { CardVM } from "./ProductCard";
 import type { Homepage, Product, Category } from "../lib/strapi";
+import { isSoldOut } from "../lib/product-availability";
+import { plural } from "../lib/plural";
+import { visibleCategories } from "../lib/categories";
 import { cn } from "../lib/cn";
+
+const HOME_CATEGORIES_SHOWN = 5;
 
 function toCardVM(p: Product, addItem: ReturnType<typeof useCart>["addItem"]): CardVM {
   const v = p.variants.find((x) => x.available) ?? p.variants[0];
   const price = v?.price ?? p.basePrice;
   const oldPrice = v?.compareAtPrice ?? null;
   const disc = oldPrice ? Math.round((1 - price / oldPrice) * 100) : 0;
-  const allUnavailable = p.variants.length > 0 && p.variants.every((x) => !x.available);
+  const allUnavailable = isSoldOut(p);
   const tagNovo = p.tags.some((t) => t.slug === "novo");
   return {
     slug: p.slug,
@@ -106,13 +111,15 @@ export default function HomeInteractive({
           <Link href="/categorias" className="vh-lime font-semibold text-vh-13 font-space-grotesk text-vh-accent cursor-pointer no-underline">Ver todas →</Link>
         </div>
         <div className="grid vh-grid-categories gap-3.5">
-          {categories.filter((c) => c.productCount > 0).map((c, i) => (
-            <Link key={i} href={`/categoria/${c.slug}`} className="vh-cardcat vh-cardcat-bg border border-vh-border rounded-vh-14 py-5 px-4.5 cursor-pointer flex flex-col gap-2 vh-card-transition no-underline text-inherit">
-              <span className="w-3 h-3 vh-diamond-bg rotate-45 rounded-vh-3"></span>
-              <span className="font-bold text-vh-15 font-space-grotesk text-white">{c.name}</span>
-              <span className="font-medium text-vh-12 font-manrope text-vh-muted">{c.productCount} produtos</span>
-            </Link>
-          ))}
+          {visibleCategories(categories)
+            .slice(0, HOME_CATEGORIES_SHOWN)
+            .map((c, i) => (
+              <Link key={i} href={`/categoria/${c.slug}`} className="vh-cardcat vh-cardcat-bg border border-vh-border rounded-vh-14 py-5 px-4.5 cursor-pointer flex flex-col gap-2 vh-card-transition no-underline text-inherit">
+                <span className="w-3 h-3 vh-diamond-bg rotate-45 rounded-vh-3"></span>
+                <span className="font-bold text-vh-15 font-space-grotesk text-white">{c.name}</span>
+                <span className="font-medium text-vh-12 font-manrope text-vh-muted">{plural(c.productCount, "produto")}</span>
+              </Link>
+            ))}
         </div>
       </section>
 
