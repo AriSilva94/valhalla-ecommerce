@@ -222,6 +222,46 @@ pre {
     transform: translate(-50%, 0);
   }
 }
+@keyframes vh-select-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes vh-select-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+}
+.vh-select-panel-in {
+  transform-origin: top center;
+  animation: vh-select-in 0.14s ease-out;
+}
+.vh-select-panel-out {
+  transform-origin: top center;
+  animation: vh-select-out 0.12s ease-in forwards;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vh-select-panel-in,
+  .vh-select-panel-out {
+    animation-duration: 0.01s;
+  }
+  .vh-select-chevron {
+    transition: none;
+  }
+}
+
 @keyframes vh-shimmer {
   from {
     background-position: -400px 0;
@@ -299,8 +339,13 @@ pre {
   border-color: #8b2cf5 !important;
   box-shadow: 0 0 0 3px rgba(139, 44, 245, 0.25) !important;
 }
-.vh-select:focus {
+.vh-selecttrigger:hover {
   border-color: #8b2cf5 !important;
+  background: #22003d !important;
+}
+.vh-selecttrigger:focus-visible {
+  border-color: #8b2cf5 !important;
+  box-shadow: 0 0 0 3px rgba(139, 44, 245, 0.25) !important;
 }
 .vh-chip:hover {
   border-color: #8cff00 !important;

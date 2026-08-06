@@ -1,21 +1,25 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useSyncExternalStore, ReactNode } from "react";
+import {
+  addLine,
+  cartCount as sumCount,
+  cartTotal as sumTotal,
+  getCartSnapshot,
+  getServerCartSnapshot,
+  removeLine,
+  setQty,
+  subscribeToCart,
+  updateCart,
+  type CartLine,
+  type NewCartLine,
+} from "../lib/cart-store";
 
-export interface CartLine {
-  key: string;
-  productSlug: string;
-  productName: string;
-  variantSku: string;
-  colorName: string;
-  configLabel: string;
-  unitPrice: number;
-  qty: number;
-}
+export type { CartLine } from "../lib/cart-store";
 
 interface CartContextValue {
   cart: CartLine[];
-  addItem: (line: Omit<CartLine, "key" | "qty">, qty: number) => void;
+  addItem: (line: NewCartLine, qty: number) => void;
   updateQty: (key: string, qty: number) => void;
   removeItem: (key: string) => void;
   clear: () => void;
@@ -24,53 +28,36 @@ interface CartContextValue {
 }
 
 const CartContext = createContext<CartContextValue | null>(null);
-const STORAGE_KEY = "valhalla:cart";
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [cart, setCart] = useState<CartLine[]>([]);
-  const [hydrated, setHydrated] = useState(false);
-
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setCart(JSON.parse(raw));
-    } catch {
-      // ignore malformed localStorage content
-    }
-    setHydrated(true);
-  }, []);
-
-  useEffect(() => {
-    if (!hydrated) return;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
-  }, [cart, hydrated]);
+  const cart = useSyncExternalStore(subscribeToCart, getCartSnapshot, getServerCartSnapshot);
 
   const addItem: CartContextValue["addItem"] = (line, qty) => {
-    const key = line.productSlug + "|" + line.variantSku;
-    setCart((c) => {
-      const next = c.map((x) => ({ ...x }));
-      const existing = next.find((x) => x.key === key);
-      if (existing) existing.qty += qty;
-      else next.push({ ...line, key, qty });
-      return next;
-    });
+    updateCart((c) => addLine(c, line, qty));
   };
 
   const updateQty = (key: string, qty: number) => {
-    setCart((c) => c.map((x) => (x.key === key ? { ...x, qty: Math.max(1, Math.min(10, qty)) } : x)));
+    updateCart((c) => setQty(c, key, qty));
   };
 
   const removeItem = (key: string) => {
-    setCart((c) => c.filter((x) => x.key !== key));
+    updateCart((c) => removeLine(c, key));
   };
 
-  const clear = () => setCart([]);
-
-  const cartCount = cart.reduce((a, x) => a + x.qty, 0);
-  const cartTotal = cart.reduce((a, x) => a + x.unitPrice * x.qty, 0);
+  const clear = () => updateCart(() => []);
 
   return (
-    <CartContext.Provider value={{ cart, addItem, updateQty, removeItem, clear, cartCount, cartTotal }}>
+    <CartContext.Provider
+      value={{
+        cart,
+        addItem,
+        updateQty,
+        removeItem,
+        clear,
+        cartCount: sumCount(cart),
+        cartTotal: sumTotal(cart),
+      }}
+    >
       {children}
     </CartContext.Provider>
   );

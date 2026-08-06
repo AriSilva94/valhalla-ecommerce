@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { fmt, waUrl } from "../lib/wa";
 import { useCart } from "./CartProvider";
+import Breadcrumb from "./Breadcrumb";
 
 export default function ListaClient({ whatsappNumber }: { whatsappNumber: string }) {
   const { cart, updateQty, removeItem, cartCount, cartTotal, clear } = useCart();
@@ -49,7 +50,7 @@ export default function ListaClient({ whatsappNumber }: { whatsappNumber: string
       {/* ===== INTEREST LIST ===== */}
       {step === "cart" && (
         <section className="max-w-310 my-0 mx-auto py-10 px-6 w-full">
-          <p className="mt-0 mx-0 mb-1.5 font-semibold text-vh-12 font-space-grotesk text-vh-muted"><Link href="/" className="cursor-pointer text-vh-accent">Início</Link> / Minha lista</p>
+          <Breadcrumb items={[{ label: "Início", href: "/" }, { label: "Minha lista" }]} />
           <h1 className="mt-0 mx-0 mb-6.5 font-bold text-vh-34 font-space-grotesk">Minha lista de interesse</h1>
           {cart.length === 0 && (
             <div className="text-center py-17.5 px-6 bg-vh-card border border-dashed border-vh-border rounded-2xl">

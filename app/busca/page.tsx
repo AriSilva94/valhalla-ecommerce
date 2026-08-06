@@ -13,7 +13,7 @@ export default async function BuscaPage({ searchParams }: { searchParams: Promis
   return (
     <CategoryListingClient
       products={results}
-      crumb="Busca"
+      crumb={[{ label: "Busca" }]}
       title={`Resultados para "${q || ""}"`}
       emptyTitle="Nenhum resultado encontrado"
       emptyDesc="Tente outra palavra, confira a ortografia ou fale direto com nosso atendente."

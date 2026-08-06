@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getCategories, getProducts, getSiteSettings } from "./lib/strapi";
 import { getCanonicalPath } from "./lib/site-url";
+import { visibleCategories } from "./lib/categories";
 
 type SitemapEntry = MetadataRoute.Sitemap[number];
 
@@ -30,7 +31,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     staticRoute("/contato", 0.6, "monthly", settings.updatedAt),
     staticRoute("/faq", 0.5, "monthly", settings.updatedAt),
     staticRoute("/politicas", 0.4, "yearly", settings.updatedAt),
-    ...categories.map((category) => ({
+    ...visibleCategories(categories).map((category) => ({
       url: getCanonicalPath(`/categoria/${category.slug}`),
       lastModified: toDate(category.updatedAt),
       changeFrequency: "weekly" as const,

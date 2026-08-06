@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { fmt } from "../lib/wa";
 import { useCart } from "./CartProvider";
 import type { Category, Product } from "../lib/strapi";
+import { visibleCategories } from "../lib/categories";
 
 export default function Header({
   categories,
@@ -73,7 +74,7 @@ export default function Header({
         }))
     : [];
 
-  const navCats = categories.filter((c) => c.productCount > 0);
+  const navCats = visibleCategories(categories);
 
   return (
     <>
