@@ -38,6 +38,8 @@ function toCardVM(p: Product, addItem: ReturnType<typeof useCart>["addItem"]): C
         {
           productSlug: p.slug,
           productName: p.name,
+          productImageUrl: p.mainImage?.url ?? null,
+          productImageAlt: p.mainImage?.alternativeText ?? p.name,
           variantSku: v.sku,
           colorName: v.color.name,
           configLabel: v.configLabel,

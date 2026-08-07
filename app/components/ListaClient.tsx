@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { fmt, waUrl } from "../lib/wa";
 import { useCart } from "./CartProvider";
 import Breadcrumb from "./Breadcrumb";
@@ -65,7 +66,13 @@ export default function ListaClient({ whatsappNumber }: { whatsappNumber: string
               <div className="flex flex-col gap-3">
                 {cart.map((it) => (
                   <div key={it.key} className="flex gap-4 items-center bg-vh-card border border-vh-border rounded-vh-14 p-4 flex-wrap">
-                    <Link href={`/produto/${it.productSlug}`} className="w-19 h-19 flex-none bg-[repeating-linear-gradient(45deg,#2A0A45_0_8px,#24063C_8px_16px)] border border-vh-border rounded-vh-10 flex items-center justify-center cursor-pointer"><span className="font-medium text-vh-9 font-mono text-vh-muted">[foto]</span></Link>
+                    <Link href={`/produto/${it.productSlug}`} className="w-19 h-19 flex-none relative overflow-hidden bg-[repeating-linear-gradient(45deg,#2A0A45_0_8px,#24063C_8px_16px)] border border-vh-border rounded-vh-10 flex items-center justify-center cursor-pointer">
+                      {it.productImageUrl ? (
+                        <Image src={it.productImageUrl} alt={it.productImageAlt ?? it.productName} fill sizes="76px" className="object-cover" />
+                      ) : (
+                        <span className="font-medium text-vh-9 font-mono text-vh-muted">[foto]</span>
+                      )}
+                    </Link>
                     <div className="flex-1 min-w-42.5 flex flex-col gap-0.75">
                       <Link className="vh-lime font-bold text-vh-14-5 font-space-grotesk cursor-pointer" href={`/produto/${it.productSlug}`}>{it.productName}</Link>
                       <span className="font-medium text-vh-12 font-manrope text-vh-muted">{`${it.configLabel} · ${it.colorName}`}</span>

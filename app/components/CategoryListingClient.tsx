@@ -41,7 +41,7 @@ function toCardVM(p: Product, addItem: ReturnType<typeof useCart>["addItem"]): C
     add: () => {
       if (!v) return;
       addItem(
-        { productSlug: p.slug, productName: p.name, variantSku: v.sku, colorName: v.color.name, configLabel: v.configLabel, unitPrice: v.price },
+        { productSlug: p.slug, productName: p.name, productImageUrl: p.mainImage?.url ?? null, productImageAlt: p.mainImage?.alternativeText ?? p.name, variantSku: v.sku, colorName: v.color.name, configLabel: v.configLabel, unitPrice: v.price },
         1
       );
     },

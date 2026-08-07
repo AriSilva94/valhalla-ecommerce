@@ -20,6 +20,8 @@ import {
 const line: NewCartLine = {
   productSlug: "notebook-x",
   productName: "Notebook X",
+  productImageUrl: "https://example.com/notebook-x.jpg",
+  productImageAlt: "Notebook X",
   variantSku: "NBX-AZUL-16",
   colorName: "AZUL",
   configLabel: "16GB",
