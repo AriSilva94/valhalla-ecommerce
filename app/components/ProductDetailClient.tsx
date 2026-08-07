@@ -53,6 +53,8 @@ function toCardVM(
         {
           productSlug: p.slug,
           productName: p.name,
+          productImageUrl: p.mainImage?.url ?? null,
+          productImageAlt: p.mainImage?.alternativeText ?? p.name,
           variantSku: v.sku,
           colorName: v.color.name,
           configLabel: v.configLabel,
@@ -362,6 +364,8 @@ export default function ProductDetailClient({
                       {
                         productSlug: product.slug,
                         productName: product.name,
+                        productImageUrl: product.mainImage?.url ?? null,
+                        productImageAlt: product.mainImage?.alternativeText ?? product.name,
                         variantSku: selectedVariant.sku,
                         colorName: selColorName,
                         configLabel: selConfigLabel,

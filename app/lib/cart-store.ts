@@ -2,6 +2,8 @@ export interface CartLine {
   key: string;
   productSlug: string;
   productName: string;
+  productImageUrl: string | null;
+  productImageAlt: string | null;
   variantSku: string;
   colorName: string;
   configLabel: string;
@@ -63,6 +65,8 @@ function isCartLine(value: unknown): value is CartLine {
     typeof l.key === "string" &&
     typeof l.productSlug === "string" &&
     typeof l.productName === "string" &&
+    (l.productImageUrl === undefined || l.productImageUrl === null || typeof l.productImageUrl === "string") &&
+    (l.productImageAlt === undefined || l.productImageAlt === null || typeof l.productImageAlt === "string") &&
     typeof l.variantSku === "string" &&
     typeof l.colorName === "string" &&
     typeof l.configLabel === "string" &&
