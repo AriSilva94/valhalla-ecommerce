@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import test from "node:test";
 import { getAnalyticsConfig } from "./analytics-config";
 import { getCanonicalPath, getSiteUrl, isProductionIndexable } from "./site-url";
@@ -76,4 +78,15 @@ test("getAnalyticsConfig vira no-op quando modo ou IDs são inválidos", () => {
     enabled: false,
     mode: "off",
   });
+});
+
+test("arquivos de ambiente usam o measurement ID atual do GA4", () => {
+  const expectedGaId = "G-WE9DC7GWST";
+  const envFiles = [".env.local", ".env.dokploy.dev", ".env.dokploy.prod"];
+
+  for (const envFile of envFiles) {
+    const contents = readFileSync(join(process.cwd(), envFile), "utf8");
+
+    assert.match(contents, new RegExp(`^NEXT_PUBLIC_GA_MEASUREMENT_ID=${expectedGaId}$`, "m"), envFile);
+  }
 });
