@@ -96,7 +96,6 @@ export default async function RootLayout({
 
   return (
     <html lang="pt-BR">
-      <Analytics />
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
@@ -126,6 +125,7 @@ export default async function RootLayout({
           />
         </CartProvider>
       </body>
+      <Analytics />
     </html>
   );
 }
