@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Code2 } from "lucide-react";
 import { waUrl } from "../lib/wa";
 import type { Category, SiteSettings } from "../lib/strapi";
 import { visibleCategories } from "../lib/categories";
@@ -74,9 +75,20 @@ export default function Footer({
         </div>
       </div>
       <div className="border-t border-t-vh-panel">
-        <p className="max-w-310 my-0 mx-auto py-4 px-6 font-medium text-vh-11-5 font-manrope text-vh-footer-muted">
-          {settings.footerLegalText}
-        </p>
+        <div className="max-w-310 my-0 mx-auto py-4 px-6 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 font-medium text-vh-11-5 font-manrope text-vh-footer-muted">
+          <p className="m-0">{settings.footerLegalText}</p>
+          <a
+            className="vh-lime inline-flex items-center gap-1.5 text-vh-footer-muted"
+            href="https://arisilva.tech/pt-br"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Code2 size={13} aria-hidden="true" strokeWidth={1.8} />
+            <span>
+              Desenvolvido por <span className="underline underline-offset-2">AriSilva.tech</span>
+            </span>
+          </a>
+        </div>
       </div>
     </footer>
   );
