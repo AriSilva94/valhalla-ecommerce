@@ -6,6 +6,7 @@ import { fmt, waUrl } from "../lib/wa";
 import { useCart } from "./CartProvider";
 import ProductCard, { CardVM } from "./ProductCard";
 import Breadcrumb from "./Breadcrumb";
+import RichText from "./RichText";
 import type { Product } from "../lib/strapi";
 import { isSoldOut } from "../lib/product-availability";
 import {
@@ -450,9 +451,10 @@ export default function ProductDetailClient({
           <h3 className="mt-0 mx-0 mb-3 font-bold text-vh-17 font-space-grotesk text-vh-accent">
             Descrição
           </h3>
-          <p className="m-0 font-medium text-vh-14/vh-17 font-manrope text-vh-soft">
-            {product.description}
-          </p>
+          <RichText
+            text={product.description}
+            className="font-medium text-vh-14/vh-17 font-manrope text-vh-soft"
+          />
           <h3 className="mt-5.5 mx-0 mb-3 font-bold text-vh-17 font-space-grotesk text-vh-accent">
             Entrega e retirada
           </h3>
