@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getProductBySlug, getProductsByCategorySlug, getSiteSettings } from "../../lib/strapi";
 import { sortSoldOutLast } from "../../lib/product-availability";
+import { stripMarkdown } from "../../lib/markdown";
 import ProductDetailClient from "../../components/ProductDetailClient";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -10,7 +11,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!product) return {};
   return {
     title: product.seo?.metaTitle ?? product.name,
-    description: product.seo?.metaDescription ?? product.description,
+    description: product.seo?.metaDescription ?? stripMarkdown(product.description),
   };
 }
 
