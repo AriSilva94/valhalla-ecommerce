@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { safeRedirect } from "@/app/lib/auth-redirect";
 
 const ERROR_MESSAGES: Record<string, string> = {
   INVALID_CREDENTIALS: "E-mail ou senha inválidos.",
@@ -13,18 +14,10 @@ const ERROR_MESSAGES: Record<string, string> = {
   UNAUTHENTICATED: "Sessão expirada. Entre novamente.",
 };
 
-function safeInternalPath(candidate: string | null): string {
-  if (!candidate) return "/";
-  if (!candidate.startsWith("/") || candidate.startsWith("//") || candidate.includes("\\") || candidate.includes(":")) {
-    return "/";
-  }
-  return candidate;
-}
-
 export default function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const returnTo = safeInternalPath(searchParams.get("returnTo"));
+  const returnTo = safeRedirect(searchParams.get("returnTo"), "/");
 
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
