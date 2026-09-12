@@ -153,18 +153,26 @@ export default function Header({
               </div>
             )}
           </div>
-          <Link
-            href="/lista"
-            className="vh-minhalista order-2 sm:order-3 ml-auto sm:ml-0 relative flex items-center gap-2.25 bg-transparent border border-vh-border rounded-vh-10 py-2.75 px-4 cursor-pointer text-white font-semibold text-vh-13 font-space-grotesk [transition:border-color_.15s,background_.15s]"
-          >
-            <span className="w-2 h-2 border-2 border-vh-lime rounded-xs"></span>
-            Minha lista
-            {cartCount > 0 && (
-              <span className="absolute -top-2 -right-2 min-w-5 h-5 bg-vh-lime text-vh-ink rounded-vh-10 font-extrabold text-vh-11 font-space-grotesk flex items-center justify-center py-0 px-1.25">
-                {cartCount}
-              </span>
-            )}
-          </Link>
+          <div className="order-2 sm:order-3 ml-auto sm:ml-0 flex items-center gap-2.5">
+            <Link
+              href="/entrar"
+              className="hidden sm:inline-flex items-center py-2.75 px-4 cursor-pointer text-vh-muted font-semibold text-vh-13 font-space-grotesk [transition:color_.15s]"
+            >
+              Entrar
+            </Link>
+            <Link
+              href="/lista"
+              className="vh-minhalista relative flex items-center gap-2.25 bg-transparent border border-vh-border rounded-vh-10 py-2.75 px-4 cursor-pointer text-white font-semibold text-vh-13 font-space-grotesk [transition:border-color_.15s,background_.15s]"
+            >
+              <span className="w-2 h-2 border-2 border-vh-lime rounded-xs"></span>
+              Minha lista
+              {cartCount > 0 && (
+                <span className="absolute -top-2 -right-2 min-w-5 h-5 bg-vh-lime text-vh-ink rounded-vh-10 font-extrabold text-vh-11 font-space-grotesk flex items-center justify-center py-0 px-1.25">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
+          </div>
         </div>
         <nav className="border-t border-t-vh-panel relative">
           <div className="max-w-310 my-0 mx-auto px-6 flex items-center gap-4">

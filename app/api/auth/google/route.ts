@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import { buildOauthNonceCookieInstruction } from '../../../lib/auth-cookies';
 import { safeRedirect } from '../../../lib/auth-redirect';
-import { getSiteUrl } from '../../../lib/site-url';
+import { getAllowedOrigin } from '../../../lib/auth-request';
 import { redirectWithCookies } from '../_shared';
 
 // GET only — this route is a browser navigation (the user clicks "Entrar
@@ -33,7 +33,7 @@ export async function GET(request: Request): Promise<Response> {
   // round trip untouched — that's what lets the callback route verify it
   // against the nonce cookie set here (see app/api/auth/google/callback).
   const frontendPublicUrl =
-    (process.env.FRONTEND_PUBLIC_URL ?? '').trim().replace(/\/+$/, '') || getSiteUrl();
+    (process.env.FRONTEND_PUBLIC_URL ?? '').trim().replace(/\/+$/, '') || getAllowedOrigin();
   const callbackUrl = `${frontendPublicUrl}/api/auth/google/callback?state=${encodeURIComponent(nonce)}`;
 
   const strapiRedirectUrl = `${strapiPublicUrl}/api/connect/google?callback=${encodeURIComponent(callbackUrl)}`;

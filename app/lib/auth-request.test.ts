@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { getClientIp, isOriginAllowed } from './auth-request';
+import { getClientIp, isOriginAllowed, getAllowedOrigin } from './auth-request';
 
 test('isOriginAllowed: exact match returns true', () => {
   const request = new Request('http://localhost/api/auth/login', {
@@ -53,4 +53,26 @@ test('getClientIp: single entry is returned as-is', () => {
 test('getClientIp: falls back to "unknown" when header is absent', () => {
   const request = new Request('http://localhost/api/auth/login');
   assert.equal(getClientIp(request), 'unknown');
+});
+
+test('getAllowedOrigin: returns the origin for an http URL (local dev)', () => {
+  assert.equal(
+    getAllowedOrigin({ NEXT_PUBLIC_SITE_URL: 'http://localhost:3000' }),
+    'http://localhost:3000',
+  );
+});
+
+test('getAllowedOrigin: returns the origin for an https URL, dropping path/query', () => {
+  assert.equal(
+    getAllowedOrigin({ NEXT_PUBLIC_SITE_URL: 'https://valhalla.example.com/foo?bar=1' }),
+    'https://valhalla.example.com',
+  );
+});
+
+test('getAllowedOrigin: returns empty string when unset', () => {
+  assert.equal(getAllowedOrigin({}), '');
+});
+
+test('getAllowedOrigin: returns empty string for an unparseable value', () => {
+  assert.equal(getAllowedOrigin({ NEXT_PUBLIC_SITE_URL: 'not a url' }), '');
 });

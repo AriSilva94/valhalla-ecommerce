@@ -4,12 +4,12 @@ import {
   buildClearOauthNonceCookieInstruction,
 } from '../../../lib/auth-cookies';
 import { AUTH_ERROR_CODES } from '../../../lib/auth-contracts';
-import { getSiteUrl } from '../../../lib/site-url';
+import { getAllowedOrigin } from '../../../lib/auth-request';
 import * as strapiClient from '../../../lib/auth-strapi-client';
 import { isOriginAllowed, readAuthCookies, jsonWithCookies, jsonError } from '../_shared';
 
 export async function POST(request: Request): Promise<Response> {
-  if (!isOriginAllowed(request, getSiteUrl())) {
+  if (!isOriginAllowed(request, getAllowedOrigin())) {
     return jsonError(AUTH_ERROR_CODES.INVALID_ORIGIN, 403);
   }
 

@@ -2,11 +2,11 @@ import { handleForgotPassword } from '../../../lib/auth-handlers';
 import { parseJsonBody, isValidEmail } from '../../../lib/auth-validation';
 import { AUTH_ERROR_CODES } from '../../../lib/auth-contracts';
 import * as strapiClient from '../../../lib/auth-strapi-client';
-import { getSiteUrl } from '../../../lib/site-url';
+import { getAllowedOrigin } from '../../../lib/auth-request';
 import { getClientIp, isOriginAllowed, enforceRateLimit, jsonError, jsonNoStore } from '../_shared';
 
 export async function POST(request: Request): Promise<Response> {
-  if (!isOriginAllowed(request, getSiteUrl())) {
+  if (!isOriginAllowed(request, getAllowedOrigin())) {
     return jsonError(AUTH_ERROR_CODES.INVALID_ORIGIN, 403);
   }
 
