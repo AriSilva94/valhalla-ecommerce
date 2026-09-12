@@ -26,7 +26,7 @@ test('login: success maps tokens and user', async (t) => {
   }
 });
 
-test('login: 401 from Strapi maps to INVALID_CREDENTIALS', async (t) => {
+test('login: 400 from Strapi maps to VALIDATION_ERROR', async (t) => {
   process.env.STRAPI_INTERNAL_URL = 'http://strapi.internal';
   const { login } = await import('./auth-strapi-client');
 
@@ -35,8 +35,8 @@ test('login: 401 from Strapi maps to INVALID_CREDENTIALS', async (t) => {
   const result = await login('joe@example.com', 'wrong');
   assert.equal(result.ok, false);
   if (!result.ok) {
-    assert.equal(result.error, 'UPSTREAM_ERROR');
-    assert.equal(result.status, 502);
+    assert.equal(result.error, 'VALIDATION_ERROR');
+    assert.equal(result.status, 400);
   }
 });
 
@@ -97,6 +97,25 @@ test('login: STRAPI_INTERNAL_URL unset throws a clear error at call time, not im
   }
 
   process.env.STRAPI_INTERNAL_URL = 'http://strapi.internal';
+});
+
+test('login: null role from Strapi maps to empty string, not "authenticated"', async (t) => {
+  process.env.STRAPI_INTERNAL_URL = 'http://strapi.internal';
+  const { login } = await import('./auth-strapi-client');
+
+  t.mock.method(globalThis, 'fetch', async () =>
+    jsonResponse({
+      jwt: 'access-token',
+      refreshToken: 'refresh-token',
+      user: { id: 1, username: 'joe', email: 'joe@example.com', confirmed: true, blocked: false, role: null },
+    })
+  );
+
+  const result = await login('joe@example.com', 'password123');
+  assert.equal(result.ok, true);
+  if (result.ok) {
+    assert.equal(result.data.user.role, '');
+  }
 });
 
 test('me: success returns the user only', async (t) => {

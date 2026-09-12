@@ -29,8 +29,10 @@ type RawStrapiUser = {
 };
 
 function toAuthUser(raw: RawStrapiUser): AuthUser {
-  const role =
-    typeof raw.role === 'string' ? raw.role : raw.role?.name ?? 'authenticated';
+  // A null/missing role from Strapi means the user genuinely has no role;
+  // defaulting it to 'authenticated' would make it indistinguishable from a
+  // real authenticated role, so we default to '' (falsy, distinguishable).
+  const role = typeof raw.role === 'string' ? raw.role : raw.role?.name ?? '';
   return {
     id: raw.id,
     username: raw.username,
@@ -79,6 +81,9 @@ async function request<T>(
   if (!res.ok) {
     if (res.status === 401 || res.status === 403) {
       return errorResult(AUTH_ERROR_CODES.INVALID_CREDENTIALS, 401);
+    }
+    if (res.status === 400) {
+      return errorResult(AUTH_ERROR_CODES.VALIDATION_ERROR, 400);
     }
     return errorResult(AUTH_ERROR_CODES.UPSTREAM_ERROR, 502);
   }
