@@ -1,4 +1,6 @@
-import type { AuthCookieInstruction } from '../../lib/auth-cookies';
+import type { AuthCookieInstruction, OauthNonceCookieInstruction } from '../../lib/auth-cookies';
+
+type CookieInstruction = AuthCookieInstruction | OauthNonceCookieInstruction;
 
 export { getClientIp, isOriginAllowed } from '../../lib/auth-request';
 
@@ -51,7 +53,7 @@ export function readAuthCookies(request: Request): {
   };
 }
 
-function serializeCookie(instruction: AuthCookieInstruction): string {
+function serializeCookie(instruction: CookieInstruction): string {
   const { name, value, options } = instruction;
   const parts = [`${name}=${encodeURIComponent(value)}`];
   parts.push(`Path=${options.path}`);
@@ -79,4 +81,18 @@ export function jsonError(code: string, status: number): Response {
     status,
     headers: { 'Content-Type': 'application/json' },
   });
+}
+
+// Same header-building logic as jsonWithCookies, but for a 302 redirect
+// response instead of a JSON body — used by the OAuth routes, which must
+// send the browser onward while still setting/clearing cookies.
+export function redirectWithCookies(
+  location: string,
+  cookieInstructions: CookieInstruction[]
+): Response {
+  const headers = new Headers({ Location: location });
+  for (const instruction of cookieInstructions) {
+    headers.append('Set-Cookie', serializeCookie(instruction));
+  }
+  return new Response(null, { status: 302, headers });
 }

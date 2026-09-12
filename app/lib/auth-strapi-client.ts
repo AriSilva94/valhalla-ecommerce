@@ -192,6 +192,39 @@ export async function resendConfirmation(email: string): Promise<AuthResult<null
   return { ok: true, data: null };
 }
 
+// Strapi's users-permissions email-confirmation endpoint is a browser-facing
+// GET route: on success it 30x-redirects to the configured
+// `email_confirmation_redirection` URL, it doesn't return JSON. The BFF
+// calls it server-side with redirect: 'manual' so the confirmation token
+// never reaches the browser (spec: "o BFF encaminha a confirmação ao Strapi
+// sem expor o token") and treats a redirect response as success.
+export async function confirmEmail(confirmationToken: string): Promise<AuthResult<null>> {
+  let baseUrl: string;
+  try {
+    baseUrl = getBaseUrl();
+  } catch {
+    return errorResult(AUTH_ERROR_CODES.UPSTREAM_ERROR, 500);
+  }
+
+  let res: Response;
+  try {
+    res = await fetch(
+      `${baseUrl}/api/auth/email-confirmation?confirmation=${encodeURIComponent(confirmationToken)}`,
+      { method: 'GET', redirect: 'manual', signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) }
+    );
+  } catch {
+    return errorResult(AUTH_ERROR_CODES.UPSTREAM_ERROR, 502);
+  }
+
+  if (res.status >= 300 && res.status < 400) {
+    return { ok: true, data: null };
+  }
+  if (res.status === 400) {
+    return errorResult(AUTH_ERROR_CODES.VALIDATION_ERROR, 400);
+  }
+  return errorResult(AUTH_ERROR_CODES.UPSTREAM_ERROR, 502);
+}
+
 export async function googleCallback(
   accessTokenFromGoogle: string
 ): Promise<AuthResult<{ tokens: AuthTokens; user: AuthUser }>> {

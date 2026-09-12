@@ -163,6 +163,37 @@ test('me: network failure maps to UPSTREAM_ERROR', async (t) => {
   }
 });
 
+test('confirmEmail: a redirect response from Strapi is treated as success', async (t) => {
+  process.env.STRAPI_INTERNAL_URL = 'http://strapi.internal';
+  const { confirmEmail } = await import('./auth-strapi-client');
+
+  t.mock.method(
+    globalThis,
+    'fetch',
+    async () =>
+      new Response(null, {
+        status: 302,
+        headers: { Location: 'https://frontend.example.com/auth/email-confirmed' },
+      })
+  );
+
+  const result = await confirmEmail('some-confirmation-token');
+  assert.equal(result.ok, true);
+});
+
+test('confirmEmail: 400 from Strapi maps to VALIDATION_ERROR', async (t) => {
+  process.env.STRAPI_INTERNAL_URL = 'http://strapi.internal';
+  const { confirmEmail } = await import('./auth-strapi-client');
+
+  t.mock.method(globalThis, 'fetch', async () => new Response(null, { status: 400 }));
+
+  const result = await confirmEmail('bad-token');
+  assert.equal(result.ok, false);
+  if (!result.ok) {
+    assert.equal(result.error, 'VALIDATION_ERROR');
+  }
+});
+
 test('me: timeout maps to UPSTREAM_ERROR', async (t) => {
   process.env.STRAPI_INTERNAL_URL = 'http://strapi.internal';
   const { me } = await import('./auth-strapi-client');

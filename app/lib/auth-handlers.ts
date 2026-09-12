@@ -58,6 +58,13 @@ export async function handleResetPassword(
   return client.resetPassword(code, password, passwordConfirmation);
 }
 
+export async function handleConfirmEmail(
+  confirmationToken: string,
+  client: Pick<StrapiClient, 'confirmEmail'>
+): Promise<AuthResult<null>> {
+  return client.confirmEmail(confirmationToken);
+}
+
 export async function handleResendConfirmation(
   email: string,
   client: Pick<StrapiClient, 'resendConfirmation'>
