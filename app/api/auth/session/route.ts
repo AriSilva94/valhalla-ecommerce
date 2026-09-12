@@ -9,8 +9,11 @@ export async function GET(request: Request): Promise<Response> {
 
   const result = await resolveSession(accessToken, refreshToken);
   if (!result.ok) {
-    const cookieInstructions = buildClearAuthCookieInstructions(secure);
-    return jsonWithCookies({ ok: false, error: AUTH_ERROR_CODES.UNAUTHENTICATED }, 401, cookieInstructions);
+    if (result.error === AUTH_ERROR_CODES.UNAUTHENTICATED) {
+      const cookieInstructions = buildClearAuthCookieInstructions(secure);
+      return jsonWithCookies({ ok: false, error: result.error }, result.status, cookieInstructions);
+    }
+    return jsonError(result.error, result.status);
   }
 
   if (result.data.refreshed && result.data.newTokens) {

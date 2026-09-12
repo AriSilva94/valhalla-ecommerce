@@ -57,6 +57,28 @@ test('session: expired access + valid refresh -> 200 with refreshed cookies set'
   assert.ok(setCookies.some((c) => c.includes('new-refresh')));
 });
 
+test('session: upstream failure -> forwards status/error, does not clear cookies', async (t) => {
+  process.env.STRAPI_INTERNAL_URL = 'http://strapi.internal';
+  process.env.AUTH_COOKIE_SECURE = 'false';
+  const { GET } = await import('./route');
+
+  t.mock.method(globalThis, 'fetch', async (url: string) => {
+    const path = String(url);
+    if (path.includes('/api/users/me')) return jsonResponse({ error: 'service unavailable' }, 503);
+    throw new Error(`unexpected fetch: ${path}`);
+  });
+
+  const req = makeRequest('valhalla_access=some-access');
+  const res = await GET(req);
+  assert.equal(res.status, 502);
+  const body = await res.json();
+  assert.equal(body.ok, false);
+  assert.equal(body.error, 'UPSTREAM_ERROR');
+
+  const setCookies = res.headers.getSetCookie ? res.headers.getSetCookie() : [];
+  assert.equal(setCookies.length, 0);
+});
+
 test('session: both invalid -> 401 with cookies cleared', async (t) => {
   process.env.STRAPI_INTERNAL_URL = 'http://strapi.internal';
   process.env.AUTH_COOKIE_SECURE = 'false';
