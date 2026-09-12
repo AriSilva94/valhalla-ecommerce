@@ -1,3 +1,4 @@
+import { timingSafeEqual } from 'node:crypto';
 import {
   buildAuthCookieInstructions,
   buildClearOauthNonceCookieInstruction,
@@ -23,8 +24,24 @@ function readCookie(request: Request, name: string): string | undefined {
   return undefined;
 }
 
+// Constant-time string comparison, mirroring the backend's
+// src/policies/internal-test-token.ts pattern: a length mismatch is
+// checked and short-circuited before calling timingSafeEqual (it requires
+// equal-length buffers), which is safe — a length mismatch only reveals
+// the length of the guess, not any information about matching content.
+function constantTimeEquals(a: string, b: string): boolean {
+  const bufferA = Buffer.from(a);
+  const bufferB = Buffer.from(b);
+
+  if (bufferA.length !== bufferB.length) {
+    return false;
+  }
+
+  return timingSafeEqual(bufferA, bufferB);
+}
+
 export async function GET(request: Request): Promise<Response> {
-  const secure = process.env.AUTH_COOKIE_SECURE === 'true';
+  const secure = process.env.AUTH_COOKIE_SECURE !== 'false';
   const clearNonceCookie = buildClearOauthNonceCookieInstruction(secure);
 
   const nonceCookieValue = readCookie(request, NONCE_COOKIE_NAME);
@@ -34,13 +51,30 @@ export async function GET(request: Request): Promise<Response> {
     return redirectWithCookies(OAUTH_ERROR_REDIRECT, [clearNonceCookie]);
   }
 
-  const [, encodedReturnTo] = nonceCookieValue.split(':');
+  const [expectedNonce, encodedReturnTo] = nonceCookieValue.split(':');
+
+  const url = new URL(request.url);
+  const stateFromCallback = url.searchParams.get('state');
+
+  // The `state` query param is the nonce value we asked Strapi (via the
+  // `callback` override in app/api/auth/google/route.ts) to carry through
+  // the entire Google OAuth round trip untouched. Comparing it against the
+  // nonce stored in our own httpOnly cookie is the actual CSRF/replay
+  // check — merely requiring the cookie to exist (the old behavior) never
+  // verified anything about the incoming request.
+  if (
+    !expectedNonce ||
+    !stateFromCallback ||
+    !constantTimeEquals(stateFromCallback, expectedNonce)
+  ) {
+    return redirectWithCookies(OAUTH_ERROR_REDIRECT, [clearNonceCookie]);
+  }
+
   const returnTo = safeRedirect(
     encodedReturnTo ? decodeURIComponent(encodedReturnTo) : null,
     '/'
   );
 
-  const url = new URL(request.url);
   const accessToken = url.searchParams.get('access_token');
   if (!accessToken) {
     return redirectWithCookies(OAUTH_ERROR_REDIRECT, [clearNonceCookie]);

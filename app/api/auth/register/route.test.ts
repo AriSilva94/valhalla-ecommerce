@@ -61,6 +61,29 @@ test('register: successful registration has no token fields, has user, sets two 
   assert.ok(setCookies.every((c) => c.includes('HttpOnly')));
 });
 
+test('register: no JWT from Strapi (email confirmation required) returns plain JSON with no Set-Cookie headers', async (t) => {
+  process.env.NEXT_PUBLIC_SITE_URL = SITE_URL;
+  process.env.STRAPI_INTERNAL_URL = 'http://strapi.internal';
+  const { POST } = await import('./route');
+
+  t.mock.method(globalThis, 'fetch', async () =>
+    jsonResponse({
+      user: { id: 3, username: 'ana', email: 'ana@example.com', confirmed: false, blocked: false, role: { name: 'authenticated' } },
+    })
+  );
+
+  const req = makeRequest('10.1.1.9', { username: 'ana', email: 'ana@example.com', password: 'password123' });
+  const res = await POST(req);
+  assert.equal(res.status, 200);
+
+  const setCookies = res.headers.getSetCookie ? res.headers.getSetCookie() : [];
+  assert.equal(setCookies.length, 0);
+
+  const body = await res.json();
+  assert.equal(body.ok, true);
+  assert.equal(body.data.user.email, 'ana@example.com');
+});
+
 test('register: 429 after the configured limit is exceeded within the window', async () => {
   process.env.NEXT_PUBLIC_SITE_URL = SITE_URL;
   process.env.STRAPI_INTERNAL_URL = 'http://strapi.internal';

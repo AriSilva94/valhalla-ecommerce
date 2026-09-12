@@ -6,7 +6,8 @@ import { safeRedirect } from "@/app/lib/auth-redirect";
 
 const ERROR_MESSAGES: Record<string, string> = {
   INVALID_CREDENTIALS: "E-mail ou senha inválidos.",
-  EMAIL_NOT_CONFIRMED: "Confirme seu e-mail antes de entrar.",
+  EMAIL_NOT_CONFIRMED:
+    "Você ainda não confirmou seu e-mail. Verifique sua caixa de entrada ou solicite um novo link abaixo.",
   INVALID_ORIGIN: "Não foi possível processar o login. Recarregue a página.",
   RATE_LIMITED: "Muitas tentativas. Aguarde alguns minutos e tente novamente.",
   VALIDATION_ERROR: "Preencha e-mail e senha corretamente.",
@@ -22,11 +23,15 @@ export default function LoginForm() {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [errorCode, setErrorCode] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [resendState, setResendState] = useState<"idle" | "sending" | "sent">("idle");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    setErrorCode(null);
+    setResendState("idle");
     setSubmitting(true);
     try {
       const res = await fetch("/api/auth/login", {
@@ -37,6 +42,7 @@ export default function LoginForm() {
       const body = await res.json();
       if (!res.ok || !body.ok) {
         setError(ERROR_MESSAGES[body.error] ?? ERROR_MESSAGES.UPSTREAM_ERROR);
+        setErrorCode(body.error ?? null);
         return;
       }
       router.push(returnTo);
@@ -45,6 +51,23 @@ export default function LoginForm() {
       setError(ERROR_MESSAGES.UPSTREAM_ERROR);
     } finally {
       setSubmitting(false);
+    }
+  }
+
+  // Minimal resend-confirmation action, adapted from ForgotPasswordForm's
+  // pattern: no separate screen, just an inline call to the existing
+  // /api/auth/resend-confirmation route (neutral response either way) that
+  // becomes available once EMAIL_NOT_CONFIRMED is the current error.
+  async function handleResendConfirmation() {
+    setResendState("sending");
+    try {
+      await fetch("/api/auth/resend-confirmation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: identifier }),
+      });
+    } finally {
+      setResendState("sent");
     }
   }
 
@@ -85,6 +108,21 @@ export default function LoginForm() {
       {error && (
         <span className="font-semibold text-vh-12-5 font-manrope text-red-400">{error}</span>
       )}
+      {errorCode === "EMAIL_NOT_CONFIRMED" &&
+        (resendState === "sent" ? (
+          <span className="font-medium text-vh-12-5 font-manrope text-vh-muted">
+            Se {identifier} estiver cadastrado, um novo e-mail de confirmação foi enviado.
+          </span>
+        ) : (
+          <button
+            type="button"
+            onClick={handleResendConfirmation}
+            disabled={resendState === "sending"}
+            className="font-semibold text-vh-12-5 font-manrope text-vh-accent bg-transparent border-0 p-0 cursor-pointer text-left underline"
+          >
+            {resendState === "sending" ? "Enviando..." : "Reenviar e-mail de confirmação"}
+          </button>
+        ))}
       <a
         href={googleHref}
         className="flex items-center justify-center gap-2 border border-vh-border rounded-vh-10 p-3.5 font-bold text-vh-14 font-space-grotesk text-white no-underline"

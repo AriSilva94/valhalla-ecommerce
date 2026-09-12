@@ -3,11 +3,11 @@ import { buildAuthCookieInstructions } from '../../../lib/auth-cookies';
 import { parseJsonBody, isValidEmail, isValidPassword } from '../../../lib/auth-validation';
 import { AUTH_ERROR_CODES } from '../../../lib/auth-contracts';
 import * as strapiClient from '../../../lib/auth-strapi-client';
-import { getClientIp, isOriginAllowed, enforceRateLimit, jsonWithCookies, jsonError } from '../_shared';
+import { getSiteUrl } from '../../../lib/site-url';
+import { getClientIp, isOriginAllowed, enforceRateLimit, jsonWithCookies, jsonError, jsonNoStore } from '../_shared';
 
 export async function POST(request: Request): Promise<Response> {
-  const publicSiteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? '';
-  if (!isOriginAllowed(request, publicSiteUrl)) {
+  if (!isOriginAllowed(request, getSiteUrl())) {
     return jsonError(AUTH_ERROR_CODES.INVALID_ORIGIN, 403);
   }
 
@@ -36,7 +36,15 @@ export async function POST(request: Request): Promise<Response> {
     return jsonError(result.error, result.status);
   }
 
-  const secure = process.env.AUTH_COOKIE_SECURE === 'true';
+  // Strapi's register call returns no JWT when email confirmation is
+  // required first — in that case there is nothing to set cookies with,
+  // so return a plain response with no Set-Cookie headers at all rather
+  // than issuing two cookies with empty-string token values.
+  if (!result.data.tokens.accessToken || !result.data.tokens.refreshToken) {
+    return jsonNoStore({ ok: true, data: { user: result.data.user } }, 200);
+  }
+
+  const secure = process.env.AUTH_COOKIE_SECURE !== 'false';
   const cookieInstructions = buildAuthCookieInstructions(result.data.tokens, secure);
   return jsonWithCookies({ ok: true, data: { user: result.data.user } }, 200, cookieInstructions);
 }

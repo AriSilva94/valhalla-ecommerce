@@ -12,11 +12,53 @@ export type { AuthTokens } from './auth-cookies';
 const REQUEST_TIMEOUT_MS = 10000;
 
 function getBaseUrl(): string {
-  const raw = process.env.STRAPI_INTERNAL_URL;
+  const raw = process.env.STRAPI_INTERNAL_URL || process.env.STRAPI_URL;
   if (!raw || !raw.trim()) {
     throw new Error('STRAPI_INTERNAL_URL is not set');
   }
   return raw.trim().replace(/\/+$/, '');
+}
+
+// Extracts the upstream error message from a Strapi users-permissions 400
+// body, whatever shape it comes in — `{ error: "message" }` (the shape
+// already assumed by this file's tests) as well as the plugin's real
+// `{ error: { message: "..." } }` / `{ message: "..." }` shapes. Returns
+// '' when nothing usable is found; never throws.
+function extractStrapiErrorMessage(body: unknown): string {
+  if (!body || typeof body !== 'object') return '';
+  const anyBody = body as Record<string, unknown>;
+  if (typeof anyBody.error === 'string') return anyBody.error;
+  if (anyBody.error && typeof anyBody.error === 'object') {
+    const nested = (anyBody.error as Record<string, unknown>).message;
+    if (typeof nested === 'string') return nested;
+  }
+  if (typeof anyBody.message === 'string') return anyBody.message;
+  if (Array.isArray(anyBody.message) && anyBody.message[0]) {
+    const first = anyBody.message[0] as Record<string, unknown>;
+    const messages = first.messages;
+    if (Array.isArray(messages) && messages[0]) {
+      const messageText = (messages[0] as Record<string, unknown>).message;
+      if (typeof messageText === 'string') return messageText;
+    }
+  }
+  return '';
+}
+
+// Maps Strapi's actual 400 error message to one of our fixed, stable error
+// codes. This is the ONLY place upstream message text is inspected — the
+// raw text itself is never forwarded to the browser, only the mapped code.
+function mapValidationMessage(message: string): string {
+  const normalized = message.toLowerCase();
+  if (
+    normalized.includes('invalid identifier or password') ||
+    (normalized.includes('invalid') && normalized.includes('password'))
+  ) {
+    return AUTH_ERROR_CODES.INVALID_CREDENTIALS;
+  }
+  if (normalized.includes('not confirmed') || normalized.includes('email is not confirmed')) {
+    return AUTH_ERROR_CODES.EMAIL_NOT_CONFIRMED;
+  }
+  return AUTH_ERROR_CODES.VALIDATION_ERROR;
 }
 
 type RawStrapiUser = {
@@ -83,7 +125,15 @@ async function request<T>(
       return errorResult(AUTH_ERROR_CODES.INVALID_CREDENTIALS, 401);
     }
     if (res.status === 400) {
-      return errorResult(AUTH_ERROR_CODES.VALIDATION_ERROR, 400);
+      let code: string = AUTH_ERROR_CODES.VALIDATION_ERROR;
+      try {
+        const body = await res.json();
+        const message = extractStrapiErrorMessage(body);
+        if (message) code = mapValidationMessage(message);
+      } catch {
+        // No parseable body — fall back to the generic validation code.
+      }
+      return errorResult(code, 400);
     }
     return errorResult(AUTH_ERROR_CODES.UPSTREAM_ERROR, 502);
   }

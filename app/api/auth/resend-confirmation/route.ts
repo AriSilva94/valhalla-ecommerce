@@ -2,11 +2,11 @@ import { handleResendConfirmation } from '../../../lib/auth-handlers';
 import { parseJsonBody, isValidEmail } from '../../../lib/auth-validation';
 import { AUTH_ERROR_CODES } from '../../../lib/auth-contracts';
 import * as strapiClient from '../../../lib/auth-strapi-client';
-import { getClientIp, isOriginAllowed, enforceRateLimit, jsonError } from '../_shared';
+import { getSiteUrl } from '../../../lib/site-url';
+import { getClientIp, isOriginAllowed, enforceRateLimit, jsonError, jsonNoStore } from '../_shared';
 
 export async function POST(request: Request): Promise<Response> {
-  const publicSiteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? '';
-  if (!isOriginAllowed(request, publicSiteUrl)) {
+  if (!isOriginAllowed(request, getSiteUrl())) {
     return jsonError(AUTH_ERROR_CODES.INVALID_ORIGIN, 403);
   }
 
@@ -31,5 +31,5 @@ export async function POST(request: Request): Promise<Response> {
   // Neutral response on every code path once validation passes — no
   // branching on the handler's result (no email enumeration).
   await handleResendConfirmation(email, strapiClient);
-  return Response.json({ ok: true, data: null }, { status: 200 });
+  return jsonNoStore({ ok: true, data: null }, 200);
 }

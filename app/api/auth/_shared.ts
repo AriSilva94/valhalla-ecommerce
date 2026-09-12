@@ -10,12 +10,26 @@ export { getClientIp, isOriginAllowed } from '../../lib/auth-request';
 // otherwise limits are per-instance, not global.
 const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
 
+// Simple, bounded eviction: this store never needs to be perfectly
+// efficient (see the Redis note above — it's already a single-instance
+// stopgap), it just must not grow unbounded when many distinct keys
+// (e.g. distinct IPs) never come back to naturally overwrite their entry.
+const SWEEP_THRESHOLD = 10000;
+
+function sweepExpiredEntries(now: number): void {
+  if (rateLimitStore.size <= SWEEP_THRESHOLD) return;
+  for (const [key, entry] of rateLimitStore) {
+    if (entry.resetAt <= now) rateLimitStore.delete(key);
+  }
+}
+
 export function enforceRateLimit(
   key: string,
   limit: number,
   windowMs: number
 ): { allowed: boolean; retryAfterSeconds?: number } {
   const now = Date.now();
+  sweepExpiredEntries(now);
   const entry = rateLimitStore.get(key);
 
   if (!entry || entry.resetAt <= now) {
@@ -67,9 +81,9 @@ function serializeCookie(instruction: CookieInstruction): string {
 export function jsonWithCookies(
   body: unknown,
   status: number,
-  cookieInstructions: AuthCookieInstruction[]
+  cookieInstructions: CookieInstruction[]
 ): Response {
-  const headers = new Headers({ 'Content-Type': 'application/json' });
+  const headers = new Headers({ 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
   for (const instruction of cookieInstructions) {
     headers.append('Set-Cookie', serializeCookie(instruction));
   }
@@ -79,7 +93,16 @@ export function jsonWithCookies(
 export function jsonError(code: string, status: number): Response {
   return new Response(JSON.stringify({ ok: false, error: code }), {
     status,
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
+  });
+}
+
+// Plain success/no-cookie JSON response, still with Cache-Control: no-store
+// — every auth response must never be cached, cookie-bearing or not.
+export function jsonNoStore(body: unknown, status = 200): Response {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
   });
 }
 

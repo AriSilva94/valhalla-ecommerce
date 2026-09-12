@@ -29,9 +29,23 @@ test('isOriginAllowed: different scheme does not match', () => {
   assert.equal(isOriginAllowed(request, 'https://valhalla.example.com'), false);
 });
 
-test('getClientIp: returns first entry of x-forwarded-for', () => {
+test('getClientIp: returns rightmost entry of x-forwarded-for (trusted proxy hop)', () => {
   const request = new Request('http://localhost/api/auth/login', {
     headers: { 'x-forwarded-for': '203.0.113.1, 10.0.0.1' },
+  });
+  assert.equal(getClientIp(request), '10.0.0.1');
+});
+
+test('getClientIp: multi-hop header still uses the rightmost (last) hop, not an attacker-spoofed leftmost one', () => {
+  const request = new Request('http://localhost/api/auth/login', {
+    headers: { 'x-forwarded-for': '198.51.100.9 (spoofed), 203.0.113.1, 10.0.0.5' },
+  });
+  assert.equal(getClientIp(request), '10.0.0.5');
+});
+
+test('getClientIp: single entry is returned as-is', () => {
+  const request = new Request('http://localhost/api/auth/login', {
+    headers: { 'x-forwarded-for': '203.0.113.1' },
   });
   assert.equal(getClientIp(request), '203.0.113.1');
 });

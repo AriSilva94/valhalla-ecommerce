@@ -153,6 +153,30 @@ test('resolveSession: no access token but a refresh token attempts refresh direc
   assert.equal(meCalls.length, 1);
 });
 
+test('resolveSession: invalid access token with no refresh token available maps to UNAUTHENTICATED (self-clears), not INVALID_CREDENTIALS', async (t) => {
+  process.env.STRAPI_INTERNAL_URL = 'http://strapi.internal';
+  const { resolveSession } = await import('./auth-session');
+
+  const calls: string[] = [];
+  t.mock.method(globalThis, 'fetch', async (url: string) => {
+    const path = String(url);
+    calls.push(path);
+    if (path.includes('/api/users/me')) {
+      return jsonResponse({ error: 'unauthorized' }, 401);
+    }
+    throw new Error(`unexpected fetch: ${path}`);
+  });
+
+  const result = await resolveSession('expired-access-token', undefined);
+  assert.equal(result.ok, false);
+  if (!result.ok) {
+    assert.equal(result.error, 'UNAUTHENTICATED');
+    assert.equal(result.status, 401);
+  }
+  const refreshCalls = calls.filter((c) => c.includes('/api/auth/refresh'));
+  assert.equal(refreshCalls.length, 0);
+});
+
 test('resolveSession: no access token and no refresh token is UNAUTHENTICATED without any call', async (t) => {
   process.env.STRAPI_INTERNAL_URL = 'http://strapi.internal';
   const { resolveSession } = await import('./auth-session');

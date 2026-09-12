@@ -1,11 +1,11 @@
 import { resolveSession } from '../../../lib/auth-session';
 import { buildAuthCookieInstructions, buildClearAuthCookieInstructions } from '../../../lib/auth-cookies';
 import { AUTH_ERROR_CODES } from '../../../lib/auth-contracts';
-import { readAuthCookies, jsonWithCookies, jsonError } from '../_shared';
+import { readAuthCookies, jsonWithCookies, jsonError, jsonNoStore } from '../_shared';
 
 export async function GET(request: Request): Promise<Response> {
   const { accessToken, refreshToken } = readAuthCookies(request);
-  const secure = process.env.AUTH_COOKIE_SECURE === 'true';
+  const secure = process.env.AUTH_COOKIE_SECURE !== 'false';
 
   const result = await resolveSession(accessToken, refreshToken);
   if (!result.ok) {
@@ -21,5 +21,5 @@ export async function GET(request: Request): Promise<Response> {
     return jsonWithCookies({ ok: true, data: { user: result.data.user } }, 200, cookieInstructions);
   }
 
-  return Response.json({ ok: true, data: { user: result.data.user } }, { status: 200 });
+  return jsonNoStore({ ok: true, data: { user: result.data.user } }, 200);
 }

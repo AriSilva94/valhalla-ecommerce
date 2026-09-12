@@ -3,11 +3,11 @@ import { buildAuthCookieInstructions } from '../../../lib/auth-cookies';
 import { parseJsonBody, isValidPassword } from '../../../lib/auth-validation';
 import { AUTH_ERROR_CODES } from '../../../lib/auth-contracts';
 import * as strapiClient from '../../../lib/auth-strapi-client';
+import { getSiteUrl } from '../../../lib/site-url';
 import { getClientIp, isOriginAllowed, enforceRateLimit, jsonWithCookies, jsonError } from '../_shared';
 
 export async function POST(request: Request): Promise<Response> {
-  const publicSiteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? '';
-  if (!isOriginAllowed(request, publicSiteUrl)) {
+  if (!isOriginAllowed(request, getSiteUrl())) {
     return jsonError(AUTH_ERROR_CODES.INVALID_ORIGIN, 403);
   }
 
@@ -35,7 +35,7 @@ export async function POST(request: Request): Promise<Response> {
     return jsonError(result.error, result.status);
   }
 
-  const secure = process.env.AUTH_COOKIE_SECURE === 'true';
+  const secure = process.env.AUTH_COOKIE_SECURE !== 'false';
   const cookieInstructions = buildAuthCookieInstructions(result.data.tokens, secure);
   return jsonWithCookies({ ok: true, data: { user: result.data.user } }, 200, cookieInstructions);
 }

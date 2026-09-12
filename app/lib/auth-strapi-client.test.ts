@@ -26,17 +26,78 @@ test('login: success maps tokens and user', async (t) => {
   }
 });
 
-test('login: 400 from Strapi maps to VALIDATION_ERROR', async (t) => {
+test('login: 400 from Strapi with an unrecognized message maps to VALIDATION_ERROR', async (t) => {
   process.env.STRAPI_INTERNAL_URL = 'http://strapi.internal';
   const { login } = await import('./auth-strapi-client');
 
-  t.mock.method(globalThis, 'fetch', async () => jsonResponse({ error: 'Invalid identifier or password' }, 400));
+  t.mock.method(globalThis, 'fetch', async () => jsonResponse({ error: 'Some other validation issue' }, 400));
 
   const result = await login('joe@example.com', 'wrong');
   assert.equal(result.ok, false);
   if (!result.ok) {
     assert.equal(result.error, 'VALIDATION_ERROR');
     assert.equal(result.status, 400);
+  }
+});
+
+test('login: 400 with "Invalid identifier or password" message maps to INVALID_CREDENTIALS', async (t) => {
+  process.env.STRAPI_INTERNAL_URL = 'http://strapi.internal';
+  const { login } = await import('./auth-strapi-client');
+
+  t.mock.method(globalThis, 'fetch', async () =>
+    jsonResponse({ error: 'Invalid identifier or password' }, 400)
+  );
+
+  const result = await login('joe@example.com', 'wrong');
+  assert.equal(result.ok, false);
+  if (!result.ok) {
+    assert.equal(result.error, 'INVALID_CREDENTIALS');
+    assert.equal(result.status, 400);
+  }
+});
+
+test('login: 400 with "not confirmed" message maps to EMAIL_NOT_CONFIRMED', async (t) => {
+  process.env.STRAPI_INTERNAL_URL = 'http://strapi.internal';
+  const { login } = await import('./auth-strapi-client');
+
+  t.mock.method(globalThis, 'fetch', async () =>
+    jsonResponse({ error: 'Your account email is not confirmed' }, 400)
+  );
+
+  const result = await login('joe@example.com', 'password123');
+  assert.equal(result.ok, false);
+  if (!result.ok) {
+    assert.equal(result.error, 'EMAIL_NOT_CONFIRMED');
+    assert.equal(result.status, 400);
+  }
+});
+
+test('login: 400 with an unrecognized message defaults to VALIDATION_ERROR and never forwards raw text', async (t) => {
+  process.env.STRAPI_INTERNAL_URL = 'http://strapi.internal';
+  const { login } = await import('./auth-strapi-client');
+
+  t.mock.method(globalThis, 'fetch', async () => jsonResponse({ error: 'Some unrelated upstream detail' }, 400));
+
+  const result = await login('joe@example.com', 'password123');
+  assert.equal(result.ok, false);
+  if (!result.ok) {
+    assert.equal(result.error, 'VALIDATION_ERROR');
+    assert.doesNotMatch(JSON.stringify(result), /unrelated upstream detail/);
+  }
+});
+
+test('login: 400 with nested { error: { message } } shape is also mapped correctly', async (t) => {
+  process.env.STRAPI_INTERNAL_URL = 'http://strapi.internal';
+  const { login } = await import('./auth-strapi-client');
+
+  t.mock.method(globalThis, 'fetch', async () =>
+    jsonResponse({ error: { message: 'Invalid identifier or password' } }, 400)
+  );
+
+  const result = await login('joe@example.com', 'wrong');
+  assert.equal(result.ok, false);
+  if (!result.ok) {
+    assert.equal(result.error, 'INVALID_CREDENTIALS');
   }
 });
 

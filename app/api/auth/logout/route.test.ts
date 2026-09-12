@@ -22,8 +22,11 @@ test('logout: cookies are cleared (maxAge 0) even when the upstream Strapi call 
   assert.equal(res.status, 200);
 
   const setCookies = res.headers.getSetCookie ? res.headers.getSetCookie() : [];
-  assert.equal(setCookies.length, 2);
+  assert.equal(setCookies.length, 3);
   assert.ok(setCookies.every((c) => c.includes('Max-Age=0')));
+  assert.ok(setCookies.some((c) => c.startsWith('valhalla_access=')));
+  assert.ok(setCookies.some((c) => c.startsWith('valhalla_refresh=')));
+  assert.ok(setCookies.some((c) => c.startsWith('valhalla_oauth_nonce=')));
 });
 
 test('logout: 403 INVALID_ORIGIN on mismatched origin', async () => {

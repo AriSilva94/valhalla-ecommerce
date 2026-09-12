@@ -59,6 +59,29 @@ test('login: successful login has no token fields in body, has user, and sets tw
   assert.ok(setCookies.some((c) => c.startsWith('valhalla_refresh=')));
 });
 
+test('login: cookies default to Secure when AUTH_COOKIE_SECURE is unset (fails closed, not open)', async (t) => {
+  process.env.NEXT_PUBLIC_SITE_URL = SITE_URL;
+  process.env.STRAPI_INTERNAL_URL = 'http://strapi.internal';
+  delete process.env.AUTH_COOKIE_SECURE;
+  const { POST } = await import('./route');
+
+  t.mock.method(globalThis, 'fetch', async () =>
+    jsonResponse({
+      jwt: 'access-token-value',
+      refreshToken: 'refresh-token-value',
+      user: { id: 1, username: 'joe', email: 'joe@example.com', confirmed: true, blocked: false, role: { name: 'authenticated' } },
+    })
+  );
+
+  const req = makeRequest('9.9.9.9', { identifier: 'joe@example.com', password: 'password123' });
+  const res = await POST(req);
+  assert.equal(res.status, 200);
+  const setCookies = res.headers.getSetCookie ? res.headers.getSetCookie() : [];
+  assert.ok(setCookies.every((c) => c.includes('Secure')));
+
+  process.env.AUTH_COOKIE_SECURE = 'false';
+});
+
 test('login: 429 after the configured limit is exceeded within the window', async () => {
   process.env.NEXT_PUBLIC_SITE_URL = SITE_URL;
   process.env.STRAPI_INTERNAL_URL = 'http://strapi.internal';
