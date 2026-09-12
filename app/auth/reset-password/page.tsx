@@ -1,4 +1,6 @@
+import { KeyRound, AlertTriangle } from "lucide-react";
 import ResetPasswordForm from "../../components/ResetPasswordForm";
+import AuthPageHeader from "../../components/AuthPageHeader";
 
 export const metadata = {
   title: "Redefinir senha",
@@ -15,23 +17,32 @@ export default async function ResetPasswordPage({
 }) {
   const { code } = await searchParams;
 
-  return (
-    <section className="max-w-125 my-0 mx-auto py-12 px-6 w-full">
-      <h1 className="mt-0 mx-0 mb-2 font-bold text-vh-34 font-space-grotesk">
-        Redefinir senha
-      </h1>
-      <p className="mt-0 mx-0 mb-7.5 font-medium text-vh-14 font-manrope text-vh-muted">
-        Escolha uma nova senha para sua conta.
-      </p>
-      {code ? (
-        <ResetPasswordForm code={code} />
-      ) : (
+  if (!code) {
+    return (
+      <section className="max-w-125 my-0 mx-auto py-12 px-6 w-full">
+        <AuthPageHeader
+          icon={AlertTriangle}
+          title="Link inválido"
+          subtitle="Este link de redefinição não é válido ou já expirou."
+          tone="error"
+        />
         <div className="bg-vh-card border border-vh-border rounded-2xl p-6 flex flex-col gap-3">
-          <span className="font-semibold text-vh-13-5 font-manrope text-red-400">
-            Link inválido ou expirado. Solicite uma nova redefinição de senha.
+          <span className="font-medium text-vh-13-5 font-manrope text-vh-muted">
+            Solicite uma nova redefinição de senha para continuar.
           </span>
         </div>
-      )}
+      </section>
+    );
+  }
+
+  return (
+    <section className="max-w-125 my-0 mx-auto py-12 px-6 w-full">
+      <AuthPageHeader
+        icon={KeyRound}
+        title="Redefinir senha"
+        subtitle="Escolha uma nova senha para sua conta."
+      />
+      <ResetPasswordForm code={code} />
     </section>
   );
 }

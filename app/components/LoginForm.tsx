@@ -2,7 +2,12 @@
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Mail, KeyRound, UserPlus, MailWarning } from "lucide-react";
 import { safeRedirect } from "@/app/lib/auth-redirect";
+import AuthTextField from "./AuthTextField";
+import PasswordField from "./PasswordField";
+import AuthAlert from "./AuthAlert";
+import GoogleGIcon from "./GoogleGIcon";
 
 const ERROR_MESSAGES: Record<string, string> = {
   INVALID_CREDENTIALS: "E-mail ou senha inválidos.",
@@ -76,64 +81,85 @@ export default function LoginForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-vh-card border border-vh-border rounded-2xl p-6 flex flex-col gap-3"
+      className="bg-vh-card border border-vh-border rounded-2xl p-6 flex flex-col gap-4"
     >
-      <input
-        className="vh-input bg-vh-bg border border-vh-border rounded-vh-10 py-3.25 px-3.75 text-white font-medium text-vh-13-5 font-manrope outline-none"
-        type="email"
-        name="email"
-        autoComplete="email"
-        value={identifier}
-        onChange={(e) => setIdentifier(e.target.value)}
-        placeholder="Seu e-mail"
-        required
-      />
-      <input
-        className="vh-input bg-vh-bg border border-vh-border rounded-vh-10 py-3.25 px-3.75 text-white font-medium text-vh-13-5 font-manrope outline-none"
-        type="password"
-        name="password"
-        autoComplete="current-password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder="Sua senha"
-        required
-      />
+      <div className="flex flex-col gap-2.5">
+        <AuthTextField
+          icon={Mail}
+          type="email"
+          name="email"
+          autoComplete="email"
+          value={identifier}
+          onChange={(e) => setIdentifier(e.target.value)}
+          placeholder="Seu e-mail"
+          required
+        />
+        <PasswordField
+          name="password"
+          autoComplete="current-password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Sua senha"
+          required
+        />
+      </div>
+
       <button
-        className="vh-btn-lime bg-vh-lime border-0 rounded-vh-10 p-3.5 font-bold text-vh-14 font-space-grotesk cursor-pointer text-vh-ink!"
+        className="vh-btn-lime bg-vh-lime border-0 rounded-vh-10 p-3.5 font-bold text-vh-14 font-space-grotesk cursor-pointer shadow-vh-lime-24 text-vh-ink!"
         type="submit"
         disabled={submitting}
       >
         {submitting ? "Entrando..." : "Entrar"}
       </button>
-      {error && (
-        <span className="font-semibold text-vh-12-5 font-manrope text-red-400">{error}</span>
+
+      {error && <AuthAlert variant="error">{error}</AuthAlert>}
+
+      {errorCode === "EMAIL_NOT_CONFIRMED" && (
+        <AuthAlert variant="info" icon={MailWarning}>
+          {resendState === "sent" ? (
+            <>Se {identifier} estiver cadastrado, um novo e-mail de confirmação foi enviado.</>
+          ) : (
+            <button
+              type="button"
+              onClick={handleResendConfirmation}
+              disabled={resendState === "sending"}
+              className="font-semibold underline underline-offset-2 cursor-pointer bg-transparent border-0 p-0 text-inherit"
+            >
+              {resendState === "sending" ? "Enviando..." : "Reenviar e-mail de confirmação"}
+            </button>
+          )}
+        </AuthAlert>
       )}
-      {errorCode === "EMAIL_NOT_CONFIRMED" &&
-        (resendState === "sent" ? (
-          <span className="font-medium text-vh-12-5 font-manrope text-vh-muted">
-            Se {identifier} estiver cadastrado, um novo e-mail de confirmação foi enviado.
-          </span>
-        ) : (
-          <button
-            type="button"
-            onClick={handleResendConfirmation}
-            disabled={resendState === "sending"}
-            className="font-semibold text-vh-12-5 font-manrope text-vh-accent bg-transparent border-0 p-0 cursor-pointer text-left underline"
-          >
-            {resendState === "sending" ? "Enviando..." : "Reenviar e-mail de confirmação"}
-          </button>
-        ))}
+
+      <div className="flex items-center gap-3" role="presentation">
+        <span className="h-px flex-1 bg-vh-border" />
+        <span className="font-semibold text-vh-11 font-manrope text-vh-muted uppercase tracking-vh-003">
+          ou
+        </span>
+        <span className="h-px flex-1 bg-vh-border" />
+      </div>
+
       <a
         href={googleHref}
-        className="flex items-center justify-center gap-2 border border-vh-border rounded-vh-10 p-3.5 font-bold text-vh-14 font-space-grotesk text-white no-underline"
+        className="flex items-center justify-center gap-2.5 border border-vh-border rounded-vh-10 p-3.5 font-bold text-vh-14 font-space-grotesk text-white no-underline hover:border-vh-violet [transition:border-color_.15s]"
       >
+        <GoogleGIcon />
         Entrar com Google
       </a>
-      <div className="flex items-center justify-between gap-3">
-        <a href="/esqueci-senha" className="font-semibold text-vh-12-5 font-manrope text-vh-accent no-underline">
+
+      <div className="flex items-center justify-between gap-3 pt-3.5 border-t border-vh-border">
+        <a
+          href="/esqueci-senha"
+          className="flex items-center gap-1.5 font-semibold text-vh-12-5 font-manrope text-vh-accent no-underline"
+        >
+          <KeyRound aria-hidden="true" size={14} strokeWidth={2} />
           Esqueci minha senha
         </a>
-        <a href="/cadastro" className="font-semibold text-vh-12-5 font-manrope text-vh-accent no-underline">
+        <a
+          href="/cadastro"
+          className="flex items-center gap-1.5 font-semibold text-vh-12-5 font-manrope text-vh-accent no-underline"
+        >
+          <UserPlus aria-hidden="true" size={14} strokeWidth={2} />
           Criar conta
         </a>
       </div>

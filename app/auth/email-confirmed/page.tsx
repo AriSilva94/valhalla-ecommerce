@@ -1,5 +1,7 @@
+import { CheckCircle2, XCircle, MailQuestion } from "lucide-react";
 import { handleConfirmEmail } from "../../lib/auth-handlers";
 import * as strapiClient from "../../lib/auth-strapi-client";
+import AuthPageHeader from "../../components/AuthPageHeader";
 
 export const metadata = {
   title: "E-mail confirmado",
@@ -31,16 +33,16 @@ export default async function EmailConfirmadoPage({
     state = result.ok ? "confirmed" : "invalid";
   }
 
-  const heading =
+  const header =
     state === "confirmed"
-      ? "E-mail confirmado"
-      : state === "missing"
-        ? "Nenhum código de confirmação informado"
-        : "Não foi possível confirmar";
+      ? { icon: CheckCircle2, title: "E-mail confirmado", tone: "success" as const }
+      : state === "invalid"
+        ? { icon: XCircle, title: "Não foi possível confirmar", tone: "error" as const }
+        : { icon: MailQuestion, title: "Nenhum código de confirmação informado", tone: "neutral" as const };
 
   return (
     <section className="max-w-125 my-0 mx-auto py-12 px-6 w-full">
-      <h1 className="mt-0 mx-0 mb-2 font-bold text-vh-34 font-space-grotesk">{heading}</h1>
+      <AuthPageHeader icon={header.icon} title={header.title} tone={header.tone} />
       <div className="bg-vh-card border border-vh-border rounded-2xl p-6 flex flex-col gap-3">
         {state === "confirmed" && (
           <span className="font-medium text-vh-13-5 font-manrope text-vh-muted">
@@ -52,12 +54,12 @@ export default async function EmailConfirmadoPage({
           </span>
         )}
         {state === "invalid" && (
-          <span className="font-semibold text-vh-13-5 font-manrope text-red-400">
+          <span className="font-medium text-vh-13-5 font-manrope text-vh-muted">
             O link de confirmação é inválido ou expirou. Solicite um novo e-mail de confirmação.
           </span>
         )}
         {state === "missing" && (
-          <span className="font-semibold text-vh-13-5 font-manrope text-red-400">
+          <span className="font-medium text-vh-13-5 font-manrope text-vh-muted">
             Esta página só funciona a partir do link enviado por e-mail. Se você ainda não recebeu
             um, solicite um novo e-mail de confirmação.
           </span>

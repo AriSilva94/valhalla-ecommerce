@@ -1,6 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { Mail, MailCheck } from "lucide-react";
+import AuthTextField from "./AuthTextField";
+import AuthResultHeading from "./AuthResultHeading";
 
 // The /api/auth/forgot-password route always returns { ok: true } to avoid
 // revealing whether an email exists. The form mirrors that neutrality:
@@ -29,7 +32,9 @@ export default function ForgotPasswordForm() {
   if (done) {
     return (
       <div className="bg-vh-card border border-vh-border rounded-2xl p-6 flex flex-col gap-3">
-        <span className="font-bold text-vh-15 font-space-grotesk">Verifique seu e-mail</span>
+        <AuthResultHeading icon={MailCheck} tone="success">
+          Verifique seu e-mail
+        </AuthResultHeading>
         <span className="font-medium text-vh-13-5 font-manrope text-vh-muted">
           Se {email} estiver cadastrado, você receberá um link para redefinir sua senha.
         </span>
@@ -40,10 +45,10 @@ export default function ForgotPasswordForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-vh-card border border-vh-border rounded-2xl p-6 flex flex-col gap-3"
+      className="bg-vh-card border border-vh-border rounded-2xl p-6 flex flex-col gap-4"
     >
-      <input
-        className="vh-input bg-vh-bg border border-vh-border rounded-vh-10 py-3.25 px-3.75 text-white font-medium text-vh-13-5 font-manrope outline-none"
+      <AuthTextField
+        icon={Mail}
         type="email"
         name="email"
         autoComplete="email"
@@ -53,7 +58,7 @@ export default function ForgotPasswordForm() {
         required
       />
       <button
-        className="vh-btn-lime bg-vh-lime border-0 rounded-vh-10 p-3.5 font-bold text-vh-14 font-space-grotesk cursor-pointer text-vh-ink!"
+        className="vh-btn-lime bg-vh-lime border-0 rounded-vh-10 p-3.5 font-bold text-vh-14 font-space-grotesk cursor-pointer shadow-vh-lime-24 text-vh-ink!"
         type="submit"
         disabled={submitting}
       >

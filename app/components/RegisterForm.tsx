@@ -1,6 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { User, Mail, CheckCircle2 } from "lucide-react";
+import AuthTextField from "./AuthTextField";
+import PasswordField from "./PasswordField";
+import AuthAlert from "./AuthAlert";
+import AuthResultHeading from "./AuthResultHeading";
 
 const ERROR_MESSAGES: Record<string, string> = {
   INVALID_CREDENTIALS: "Não foi possível criar sua conta.",
@@ -53,7 +58,9 @@ export default function RegisterForm() {
   if (success) {
     return (
       <div className="bg-vh-card border border-vh-border rounded-2xl p-6 flex flex-col gap-3">
-        <span className="font-bold text-vh-15 font-space-grotesk">Verifique seu e-mail</span>
+        <AuthResultHeading icon={CheckCircle2} tone="success">
+          Verifique seu e-mail
+        </AuthResultHeading>
         <span className="font-medium text-vh-13-5 font-manrope text-vh-muted">
           Enviamos um link de confirmação para {email}. Confirme seu e-mail para poder entrar.
         </span>
@@ -64,58 +71,56 @@ export default function RegisterForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-vh-card border border-vh-border rounded-2xl p-6 flex flex-col gap-3"
+      className="bg-vh-card border border-vh-border rounded-2xl p-6 flex flex-col gap-4"
     >
-      <input
-        className="vh-input bg-vh-bg border border-vh-border rounded-vh-10 py-3.25 px-3.75 text-white font-medium text-vh-13-5 font-manrope outline-none"
-        type="text"
-        name="username"
-        autoComplete="username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        placeholder="Seu usuário"
-        required
-      />
-      <input
-        className="vh-input bg-vh-bg border border-vh-border rounded-vh-10 py-3.25 px-3.75 text-white font-medium text-vh-13-5 font-manrope outline-none"
-        type="email"
-        name="email"
-        autoComplete="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder="Seu e-mail"
-        required
-      />
-      <input
-        className="vh-input bg-vh-bg border border-vh-border rounded-vh-10 py-3.25 px-3.75 text-white font-medium text-vh-13-5 font-manrope outline-none"
-        type="password"
-        name="password"
-        autoComplete="new-password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder="Senha (mínimo 8 caracteres)"
-        required
-      />
-      <input
-        className="vh-input bg-vh-bg border border-vh-border rounded-vh-10 py-3.25 px-3.75 text-white font-medium text-vh-13-5 font-manrope outline-none"
-        type="password"
-        name="passwordConfirmation"
-        autoComplete="new-password"
-        value={confirmation}
-        onChange={(e) => setConfirmation(e.target.value)}
-        placeholder="Confirme a senha"
-        required
-      />
+      <div className="flex flex-col gap-2.5">
+        <AuthTextField
+          icon={User}
+          type="text"
+          name="username"
+          autoComplete="username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          placeholder="Seu usuário"
+          required
+        />
+        <AuthTextField
+          icon={Mail}
+          type="email"
+          name="email"
+          autoComplete="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Seu e-mail"
+          required
+        />
+        <PasswordField
+          name="password"
+          autoComplete="new-password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Senha (mínimo 8 caracteres)"
+          required
+        />
+        <PasswordField
+          name="passwordConfirmation"
+          autoComplete="new-password"
+          value={confirmation}
+          onChange={(e) => setConfirmation(e.target.value)}
+          placeholder="Confirme a senha"
+          required
+        />
+      </div>
+
       <button
-        className="vh-btn-lime bg-vh-lime border-0 rounded-vh-10 p-3.5 font-bold text-vh-14 font-space-grotesk cursor-pointer text-vh-ink!"
+        className="vh-btn-lime bg-vh-lime border-0 rounded-vh-10 p-3.5 font-bold text-vh-14 font-space-grotesk cursor-pointer shadow-vh-lime-24 text-vh-ink!"
         type="submit"
         disabled={submitting}
       >
         {submitting ? "Criando conta..." : "Criar conta"}
       </button>
-      {error && (
-        <span className="font-semibold text-vh-12-5 font-manrope text-red-400">{error}</span>
-      )}
+
+      {error && <AuthAlert variant="error">{error}</AuthAlert>}
     </form>
   );
 }

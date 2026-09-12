@@ -1,6 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { CheckCircle2 } from "lucide-react";
+import PasswordField from "./PasswordField";
+import AuthAlert from "./AuthAlert";
+import AuthResultHeading from "./AuthResultHeading";
 
 const ERROR_MESSAGES: Record<string, string> = {
   INVALID_ORIGIN: "Não foi possível processar o pedido. Recarregue a página.",
@@ -48,9 +52,15 @@ export default function ResetPasswordForm({ code }: { code: string }) {
   if (success) {
     return (
       <div className="bg-vh-card border border-vh-border rounded-2xl p-6 flex flex-col gap-3">
-        <span className="font-bold text-vh-15 font-space-grotesk">Senha redefinida</span>
+        <AuthResultHeading icon={CheckCircle2} tone="success">
+          Senha redefinida
+        </AuthResultHeading>
         <span className="font-medium text-vh-13-5 font-manrope text-vh-muted">
-          Sua senha foi alterada. <a href="/entrar" className="text-vh-accent">Entrar agora</a>.
+          Sua senha foi alterada.{" "}
+          <a href="/entrar" className="text-vh-accent">
+            Entrar agora
+          </a>
+          .
         </span>
       </div>
     );
@@ -59,38 +69,36 @@ export default function ResetPasswordForm({ code }: { code: string }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-vh-card border border-vh-border rounded-2xl p-6 flex flex-col gap-3"
+      className="bg-vh-card border border-vh-border rounded-2xl p-6 flex flex-col gap-4"
     >
-      <input
-        className="vh-input bg-vh-bg border border-vh-border rounded-vh-10 py-3.25 px-3.75 text-white font-medium text-vh-13-5 font-manrope outline-none"
-        type="password"
-        name="password"
-        autoComplete="new-password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder="Nova senha"
-        required
-      />
-      <input
-        className="vh-input bg-vh-bg border border-vh-border rounded-vh-10 py-3.25 px-3.75 text-white font-medium text-vh-13-5 font-manrope outline-none"
-        type="password"
-        name="passwordConfirmation"
-        autoComplete="new-password"
-        value={confirmation}
-        onChange={(e) => setConfirmation(e.target.value)}
-        placeholder="Confirme a nova senha"
-        required
-      />
+      <div className="flex flex-col gap-2.5">
+        <PasswordField
+          name="password"
+          autoComplete="new-password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Nova senha"
+          required
+        />
+        <PasswordField
+          name="passwordConfirmation"
+          autoComplete="new-password"
+          value={confirmation}
+          onChange={(e) => setConfirmation(e.target.value)}
+          placeholder="Confirme a nova senha"
+          required
+        />
+      </div>
+
       <button
-        className="vh-btn-lime bg-vh-lime border-0 rounded-vh-10 p-3.5 font-bold text-vh-14 font-space-grotesk cursor-pointer text-vh-ink!"
+        className="vh-btn-lime bg-vh-lime border-0 rounded-vh-10 p-3.5 font-bold text-vh-14 font-space-grotesk cursor-pointer shadow-vh-lime-24 text-vh-ink!"
         type="submit"
         disabled={submitting}
       >
         {submitting ? "Salvando..." : "Redefinir senha"}
       </button>
-      {error && (
-        <span className="font-semibold text-vh-12-5 font-manrope text-red-400">{error}</span>
-      )}
+
+      {error && <AuthAlert variant="error">{error}</AuthAlert>}
     </form>
   );
 }
