@@ -165,7 +165,7 @@ export default function CheckoutClient() {
           <div className="flex flex-col gap-3">
             <AuthTextField
               icon={User}
-              placeholder="CPF ou CNPJ"
+              placeholder="CPF ou CNPJ *"
               value={profile.cpfCnpj}
               onChange={(e) => setField("cpfCnpj", e.target.value)}
             />
@@ -184,13 +184,13 @@ export default function CheckoutClient() {
               <AuthTextField
                 icon={MapPin}
                 className="col-span-2"
-                placeholder="Rua"
+                placeholder="Rua *"
                 value={profile.addressLine}
                 onChange={(e) => setField("addressLine", e.target.value)}
               />
               <AuthTextField
                 icon={Hash}
-                placeholder="Nº"
+                placeholder="Nº *"
                 value={profile.addressNumber}
                 onChange={(e) => setField("addressNumber", e.target.value)}
               />
@@ -205,7 +205,7 @@ export default function CheckoutClient() {
               />
               <AuthTextField
                 icon={Landmark}
-                placeholder="Bairro"
+                placeholder="Bairro *"
                 value={profile.neighborhood}
                 onChange={(e) => setField("neighborhood", e.target.value)}
               />
@@ -215,13 +215,13 @@ export default function CheckoutClient() {
               <AuthTextField
                 icon={Building2}
                 className="col-span-2"
-                placeholder="Cidade"
+                placeholder="Cidade *"
                 value={profile.city}
                 onChange={(e) => setField("city", e.target.value)}
               />
               <AuthTextField
                 icon={MapPin}
-                placeholder="UF"
+                placeholder="UF *"
                 maxLength={2}
                 value={profile.state}
                 onChange={(e) => setField("state", e.target.value.toUpperCase())}
@@ -230,7 +230,7 @@ export default function CheckoutClient() {
 
             <AuthTextField
               icon={MapPin}
-              placeholder="CEP"
+              placeholder="CEP *"
               value={profile.postalCode}
               onChange={(e) => setField("postalCode", e.target.value)}
             />
