@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { User, ChevronDown, LogOut, LogIn, Receipt } from "lucide-react";
+import { User, ChevronDown, LogOut, LogIn, Receipt, UserCog } from "lucide-react";
 import type { AuthUser } from "../lib/auth-contracts";
 import { cn } from "../lib/cn";
 
@@ -71,6 +71,15 @@ export default function AccountMenu({ user }: { user: AuthUser | null }) {
           >
             <Receipt aria-hidden="true" size={15} strokeWidth={2} />
             Meus pedidos
+          </Link>
+          <Link
+            href="/minha-conta"
+            role="menuitem"
+            onClick={() => setOpen(false)}
+            className="vh-dropdown-item flex items-center gap-2 py-2.5 px-3.5 font-semibold text-vh-12-5 font-manrope text-vh-soft no-underline border-t border-t-vh-border [transition:background_.12s,color_.12s]"
+          >
+            <UserCog aria-hidden="true" size={15} strokeWidth={2} />
+            Meus dados
           </Link>
           <button
             type="button"
