@@ -1,4 +1,5 @@
 import { CheckCircle2, XCircle, MailQuestion } from "lucide-react";
+import Link from "next/link";
 import { handleConfirmEmail } from "../../lib/auth-handlers";
 import * as strapiClient from "../../lib/auth-strapi-client";
 import AuthPageHeader from "../../components/AuthPageHeader";
@@ -55,15 +56,32 @@ export default async function EmailConfirmadoPage({
           </span>
         )}
         {state === "invalid" && (
-          <span className="font-medium text-vh-13-5 font-manrope text-vh-muted">
-            O link de confirmação é inválido ou expirou. Solicite um novo e-mail de confirmação.
-          </span>
+          <>
+            <span className="font-medium text-vh-13-5 font-manrope text-vh-muted">
+              O link de confirmação é inválido ou expirou. Solicite um novo e-mail de confirmação
+              tentando entrar novamente.
+            </span>
+            <Link
+              href="/entrar"
+              className="vh-btn-lime bg-vh-lime border-0 rounded-vh-10 p-3.5 font-bold text-vh-14 font-space-grotesk cursor-pointer shadow-vh-lime-24 text-vh-ink! text-center no-underline"
+            >
+              Ir para o login
+            </Link>
+          </>
         )}
         {state === "missing" && (
-          <span className="font-medium text-vh-13-5 font-manrope text-vh-muted">
-            Esta página só funciona a partir do link enviado por e-mail. Se você ainda não recebeu
-            um, solicite um novo e-mail de confirmação.
-          </span>
+          <>
+            <span className="font-medium text-vh-13-5 font-manrope text-vh-muted">
+              Esta página só funciona a partir do link enviado por e-mail. Se você ainda não
+              recebeu um, solicite um novo e-mail de confirmação tentando entrar.
+            </span>
+            <Link
+              href="/entrar"
+              className="vh-btn-lime bg-vh-lime border-0 rounded-vh-10 p-3.5 font-bold text-vh-14 font-space-grotesk cursor-pointer shadow-vh-lime-24 text-vh-ink! text-center no-underline"
+            >
+              Ir para o login
+            </Link>
+          </>
         )}
       </div>
     </AuthShell>

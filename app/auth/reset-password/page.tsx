@@ -1,4 +1,5 @@
 import { KeyRound, AlertTriangle } from "lucide-react";
+import Link from "next/link";
 import ResetPasswordForm from "../../components/ResetPasswordForm";
 import AuthPageHeader from "../../components/AuthPageHeader";
 import AuthShell from "../../components/AuthShell";
@@ -31,6 +32,12 @@ export default async function ResetPasswordPage({
           <span className="font-medium text-vh-13-5 font-manrope text-vh-muted">
             Solicite uma nova redefinição de senha para continuar.
           </span>
+          <Link
+            href="/esqueci-senha"
+            className="vh-btn-lime bg-vh-lime border-0 rounded-vh-10 p-3.5 font-bold text-vh-14 font-space-grotesk cursor-pointer shadow-vh-lime-24 text-vh-ink! text-center no-underline"
+          >
+            Solicitar novo link
+          </Link>
         </div>
       </AuthShell>
     );

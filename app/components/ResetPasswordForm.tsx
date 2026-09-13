@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, LogIn } from "lucide-react";
 import PasswordField from "./PasswordField";
 import AuthAlert from "./AuthAlert";
 import AuthResultHeading from "./AuthResultHeading";
@@ -99,6 +99,16 @@ export default function ResetPasswordForm({ code }: { code: string }) {
       </button>
 
       {error && <AuthAlert variant="error">{error}</AuthAlert>}
+
+      <div className="flex items-center justify-center gap-1.5 pt-3.5 border-t border-vh-border">
+        <a
+          href="/entrar"
+          className="flex items-center gap-1.5 font-semibold text-vh-12-5 font-manrope text-vh-accent no-underline"
+        >
+          <LogIn aria-hidden="true" size={14} strokeWidth={2} />
+          Voltar para o login
+        </a>
+      </div>
     </form>
   );
 }

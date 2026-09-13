@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Mail, MailCheck } from "lucide-react";
+import { Mail, MailCheck, LogIn } from "lucide-react";
 import AuthTextField from "./AuthTextField";
 import AuthResultHeading from "./AuthResultHeading";
 
@@ -64,6 +64,16 @@ export default function ForgotPasswordForm() {
       >
         {submitting ? "Enviando..." : "Enviar link"}
       </button>
+
+      <div className="flex items-center justify-center gap-1.5 pt-3.5 border-t border-vh-border">
+        <a
+          href="/entrar"
+          className="flex items-center gap-1.5 font-semibold text-vh-12-5 font-manrope text-vh-accent no-underline"
+        >
+          <LogIn aria-hidden="true" size={14} strokeWidth={2} />
+          Voltar para o login
+        </a>
+      </div>
     </form>
   );
 }
