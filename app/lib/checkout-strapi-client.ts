@@ -93,3 +93,9 @@ export async function listOrders(accessToken: string): Promise<CheckoutResult<Or
 export async function getOrder(accessToken: string, reference: string): Promise<CheckoutResult<Order>> {
   return request<Order>(`/api/orders/${encodeURIComponent(reference)}`, accessToken, { method: "GET" });
 }
+
+export async function simulatePayment(accessToken: string, reference: string): Promise<CheckoutResult<null>> {
+  return request<null>(`/api/orders/${encodeURIComponent(reference)}/simulate-payment`, accessToken, {
+    method: "POST",
+  });
+}

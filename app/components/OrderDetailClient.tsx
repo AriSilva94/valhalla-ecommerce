@@ -2,12 +2,14 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { PackageSearch } from "lucide-react";
+import { FlaskConical, Loader2, PackageSearch } from "lucide-react";
 import PixIcon from "./PixIcon";
 import { fmt, formatVariantMeta } from "../lib/wa";
 import type { Order } from "../lib/checkout-contracts";
 import { ORDER_STATUS_LABEL, ORDER_STATUS_TONE } from "../lib/order-status";
 import Breadcrumb from "./Breadcrumb";
+
+const IS_DEV_OR_SANDBOX = process.env.NEXT_PUBLIC_APP_ENV !== "production";
 
 function DetailSkeleton() {
   return (
@@ -23,12 +25,36 @@ function DetailSkeleton() {
 
 export default function OrderDetailClient({ reference }: { reference: string }) {
   const [order, setOrder] = useState<Order | null | undefined>(undefined);
+  const [simulating, setSimulating] = useState(false);
+  const [simulateError, setSimulateError] = useState("");
 
   useEffect(() => {
     fetch(`/api/orders/${reference}`, { cache: "no-store" })
       .then((res) => res.json())
       .then((body) => setOrder(body?.ok ? body.data : null));
   }, [reference]);
+
+  useEffect(() => {
+    if (order?.status !== "pending") return;
+    const interval = setInterval(async () => {
+      const res = await fetch(`/api/orders/${reference}`, { cache: "no-store" });
+      if (!res.ok) return;
+      const body = await res.json();
+      if (body?.ok) setOrder(body.data);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [order?.status, reference]);
+
+  async function simulatePayment() {
+    setSimulating(true);
+    setSimulateError("");
+    const res = await fetch(`/api/orders/${reference}/simulate-payment`, { method: "POST" });
+    const body = await res.json();
+    setSimulating(false);
+    if (!body.ok) {
+      setSimulateError("Não foi possível simular o pagamento. Talvez o Pix ainda não tenha sido gerado na Asaas.");
+    }
+  }
 
   if (order === undefined) return <DetailSkeleton />;
 
@@ -94,6 +120,27 @@ export default function OrderDetailClient({ reference }: { reference: string }) 
             Continuar pagamento
             <PixIcon size={16} />
           </a>
+
+          {IS_DEV_OR_SANDBOX && (
+            <div className="flex flex-col items-center gap-2 mt-1 pt-5 border-t border-dashed border-vh-border w-full">
+              <button
+                type="button"
+                disabled={simulating}
+                className="flex items-center gap-2 bg-transparent border border-dashed border-vh-warning/50 rounded-vh-10 py-2.25 px-4 font-semibold text-vh-12 font-space-grotesk cursor-pointer text-vh-warning disabled:opacity-60 [transition:background_.15s]"
+                onClick={simulatePayment}
+              >
+                {simulating ? (
+                  <Loader2 aria-hidden="true" size={14} className="animate-spin" />
+                ) : (
+                  <FlaskConical aria-hidden="true" size={14} strokeWidth={2} />
+                )}
+                {simulating ? "Simulando..." : "Simular pagamento (sandbox)"}
+              </button>
+              {simulateError && (
+                <p className="m-0 font-medium text-vh-11-5 font-manrope text-red-400">{simulateError}</p>
+              )}
+            </div>
+          )}
         </div>
       )}
     </section>

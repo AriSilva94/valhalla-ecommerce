@@ -76,3 +76,26 @@ test("getOrder: retorna NOT_FOUND para 404", async (t) => {
   const result = await getOrder("token-abc", "abc123def4");
   assert.deepEqual(result, { ok: false, error: "NOT_FOUND", status: 404 });
 });
+
+test("simulatePayment: envia POST e retorna ok em sucesso", async (t) => {
+  process.env.STRAPI_INTERNAL_URL = "http://strapi.internal";
+  const { simulatePayment } = await import("./checkout-strapi-client");
+
+  const fetchMock = t.mock.method(globalThis, "fetch", async () => jsonResponse({ ok: true }));
+
+  const result = await simulatePayment("token-abc", "abc123def4");
+  assert.equal(result.ok, true);
+  const [url, init] = fetchMock.mock.calls[0].arguments as [string, RequestInit];
+  assert.equal(url, "http://strapi.internal/api/orders/abc123def4/simulate-payment");
+  assert.equal(init.method, "POST");
+});
+
+test("simulatePayment: propaga erro PAYMENT_NOT_READY", async (t) => {
+  process.env.STRAPI_INTERNAL_URL = "http://strapi.internal";
+  const { simulatePayment } = await import("./checkout-strapi-client");
+
+  t.mock.method(globalThis, "fetch", async () => jsonResponse({ ok: false, error: "PAYMENT_NOT_READY" }, 409));
+
+  const result = await simulatePayment("token-abc", "abc123def4");
+  assert.deepEqual(result, { ok: false, error: "PAYMENT_NOT_READY", status: 409 });
+});
