@@ -3,13 +3,12 @@
 import { useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { fmt } from "../lib/wa";
 import { useCart } from "./CartProvider";
 import type { Category, Product } from "../lib/strapi";
 import type { AuthUser } from "../lib/auth-contracts";
 import { visibleCategories } from "../lib/categories";
-import { isAuthRoute } from "../lib/auth-routes";
 import AccountMenu from "./AccountMenu";
 
 export default function Header({
@@ -26,8 +25,6 @@ export default function Header({
   user: AuthUser | null;
 }) {
   const router = useRouter();
-  const pathname = usePathname();
-  const onAuthRoute = isAuthRoute(pathname);
   const { cartCount } = useCart();
   const [q, setQ] = useState("");
   const [auto, setAuto] = useState(false);
@@ -164,7 +161,6 @@ export default function Header({
             <AccountMenu user={user} cartCount={cartCount} />
           </div>
         </div>
-        {!onAuthRoute && (
         <nav className="border-t border-t-vh-panel relative">
           <div className="max-w-310 my-0 mx-auto px-6 flex items-center gap-4">
             <div
@@ -210,7 +206,6 @@ export default function Header({
             </div>
           </div>
         </nav>
-        )}
       </header>
     </>
   );
