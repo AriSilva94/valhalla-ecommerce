@@ -1,13 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import type { Order } from "../lib/checkout-contracts";
-import { useCart } from "./CartProvider";
 
-export default function PixPayment({ order }: { order: Order }) {
-  const router = useRouter();
-  const { clear } = useCart();
+function formatCountdown(isoString: string): string {
+  const diffMs = new Date(isoString).getTime() - Date.now();
+  if (diffMs <= 0) return "expirado";
+  const totalSeconds = Math.floor(diffMs / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}:${String(seconds).padStart(2, "0")}`;
+}
+
+export default function PixPayment({ order, onPaid }: { order: Order; onPaid?: () => void }) {
   const [status, setStatus] = useState(order.status);
   const [copied, setCopied] = useState(false);
 
@@ -24,10 +29,9 @@ export default function PixPayment({ order }: { order: Order }) {
 
   useEffect(() => {
     if (status === "paid") {
-      clear();
-      router.push(`/pedidos/${order.id}`);
+      onPaid?.();
     }
-  }, [status, clear, router, order.id]);
+  }, [status, onPaid]);
 
   if (status === "expired") {
     return (
@@ -48,6 +52,15 @@ export default function PixPayment({ order }: { order: Order }) {
       <div className="text-center py-10">
         <h2 className="font-bold text-vh-20 font-space-grotesk mb-2">Não foi possível gerar o Pix</h2>
         <p className="font-medium text-vh-14 font-manrope text-vh-muted">Tente novamente em instantes.</p>
+      </div>
+    );
+  }
+
+  if (status === "paid") {
+    return (
+      <div className="text-center py-10">
+        <h2 className="font-bold text-vh-20 font-space-grotesk mb-2">Pagamento confirmado!</h2>
+        <p className="font-medium text-vh-14 font-manrope text-vh-muted">Seu pedido foi recebido e está sendo processado.</p>
       </div>
     );
   }
@@ -77,6 +90,11 @@ export default function PixPayment({ order }: { order: Order }) {
       <p className="font-medium text-vh-12 font-manrope text-vh-muted text-center">
         Aguardando confirmação do pagamento...
       </p>
+      {order.pixExpiration && (
+        <p className="font-medium text-vh-12 font-manrope text-vh-muted text-center">
+          Expira em {formatCountdown(order.pixExpiration)}
+        </p>
+      )}
     </div>
   );
 }

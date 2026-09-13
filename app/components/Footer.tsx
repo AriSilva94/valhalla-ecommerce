@@ -75,9 +75,8 @@ export default function Footer({
             Como funciona
           </span>
           <p className="m-0 font-medium text-vh-12-5/vh-165 font-manrope text-vh-muted">
-            Este site é um catálogo: você monta sua lista de interesse e a
-            compra é concluída com um atendente pelo WhatsApp. Nenhum pagamento
-            é processado aqui.
+            Monte sua lista de interesse e finalize a compra com um
+            atendente pelo WhatsApp ou pague com Pix diretamente no site.
           </p>
         </div>
       </div>

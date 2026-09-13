@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { fmt } from "../lib/wa";
 import { useCart } from "./CartProvider";
-import type { CustomerProfile, Order } from "../lib/checkout-contracts";
+import { CHECKOUT_ERROR_CODES, type CustomerProfile, type Order } from "../lib/checkout-contracts";
 import PixPayment from "./PixPayment";
 
 const EMPTY_PROFILE: CustomerProfile = {
@@ -14,7 +14,7 @@ const EMPTY_PROFILE: CustomerProfile = {
 
 export default function CheckoutClient() {
   const router = useRouter();
-  const { cart, cartTotal, cartCount } = useCart();
+  const { cart, cartTotal, cartCount, clear } = useCart();
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [profile, setProfile] = useState<CustomerProfile>(EMPTY_PROFILE);
   const [profileComplete, setProfileComplete] = useState(false);
@@ -25,8 +25,8 @@ export default function CheckoutClient() {
   const [payingNow, setPayingNow] = useState(false);
 
   useEffect(() => {
-    if (cartCount === 0) router.replace("/lista");
-  }, [cartCount, router]);
+    if (cartCount === 0 && !order) router.replace("/lista");
+  }, [cartCount, order, router]);
 
   useEffect(() => {
     fetch("/api/account/profile", { cache: "no-store" })
@@ -77,6 +77,10 @@ export default function CheckoutClient() {
     const body = await res.json();
     setPayingNow(false);
     if (!body.ok) {
+      if (body.error === CHECKOUT_ERROR_CODES.PROFILE_INCOMPLETE) {
+        setProfileComplete(false);
+        return;
+      }
       setCheckoutError("Não foi possível iniciar o pagamento. Tente novamente.");
       return;
     }
@@ -92,7 +96,7 @@ export default function CheckoutClient() {
         <p className="mt-0 mx-0 mb-6 font-bold text-vh-24 font-space-grotesk text-vh-lime text-center">
           {fmt(order.totalAmount)}
         </p>
-        <PixPayment order={order} />
+        <PixPayment order={order} onPaid={() => { clear(); router.push(`/pedidos/${order.id}`); }} />
       </section>
     );
   }

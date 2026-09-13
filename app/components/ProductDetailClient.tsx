@@ -422,8 +422,8 @@ export default function ProductDetailClient({
           <div className="flex gap-2.5 items-start bg-vh-wa/7 border border-vh-wa/35 rounded-xl py-3.25 px-4">
             <span className="w-2.25 h-2.25 mt-1 bg-vh-wa rounded-full flex-none"></span>
             <span className="font-semibold text-vh-12-5/vh-155 font-manrope text-vh-soft">
-              A compra é concluída com um atendente pelo WhatsApp. Nenhum
-              pagamento é feito neste site.
+              A compra pode ser concluída com um atendente pelo WhatsApp ou
+              via Pix diretamente neste site.
             </span>
           </div>
         </div>

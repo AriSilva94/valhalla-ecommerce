@@ -150,7 +150,7 @@ export default function ListaClient({ whatsappNumber }: { whatsappNumber: string
           ) : (
             <button disabled className="w-full bg-vh-border text-vh-muted border-0 rounded-xl p-4.5 font-bold text-vh-16 font-space-grotesk cursor-not-allowed">Informe seu nome para continuar</button>
           )}
-          <p className="mt-3.5 mx-0 mb-0 text-center font-medium text-vh-12 font-manrope text-vh-muted">Você será redirecionado ao WhatsApp com a mensagem pronta. Nenhum pagamento é feito neste site.</p>
+          <p className="mt-3.5 mx-0 mb-0 text-center font-medium text-vh-12 font-manrope text-vh-muted">Você será redirecionado ao WhatsApp com a mensagem pronta.</p>
         </section>
       )}
 
