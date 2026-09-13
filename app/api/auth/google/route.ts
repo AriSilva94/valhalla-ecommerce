@@ -27,18 +27,21 @@ export async function GET(request: Request): Promise<Response> {
     return redirectWithCookies('/entrar?error=oauth_failed', []);
   }
 
-  // The nonce travels as a PATH segment, not a `?state=` query param:
-  // Strapi's grant-based OAuth flow builds its final redirect as
-  // `${callback}?${qs.stringify(providerData)}` — a blind concatenation.
-  // A `callback` URL that already carries its own query string gets a
-  // SECOND `?` appended, and everything after the first `?` (including
-  // that second one) becomes part of a single mangled query value — so a
-  // `?state=<nonce>` here would never survive the round trip intact. See
-  // app/api/auth/google/callback/[nonce]/route.ts for the verified failure
-  // mode and the rest of this reasoning.
+  // The nonce must travel as a `?state=` query param, not a path segment:
+  // Strapi's grant callback validator requires this override URL's
+  // *pathname* to exactly equal the stored provider's configured callback
+  // pathname (it deliberately skips checking the query string "to allow
+  // passing different states") — a `/callback/<nonce>` path was rejected
+  // outright with "Invalid callback URL provided" (pathname mismatch).
+  // The query string is genuinely safe to vary, but grant's own callback
+  // redirect later concatenates `${override}?${...}` onto this URL by
+  // blind string-append rather than merging query strings, so `state`'s
+  // final parsed value ends up as `<nonce>?id_token=...&access_token=...`
+  // rather than the plain nonce. See the callback route's
+  // extractNonceFromState() for how that's unpacked reliably.
   const frontendPublicUrl =
     (process.env.FRONTEND_PUBLIC_URL ?? '').trim().replace(/\/+$/, '') || getAllowedOrigin();
-  const callbackUrl = `${frontendPublicUrl}/api/auth/google/callback/${encodeURIComponent(nonce)}`;
+  const callbackUrl = `${frontendPublicUrl}/api/auth/google/callback?state=${encodeURIComponent(nonce)}`;
 
   const strapiRedirectUrl = `${strapiPublicUrl}/api/connect/google?callback=${encodeURIComponent(callbackUrl)}`;
 

@@ -1,8 +1,3 @@
-// This file lives under a Next.js dynamic-segment directory ([nonce]).
-// Node's --test glob treats square brackets as character-class syntax, so
-// package.json's "app/api/**/*.test.ts" pattern silently never matches
-// this file — it's listed there as an explicit extra path instead. Any
-// future test under another [param] directory needs the same treatment.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
@@ -16,23 +11,18 @@ function makeRequest(url: string, cookie?: string): Request {
   return new Request(url, { method: 'GET', headers });
 }
 
-function params(nonce: string) {
-  return { params: Promise.resolve({ nonce }) };
-}
-
 test('callback: missing nonce cookie redirects to /entrar?error=oauth_failed', async () => {
   process.env.STRAPI_INTERNAL_URL = 'http://strapi.internal';
   const { GET } = await import('./route');
 
   const res = await GET(
-    makeRequest('http://localhost/api/auth/google/callback/nonce123?access_token=abc'),
-    params('nonce123')
+    makeRequest('http://localhost/api/auth/google/callback?access_token=abc&state=nonce123')
   );
   assert.equal(res.status, 302);
   assert.equal(res.headers.get('Location'), '/entrar?error=oauth_failed');
 });
 
-test('callback: valid matching nonce + successful googleCallback sets cookies and redirects to validated returnTo', async (t) => {
+test('callback: valid matching state + successful googleCallback sets cookies and redirects to validated returnTo', async (t) => {
   process.env.STRAPI_INTERNAL_URL = 'http://strapi.internal';
   process.env.AUTH_COOKIE_SECURE = 'false';
   const { GET } = await import('./route');
@@ -47,10 +37,10 @@ test('callback: valid matching nonce + successful googleCallback sets cookies an
 
   const cookieValue = `nonce123:${encodeURIComponent('/minha-conta')}`;
   const req = makeRequest(
-    'http://localhost/api/auth/google/callback/nonce123?access_token=abc',
+    'http://localhost/api/auth/google/callback?access_token=abc&state=nonce123',
     `valhalla_oauth_nonce=${encodeURIComponent(cookieValue)}`
   );
-  const res = await GET(req, params('nonce123'));
+  const res = await GET(req);
 
   assert.equal(res.status, 302);
   assert.equal(res.headers.get('Location'), '/minha-conta');
@@ -65,23 +55,22 @@ test('callback: valid matching nonce + successful googleCallback sets cookies an
   assert.doesNotMatch(bodyText, /access-token-value$/m);
 });
 
-// Regression test for the real bug: Strapi's grant middleware appends its
-// own `?id_token=...&access_token=...&raw[...]=...` querystring onto
-// whatever `callback` URL it's given, via blind string concatenation
-// (`${callback}?${qs.stringify(output)}`) rather than a merge. When the
-// nonce lived in a `?state=` query param, this produced a callback URL
-// like `?state=<nonce>?id_token=...`, corrupting the nonce value and
-// making every real Google login fail. Simulate that same mangled
-// suffix landing on the path-based route to prove it no longer breaks
-// nonce comparison: the nonce is a clean path segment, and the mangled
-// junk grant appends is fully contained inside the query string, which
-// this route never reads except for `access_token`.
-test('callback: survives grant appending its raw provider payload after the nonce path segment', async (t) => {
+// Regression test for the real bug: Strapi's grant middleware builds its
+// callback redirect as `${override}?${qs.stringify(providerOutput)}` —
+// blind string concatenation, not a query-string merge. Since our override
+// already carries `?state=<nonce>`, this appends a SECOND `?`, so the real
+// incoming request looks exactly like this: `state`'s raw value is the
+// nonce followed by a literal "?id_token=..." and everything else grant
+// appended, not just the plain nonce. This is copied verbatim (percent-
+// decoded) from a production log entry of a real Google login attempt.
+// Prove the route still recovers the plain nonce and the plain
+// access_token correctly out of this mangled shape.
+test('callback: recovers the plain nonce and access_token from state mangled by grant', async (t) => {
   process.env.STRAPI_INTERNAL_URL = 'http://strapi.internal';
   process.env.AUTH_COOKIE_SECURE = 'false';
   const { GET } = await import('./route');
 
-  t.mock.method(globalThis, 'fetch', async () =>
+  const fetchMock = t.mock.method(globalThis, 'fetch', async () =>
     jsonResponse({
       jwt: 'access-token-value',
       refreshToken: 'refresh-token-value',
@@ -89,20 +78,31 @@ test('callback: survives grant appending its raw provider payload after the nonc
     })
   );
 
-  const cookieValue = `nonce123:${encodeURIComponent('/')}`;
-  const mangledQuery =
-    '?id_token=eyJhbGciOi...&access_token=ya29.real-token&raw%5Baccess_token%5D=ya29.real-token&raw%5Bscope%5D=email+openid';
-  const req = makeRequest(
-    `http://localhost/api/auth/google/callback/nonce123${mangledQuery}`,
-    `valhalla_oauth_nonce=${encodeURIComponent(cookieValue)}`
-  );
-  const res = await GET(req, params('nonce123'));
+  const cookieValue = `f89fa3a938a8bd4a4041b16cb2881905:${encodeURIComponent('/')}`;
+  const mangledUrl =
+    'http://localhost/api/auth/google/callback' +
+    '?state=' +
+    encodeURIComponent('f89fa3a938a8bd4a4041b16cb2881905?id_token=eyJhbGciOi.eyJpc3Mi.fFKg') +
+    '&access_token=ya29.a0AdMD6Ejl5real-token' +
+    '&raw%5Baccess_token%5D=ya29.a0AdMD6Ejl5real-token' +
+    '&raw%5Bexpires_in%5D=3598' +
+    '&raw%5Bscope%5D=' +
+    encodeURIComponent('https://www.googleapis.com/auth/userinfo.email openid') +
+    '&raw%5Btoken_type%5D=Bearer' +
+    '&raw%5Bid_token%5D=eyJhbGciOi.eyJpc3Mi.fFKg';
+  const req = makeRequest(mangledUrl, `valhalla_oauth_nonce=${encodeURIComponent(cookieValue)}`);
+  const res = await GET(req);
 
   assert.equal(res.status, 302);
   assert.equal(res.headers.get('Location'), '/');
+  assert.equal(fetchMock.mock.callCount(), 1);
+  // The access_token strapiClient.googleCallback received must be the
+  // clean Google token, not anything from the mangled `state` value.
+  const [calledUrl] = fetchMock.mock.calls[0].arguments as [string];
+  assert.ok(calledUrl.includes(encodeURIComponent('ya29.a0AdMD6Ejl5real-token')));
 });
 
-test('callback: forged/mismatched nonce is rejected before any token exchange is attempted', async (t) => {
+test('callback: forged/mismatched state is rejected before any token exchange is attempted', async (t) => {
   process.env.STRAPI_INTERNAL_URL = 'http://strapi.internal';
   process.env.AUTH_COOKIE_SECURE = 'false';
   const { GET } = await import('./route');
@@ -117,10 +117,10 @@ test('callback: forged/mismatched nonce is rejected before any token exchange is
 
   const cookieValue = `nonce123:${encodeURIComponent('/minha-conta')}`;
   const req = makeRequest(
-    'http://localhost/api/auth/google/callback/forged-nonce?access_token=abc',
+    'http://localhost/api/auth/google/callback?access_token=abc&state=forged-nonce',
     `valhalla_oauth_nonce=${encodeURIComponent(cookieValue)}`
   );
-  const res = await GET(req, params('forged-nonce'));
+  const res = await GET(req);
 
   assert.equal(res.status, 302);
   assert.equal(res.headers.get('Location'), '/entrar?error=oauth_failed');
@@ -129,6 +129,26 @@ test('callback: forged/mismatched nonce is rejected before any token exchange is
   const setCookies = res.headers.getSetCookie ? res.headers.getSetCookie() : [];
   assert.ok(setCookies.some((c) => c.startsWith('valhalla_oauth_nonce=') && c.includes('Max-Age=0')));
   assert.ok(!setCookies.some((c) => c.startsWith('valhalla_access=')));
+});
+
+test('callback: missing state query param is rejected before any token exchange is attempted', async (t) => {
+  process.env.STRAPI_INTERNAL_URL = 'http://strapi.internal';
+  const { GET } = await import('./route');
+
+  const fetchMock = t.mock.method(globalThis, 'fetch', async () =>
+    jsonResponse({ jwt: 'x', user: { id: 1, username: 'joe', email: 'joe@example.com', confirmed: true, blocked: false, role: {} } })
+  );
+
+  const cookieValue = `nonce123:${encodeURIComponent('/')}`;
+  const req = makeRequest(
+    'http://localhost/api/auth/google/callback?access_token=abc',
+    `valhalla_oauth_nonce=${encodeURIComponent(cookieValue)}`
+  );
+  const res = await GET(req);
+
+  assert.equal(res.status, 302);
+  assert.equal(res.headers.get('Location'), '/entrar?error=oauth_failed');
+  assert.equal(fetchMock.mock.callCount(), 0);
 });
 
 test('callback: invalid returnTo (protocol-relative) falls back to "/"', async (t) => {
@@ -146,10 +166,10 @@ test('callback: invalid returnTo (protocol-relative) falls back to "/"', async (
 
   const cookieValue = `nonce123:${encodeURIComponent('//evil.example.com')}`;
   const req = makeRequest(
-    'http://localhost/api/auth/google/callback/nonce123?access_token=abc',
+    'http://localhost/api/auth/google/callback?access_token=abc&state=nonce123',
     `valhalla_oauth_nonce=${encodeURIComponent(cookieValue)}`
   );
-  const res = await GET(req, params('nonce123'));
+  const res = await GET(req);
 
   assert.equal(res.status, 302);
   assert.equal(res.headers.get('Location'), '/');
@@ -163,10 +183,10 @@ test('callback: googleCallback failure redirects to error page and clears nonce'
 
   const cookieValue = `nonce123:${encodeURIComponent('/')}`;
   const req = makeRequest(
-    'http://localhost/api/auth/google/callback/nonce123?access_token=bad',
+    'http://localhost/api/auth/google/callback?access_token=bad&state=nonce123',
     `valhalla_oauth_nonce=${encodeURIComponent(cookieValue)}`
   );
-  const res = await GET(req, params('nonce123'));
+  const res = await GET(req);
 
   assert.equal(res.status, 302);
   assert.equal(res.headers.get('Location'), '/entrar?error=oauth_failed');
