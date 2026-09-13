@@ -1,10 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Check, CheckCircle2, Clock, Copy, XCircle } from "lucide-react";
+import { Check, CheckCircle2, Clock, Copy, FlaskConical, Loader2, XCircle } from "lucide-react";
 import type { Order } from "../lib/checkout-contracts";
 
 const MAX_SANE_COUNTDOWN_SECONDS = 24 * 60 * 60; // Pix QR codes expire within hours, never days.
+
+// Same signal used elsewhere in this app (app/lib/site-url.ts) to detect a
+// non-production build. The "simular pagamento" button only ever appears
+// here — the backend independently refuses the call outside its own
+// sandbox Asaas config, so this is a UI convenience, not the real gate.
+const IS_DEV_OR_SANDBOX = process.env.NEXT_PUBLIC_APP_ENV !== "production";
 
 function formatCountdown(isoString: string): { label: string; urgent: boolean } | null {
   const diffMs = new Date(isoString).getTime() - Date.now();
@@ -48,6 +54,8 @@ function StatusResult({
 export default function PixPayment({ order, onPaid }: { order: Order; onPaid?: () => void }) {
   const [status, setStatus] = useState(order.status);
   const [copied, setCopied] = useState(false);
+  const [simulating, setSimulating] = useState(false);
+  const [simulateError, setSimulateError] = useState("");
 
   useEffect(() => {
     if (status !== "pending") return;
@@ -109,6 +117,19 @@ export default function PixPayment({ order, onPaid }: { order: Order; onPaid?: (
 
   const countdown = order.pixExpiration ? formatCountdown(order.pixExpiration) : null;
 
+  async function simulatePayment() {
+    setSimulating(true);
+    setSimulateError("");
+    const res = await fetch(`/api/orders/${order.reference}/simulate-payment`, { method: "POST" });
+    const body = await res.json();
+    setSimulating(false);
+    if (!body.ok) {
+      setSimulateError("Não foi possível simular o pagamento.");
+    }
+    // On success, the existing 5s poll above picks up the Asaas webhook's
+    // status change on its own — nothing else to do here.
+  }
+
   return (
     <div className="flex flex-col items-center gap-5 py-6">
       {order.pixQrCodeImage && (
@@ -161,6 +182,27 @@ export default function PixPayment({ order, onPaid }: { order: Order; onPaid?: (
           <Clock aria-hidden="true" size={12} strokeWidth={2.25} />
           Expira em {countdown.label}
         </span>
+      )}
+
+      {IS_DEV_OR_SANDBOX && (
+        <div className="flex flex-col items-center gap-2 mt-1 pt-5 border-t border-dashed border-vh-border w-full">
+          <button
+            type="button"
+            disabled={simulating}
+            className="flex items-center gap-2 bg-transparent border border-dashed border-vh-warning/50 rounded-vh-10 py-2.25 px-4 font-semibold text-vh-12 font-space-grotesk cursor-pointer text-vh-warning disabled:opacity-60 [transition:background_.15s]"
+            onClick={simulatePayment}
+          >
+            {simulating ? (
+              <Loader2 aria-hidden="true" size={14} className="animate-spin" />
+            ) : (
+              <FlaskConical aria-hidden="true" size={14} strokeWidth={2} />
+            )}
+            {simulating ? "Simulando..." : "Simular pagamento (sandbox)"}
+          </button>
+          {simulateError && (
+            <p className="m-0 font-medium text-vh-11-5 font-manrope text-red-400">{simulateError}</p>
+          )}
+        </div>
       )}
     </div>
   );
