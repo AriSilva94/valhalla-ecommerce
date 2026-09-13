@@ -97,6 +97,12 @@ export default function ListaClient({ whatsappNumber }: { whatsappNumber: string
                 <div className="flex gap-3 flex-wrap">
                   <Link className="vh-ghost-violet bg-transparent border border-vh-violet rounded-vh-11 py-3.75 px-6 font-semibold text-vh-14 font-space-grotesk cursor-pointer text-white!" href="/">Continuar explorando</Link>
                   <button className="vh-btn-lime bg-vh-lime border-0 rounded-vh-11 py-3.75 px-7 font-bold text-vh-14 font-space-grotesk cursor-pointer shadow-vh-lime-24 text-vh-ink!" onClick={() => setStep("review")}>Revisar solicitação →</button>
+                  <Link
+                    className="vh-btn-lime bg-vh-lime border-0 rounded-vh-11 py-3.75 px-7 font-bold text-vh-14 font-space-grotesk cursor-pointer shadow-vh-lime-24 text-vh-ink!"
+                    href="/checkout"
+                  >
+                    Pagar com Pix →
+                  </Link>
                 </div>
               </div>
             </div>
