@@ -25,7 +25,7 @@ export default function AuthPageHeader({
     <div className="flex flex-col mb-7.5">
       <span
         className={cn(
-          "mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-vh-panel border",
+          "mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-vh-deep border",
           t.ring,
         )}
       >

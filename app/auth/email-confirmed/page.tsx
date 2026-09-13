@@ -44,7 +44,7 @@ export default async function EmailConfirmadoPage({
   return (
     <AuthShell>
       <AuthPageHeader icon={header.icon} title={header.title} tone={header.tone} />
-      <div className="bg-vh-card border border-vh-border rounded-2xl p-6 flex flex-col gap-3">
+      <div className="flex flex-col gap-3">
         {state === "confirmed" && (
           <span className="font-medium text-vh-13-5 font-manrope text-vh-muted">
             Sua conta foi confirmada. Você já pode{" "}

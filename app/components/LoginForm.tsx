@@ -81,7 +81,7 @@ export default function LoginForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-vh-card border border-vh-border rounded-2xl p-6 flex flex-col gap-4"
+      className="flex flex-col gap-4"
     >
       <div className="flex flex-col gap-2.5">
         <AuthTextField

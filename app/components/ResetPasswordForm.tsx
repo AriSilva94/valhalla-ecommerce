@@ -51,7 +51,7 @@ export default function ResetPasswordForm({ code }: { code: string }) {
 
   if (success) {
     return (
-      <div className="bg-vh-card border border-vh-border rounded-2xl p-6 flex flex-col gap-3">
+      <div className="flex flex-col gap-3">
         <AuthResultHeading icon={CheckCircle2} tone="success">
           Senha redefinida
         </AuthResultHeading>
@@ -69,7 +69,7 @@ export default function ResetPasswordForm({ code }: { code: string }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-vh-card border border-vh-border rounded-2xl p-6 flex flex-col gap-4"
+      className="flex flex-col gap-4"
     >
       <div className="flex flex-col gap-2.5">
         <PasswordField

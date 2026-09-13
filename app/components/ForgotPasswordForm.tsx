@@ -31,7 +31,7 @@ export default function ForgotPasswordForm() {
 
   if (done) {
     return (
-      <div className="bg-vh-card border border-vh-border rounded-2xl p-6 flex flex-col gap-3">
+      <div className="flex flex-col gap-3">
         <AuthResultHeading icon={MailCheck} tone="success">
           Verifique seu e-mail
         </AuthResultHeading>
@@ -45,7 +45,7 @@ export default function ForgotPasswordForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-vh-card border border-vh-border rounded-2xl p-6 flex flex-col gap-4"
+      className="flex flex-col gap-4"
     >
       <AuthTextField
         icon={Mail}

@@ -27,7 +27,7 @@ export default async function ResetPasswordPage({
           subtitle="Este link de redefinição não é válido ou já expirou."
           tone="error"
         />
-        <div className="bg-vh-card border border-vh-border rounded-2xl p-6 flex flex-col gap-3">
+        <div className="flex flex-col gap-3">
           <span className="font-medium text-vh-13-5 font-manrope text-vh-muted">
             Solicite uma nova redefinição de senha para continuar.
           </span>

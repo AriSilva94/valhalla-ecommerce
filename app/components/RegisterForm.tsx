@@ -57,7 +57,7 @@ export default function RegisterForm() {
 
   if (success) {
     return (
-      <div className="bg-vh-card border border-vh-border rounded-2xl p-6 flex flex-col gap-3">
+      <div className="flex flex-col gap-3">
         <AuthResultHeading icon={CheckCircle2} tone="success">
           Verifique seu e-mail
         </AuthResultHeading>
@@ -71,7 +71,7 @@ export default function RegisterForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-vh-card border border-vh-border rounded-2xl p-6 flex flex-col gap-4"
+      className="flex flex-col gap-4"
     >
       <div className="flex flex-col gap-2.5">
         <AuthTextField
