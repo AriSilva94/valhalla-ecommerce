@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { LogIn } from "lucide-react";
 import LoginForm from "../components/LoginForm";
 import AuthPageHeader from "../components/AuthPageHeader";
+import AuthShell from "../components/AuthShell";
 
 export const metadata = {
   title: "Entrar",
@@ -9,11 +10,11 @@ export const metadata = {
 
 export default function EntrarPage() {
   return (
-    <section className="max-w-125 my-0 mx-auto py-12 px-6 w-full">
+    <AuthShell>
       <AuthPageHeader icon={LogIn} title="Entrar" subtitle="Acesse sua conta Valhalla." />
       <Suspense fallback={null}>
         <LoginForm />
       </Suspense>
-    </section>
+    </AuthShell>
   );
 }

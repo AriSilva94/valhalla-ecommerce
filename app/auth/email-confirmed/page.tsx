@@ -2,6 +2,7 @@ import { CheckCircle2, XCircle, MailQuestion } from "lucide-react";
 import { handleConfirmEmail } from "../../lib/auth-handlers";
 import * as strapiClient from "../../lib/auth-strapi-client";
 import AuthPageHeader from "../../components/AuthPageHeader";
+import AuthShell from "../../components/AuthShell";
 
 export const metadata = {
   title: "E-mail confirmado",
@@ -41,7 +42,7 @@ export default async function EmailConfirmadoPage({
         : { icon: MailQuestion, title: "Nenhum código de confirmação informado", tone: "neutral" as const };
 
   return (
-    <section className="max-w-125 my-0 mx-auto py-12 px-6 w-full">
+    <AuthShell>
       <AuthPageHeader icon={header.icon} title={header.title} tone={header.tone} />
       <div className="bg-vh-card border border-vh-border rounded-2xl p-6 flex flex-col gap-3">
         {state === "confirmed" && (
@@ -65,6 +66,6 @@ export default async function EmailConfirmadoPage({
           </span>
         )}
       </div>
-    </section>
+    </AuthShell>
   );
 }

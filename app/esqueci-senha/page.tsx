@@ -1,6 +1,7 @@
 import { KeyRound } from "lucide-react";
 import ForgotPasswordForm from "../components/ForgotPasswordForm";
 import AuthPageHeader from "../components/AuthPageHeader";
+import AuthShell from "../components/AuthShell";
 
 export const metadata = {
   title: "Esqueci minha senha",
@@ -8,13 +9,13 @@ export const metadata = {
 
 export default function EsqueciSenhaPage() {
   return (
-    <section className="max-w-125 my-0 mx-auto py-12 px-6 w-full">
+    <AuthShell>
       <AuthPageHeader
         icon={KeyRound}
         title="Esqueci minha senha"
         subtitle="Informe seu e-mail e enviaremos um link para redefinir sua senha."
       />
       <ForgotPasswordForm />
-    </section>
+    </AuthShell>
   );
 }

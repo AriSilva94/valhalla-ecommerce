@@ -22,20 +22,18 @@ export default function AuthPageHeader({
   const t = TONES[tone];
 
   return (
-    <div className="flex flex-col items-center text-center mb-7.5">
+    <div className="flex flex-col mb-7.5">
       <span
         className={cn(
-          "mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-vh-panel border",
+          "mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-vh-panel border",
           t.ring,
         )}
       >
-        <Icon aria-hidden="true" size={24} strokeWidth={1.75} className={t.icon} />
+        <Icon aria-hidden="true" size={22} strokeWidth={1.75} className={t.icon} />
       </span>
-      <h1 className="mt-0 mx-0 mb-2 font-bold text-vh-34 font-space-grotesk">{title}</h1>
+      <h1 className="mt-0 mx-0 mb-2 font-bold text-vh-30 font-space-grotesk">{title}</h1>
       {subtitle && (
-        <p className="mt-0 mx-0 font-medium text-vh-14 font-manrope text-vh-muted max-w-90">
-          {subtitle}
-        </p>
+        <p className="mt-0 mx-0 font-medium text-vh-14 font-manrope text-vh-muted">{subtitle}</p>
       )}
     </div>
   );

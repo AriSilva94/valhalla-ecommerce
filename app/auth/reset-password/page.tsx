@@ -1,6 +1,7 @@
 import { KeyRound, AlertTriangle } from "lucide-react";
 import ResetPasswordForm from "../../components/ResetPasswordForm";
 import AuthPageHeader from "../../components/AuthPageHeader";
+import AuthShell from "../../components/AuthShell";
 
 export const metadata = {
   title: "Redefinir senha",
@@ -19,7 +20,7 @@ export default async function ResetPasswordPage({
 
   if (!code) {
     return (
-      <section className="max-w-125 my-0 mx-auto py-12 px-6 w-full">
+      <AuthShell>
         <AuthPageHeader
           icon={AlertTriangle}
           title="Link inválido"
@@ -31,18 +32,18 @@ export default async function ResetPasswordPage({
             Solicite uma nova redefinição de senha para continuar.
           </span>
         </div>
-      </section>
+      </AuthShell>
     );
   }
 
   return (
-    <section className="max-w-125 my-0 mx-auto py-12 px-6 w-full">
+    <AuthShell>
       <AuthPageHeader
         icon={KeyRound}
         title="Redefinir senha"
         subtitle="Escolha uma nova senha para sua conta."
       />
       <ResetPasswordForm code={code} />
-    </section>
+    </AuthShell>
   );
 }

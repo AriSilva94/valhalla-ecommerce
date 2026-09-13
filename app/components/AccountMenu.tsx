@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { User, ChevronDown, LogOut, ClipboardList } from "lucide-react";
+import { User, ChevronDown, LogOut, ClipboardList, LogIn } from "lucide-react";
 import type { AuthUser } from "../lib/auth-contracts";
 import { cn } from "../lib/cn";
 
@@ -31,8 +31,9 @@ export default function AccountMenu({
     return (
       <Link
         href="/entrar"
-        className="hidden sm:inline-flex items-center py-2.75 px-4 cursor-pointer text-vh-muted font-semibold text-vh-13 font-space-grotesk [transition:color_.15s]"
+        className="flex items-center gap-2 py-2.5 px-3.5 rounded-vh-10 border border-vh-border bg-transparent cursor-pointer text-white font-semibold text-vh-13 font-space-grotesk no-underline hover:border-vh-violet [transition:border-color_.15s]"
       >
+        <LogIn aria-hidden="true" size={15} strokeWidth={2} className="text-vh-lime shrink-0" />
         Entrar
       </Link>
     );
