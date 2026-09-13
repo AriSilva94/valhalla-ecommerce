@@ -55,7 +55,14 @@ export default function AccountMenu({
         aria-expanded={open}
         className="flex items-center gap-2 py-2.5 px-3.5 rounded-vh-10 border border-vh-border bg-transparent cursor-pointer text-white font-semibold text-vh-13 font-space-grotesk [transition:border-color_.15s]"
       >
-        <User aria-hidden="true" size={15} strokeWidth={2} className="text-vh-lime shrink-0" />
+        <span className="relative shrink-0">
+          <User aria-hidden="true" size={15} strokeWidth={2} className="text-vh-lime" />
+          {cartCount > 0 && (
+            <span className="absolute -top-1.5 -right-1.5 min-w-3.5 h-3.5 bg-vh-lime text-vh-ink rounded-full font-extrabold text-vh-8-5 font-space-grotesk leading-none flex items-center justify-center py-0 px-0.75 border-2 border-vh-bg">
+              {cartCount > 9 ? "9+" : cartCount}
+            </span>
+          )}
+        </span>
         <span className="max-w-30 truncate">{user.username}</span>
         <ChevronDown
           aria-hidden="true"
@@ -73,17 +80,10 @@ export default function AccountMenu({
             href="/lista"
             role="menuitem"
             onClick={() => setOpen(false)}
-            className="vh-dropdown-item flex items-center justify-between gap-3 py-2.5 px-3.5 font-semibold text-vh-12-5 font-manrope text-vh-soft no-underline [transition:background_.12s,color_.12s]"
+            className="vh-dropdown-item flex items-center gap-2 py-2.5 px-3.5 font-semibold text-vh-12-5 font-manrope text-vh-soft no-underline [transition:background_.12s,color_.12s]"
           >
-            <span className="flex items-center gap-2">
-              <ClipboardList aria-hidden="true" size={15} strokeWidth={2} />
-              Minha lista
-            </span>
-            {cartCount > 0 && (
-              <span className="min-w-5 h-5 bg-vh-lime text-vh-ink rounded-vh-10 font-extrabold text-vh-11 font-space-grotesk flex items-center justify-center py-0 px-1.25">
-                {cartCount}
-              </span>
-            )}
+            <ClipboardList aria-hidden="true" size={15} strokeWidth={2} />
+            Minha lista
           </Link>
           <Link
             href="/pedidos"
