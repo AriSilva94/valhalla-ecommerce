@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { fmt, waUrl } from "../lib/wa";
+import { fmt, formatVariantMeta, waUrl } from "../lib/wa";
 import { useCart } from "./CartProvider";
 import Breadcrumb from "./Breadcrumb";
 
@@ -21,8 +21,7 @@ export default function ListaClient({ whatsappNumber }: { whatsappNumber: string
           it.productName +
           "\nModelo: " +
           it.configLabel +
-          "\nCor: " +
-          it.colorName +
+          (it.colorName ? "\nCor: " + it.colorName : "") +
           "\nQuantidade: " +
           it.qty +
           "\nPreço apresentado: " +
@@ -75,7 +74,7 @@ export default function ListaClient({ whatsappNumber }: { whatsappNumber: string
                     </Link>
                     <div className="flex-1 min-w-42.5 flex flex-col gap-0.75">
                       <Link className="vh-lime font-bold text-vh-14-5 font-space-grotesk cursor-pointer" href={`/produto/${it.productSlug}`}>{it.productName}</Link>
-                      <span className="font-medium text-vh-12 font-manrope text-vh-muted">{`${it.configLabel} · ${it.colorName}`}</span>
+                      <span className="font-medium text-vh-12 font-manrope text-vh-muted">{formatVariantMeta(it.configLabel, it.colorName)}</span>
                       <span className="font-semibold text-vh-12-5 font-manrope text-vh-soft">{fmt(it.unitPrice)} /un.</span>
                     </div>
                     <div className="flex items-center border border-vh-border rounded-vh-9 overflow-hidden">
@@ -125,7 +124,7 @@ export default function ListaClient({ whatsappNumber }: { whatsappNumber: string
               <div key={it.key} className="flex justify-between gap-3.5 pb-3 border-b border-b-vh-panel flex-wrap">
                 <div className="flex flex-col gap-0.5">
                   <span className="font-bold text-vh-14 font-space-grotesk">{it.qty}× {it.productName}</span>
-                  <span className="font-medium text-vh-12 font-manrope text-vh-muted">{`${it.configLabel} · ${it.colorName}`}</span>
+                  <span className="font-medium text-vh-12 font-manrope text-vh-muted">{formatVariantMeta(it.configLabel, it.colorName)}</span>
                 </div>
                 <span className="font-bold text-vh-15 font-space-grotesk text-vh-lime">{fmt(it.unitPrice * it.qty)}</span>
               </div>

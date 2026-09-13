@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { PackageSearch } from "lucide-react";
 import PixIcon from "./PixIcon";
-import { fmt } from "../lib/wa";
+import { fmt, formatVariantMeta } from "../lib/wa";
 import type { Order } from "../lib/checkout-contracts";
 import { ORDER_STATUS_LABEL, ORDER_STATUS_TONE } from "../lib/order-status";
 import Breadcrumb from "./Breadcrumb";
@@ -72,7 +72,7 @@ export default function OrderDetailClient({ reference }: { reference: string }) 
             </div>
             <div className="flex-1 min-w-0 flex flex-col gap-0.5">
               <span className="font-semibold text-vh-13 font-manrope truncate">{it.qty}× {it.productName}</span>
-              <span className="font-medium text-vh-11-5 font-manrope text-vh-muted truncate">{it.configLabel} · {it.colorName}</span>
+              <span className="font-medium text-vh-11-5 font-manrope text-vh-muted truncate">{formatVariantMeta(it.configLabel, it.colorName)}</span>
             </div>
             <span className="font-bold text-vh-14 font-space-grotesk text-vh-lime whitespace-nowrap">{fmt(it.unitPrice * it.qty)}</span>
           </div>

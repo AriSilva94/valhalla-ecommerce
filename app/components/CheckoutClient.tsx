@@ -13,7 +13,7 @@ import {
   ShieldCheck,
   User,
 } from "lucide-react";
-import { fmt } from "../lib/wa";
+import { fmt, formatVariantMeta } from "../lib/wa";
 import { useCart } from "./CartProvider";
 import { CHECKOUT_ERROR_CODES, type CustomerProfile, type Order } from "../lib/checkout-contracts";
 import AuthPageHeader from "./AuthPageHeader";
@@ -271,7 +271,7 @@ export default function CheckoutClient() {
               </div>
               <div className="flex-1 min-w-0 flex flex-col gap-0.5">
                 <span className="font-bold text-vh-13 font-manrope truncate">{it.qty}× {it.productName}</span>
-                <span className="font-medium text-vh-11-5 font-manrope text-vh-muted truncate">{it.configLabel} · {it.colorName}</span>
+                <span className="font-medium text-vh-11-5 font-manrope text-vh-muted truncate">{formatVariantMeta(it.configLabel, it.colorName)}</span>
               </div>
               <span className="font-bold text-vh-13-5 font-space-grotesk text-vh-lime whitespace-nowrap">{fmt(it.unitPrice * it.qty)}</span>
             </div>

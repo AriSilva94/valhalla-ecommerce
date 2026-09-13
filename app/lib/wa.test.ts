@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { fmt, waUrl } from "./wa";
+import { fmt, formatVariantMeta, waUrl } from "./wa";
 
 test("fmt: sempre exibe duas casas decimais", () => {
   assert.equal(fmt(17), "R$ 17,00");
@@ -24,4 +24,20 @@ test("waUrl: monta o link do WhatsApp só com dígitos e a mensagem escapada", (
     waUrl("+55 (11) 99999-9999", "Olá, tudo bem?"),
     "https://wa.me/5511999999999?text=Ol%C3%A1%2C%20tudo%20bem%3F"
   );
+});
+
+test("formatVariantMeta: junta config e cor quando ambos existem", () => {
+  assert.equal(formatVariantMeta("128GB", "Preto"), "128GB · Preto");
+});
+
+test("formatVariantMeta: omite o separador quando a cor está vazia", () => {
+  assert.equal(formatVariantMeta("Padrão", ""), "Padrão");
+});
+
+test("formatVariantMeta: omite o separador quando o config está vazio", () => {
+  assert.equal(formatVariantMeta("", "Azul"), "Azul");
+});
+
+test("formatVariantMeta: retorna string vazia quando os dois estão vazios", () => {
+  assert.equal(formatVariantMeta("", ""), "");
 });
