@@ -6,6 +6,7 @@ import Image from "next/image";
 import { fmt, formatVariantMeta, waUrl } from "../lib/wa";
 import { useCart } from "./CartProvider";
 import Breadcrumb from "./Breadcrumb";
+import PixIcon from "./PixIcon";
 
 export default function ListaClient({ whatsappNumber }: { whatsappNumber: string }) {
   const { cart, updateQty, removeItem, cartCount, cartTotal, clear } = useCart();
@@ -97,10 +98,11 @@ export default function ListaClient({ whatsappNumber }: { whatsappNumber: string
                   <Link className="vh-ghost-violet bg-transparent border border-vh-violet rounded-vh-11 py-3.75 px-6 font-semibold text-vh-14 font-space-grotesk cursor-pointer text-white!" href="/">Continuar explorando</Link>
                   <button className="vh-btn-lime bg-vh-lime border-0 rounded-vh-11 py-3.75 px-7 font-bold text-vh-14 font-space-grotesk cursor-pointer shadow-vh-lime-24 text-vh-ink!" onClick={() => setStep("review")}>Revisar solicitação →</button>
                   <Link
-                    className="vh-btn-lime bg-vh-lime border-0 rounded-vh-11 py-3.75 px-7 font-bold text-vh-14 font-space-grotesk cursor-pointer shadow-vh-lime-24 text-vh-ink!"
+                    className="vh-btn-lime flex items-center gap-2 bg-vh-lime border-0 rounded-vh-11 py-3.75 px-7 font-bold text-vh-14 font-space-grotesk cursor-pointer shadow-vh-lime-24 text-vh-ink!"
                     href="/checkout"
                   >
-                    Pagar com Pix →
+                    <PixIcon size={16} />
+                    Pagar com Pix
                   </Link>
                 </div>
               </div>
