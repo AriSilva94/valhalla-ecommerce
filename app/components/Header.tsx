@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Search } from "lucide-react";
 import { fmt } from "../lib/wa";
 import { useCart } from "./CartProvider";
 import type { Category, Product } from "../lib/strapi";
@@ -120,14 +121,14 @@ export default function Header({
               placeholder="Buscar smartphones, notebooks, fones..."
             />
             <button
-              className="vh-searchbtn absolute right-1.5 top-1.5 bottom-1.5 w-8.5 bg-vh-violet border-0 rounded-vh-7 cursor-pointer text-white font-bold text-vh-14 font-space-grotesk [transition:background_.15s]"
+              className="vh-searchbtn absolute right-1.5 top-1.5 bottom-1.5 w-8.5 flex items-center justify-center bg-vh-violet border-0 rounded-vh-7 cursor-pointer text-white [transition:background_.15s]"
               onClick={() => {
                 if (q.trim())
                   router.push("/busca?q=" + encodeURIComponent(q.trim()));
               }}
               title="Buscar"
             >
-              ⌕
+              <Search aria-hidden="true" size={16} strokeWidth={2.25} />
             </button>
             {auto && suggestions.length > 0 && (
               <div className="absolute top-[calc(100%+6px)] left-0 right-0 bg-vh-card border border-vh-violet rounded-xl overflow-hidden shadow-vh-dropdown z-70">
