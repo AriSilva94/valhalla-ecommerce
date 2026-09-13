@@ -1,9 +1,13 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Code2 } from "lucide-react";
 import { waUrl } from "../lib/wa";
 import type { Category, SiteSettings } from "../lib/strapi";
 import { visibleCategories } from "../lib/categories";
+import { isAuthRoute } from "../lib/auth-routes";
 
 export default function Footer({
   categories,
@@ -12,6 +16,9 @@ export default function Footer({
   categories: Category[];
   settings: SiteSettings;
 }) {
+  const pathname = usePathname();
+  if (isAuthRoute(pathname)) return null;
+
   const waDirectUrl = waUrl(
     settings.whatsappNumber,
     "Olá, equipe Valhalla Tecnologia! Gostaria de falar com um atendente.",
