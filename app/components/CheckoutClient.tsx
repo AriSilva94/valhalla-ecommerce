@@ -151,7 +151,7 @@ export default function CheckoutClient() {
           <p className="mt-0 mx-0 mb-6 font-bold text-vh-30 font-space-grotesk text-vh-lime">
             {fmt(order.totalAmount)}
           </p>
-          <PixPayment order={order} onPaid={() => { clear(); router.push(`/pedidos/${order.id}`); }} />
+          <PixPayment order={order} onPaid={() => { clear(); router.push(`/pedidos/${order.reference}`); }} />
         </Card>
       </section>
     );

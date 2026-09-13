@@ -52,13 +52,13 @@ export default function PixPayment({ order, onPaid }: { order: Order; onPaid?: (
   useEffect(() => {
     if (status !== "pending") return;
     const interval = setInterval(async () => {
-      const res = await fetch(`/api/orders/${order.id}`, { cache: "no-store" });
+      const res = await fetch(`/api/orders/${order.reference}`, { cache: "no-store" });
       if (!res.ok) return;
       const body = await res.json();
       if (body?.ok) setStatus(body.data.status);
     }, 5000);
     return () => clearInterval(interval);
-  }, [status, order.id]);
+  }, [status, order.reference]);
 
   useEffect(() => {
     if (status === "paid") {

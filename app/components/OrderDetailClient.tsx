@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { PackageSearch, QrCode } from "lucide-react";
+import { PackageSearch } from "lucide-react";
+import PixIcon from "./PixIcon";
 import { fmt } from "../lib/wa";
 import type { Order } from "../lib/checkout-contracts";
 import { ORDER_STATUS_LABEL, ORDER_STATUS_TONE } from "../lib/order-status";
@@ -21,14 +22,14 @@ function DetailSkeleton() {
   );
 }
 
-export default function OrderDetailClient({ id }: { id: number }) {
+export default function OrderDetailClient({ reference }: { reference: string }) {
   const [order, setOrder] = useState<Order | null | undefined>(undefined);
 
   useEffect(() => {
-    fetch(`/api/orders/${id}`, { cache: "no-store" })
+    fetch(`/api/orders/${reference}`, { cache: "no-store" })
       .then((res) => res.json())
       .then((body) => setOrder(body?.ok ? body.data : null));
-  }, [id]);
+  }, [reference]);
 
   if (order === undefined) return <DetailSkeleton />;
 
@@ -46,10 +47,10 @@ export default function OrderDetailClient({ id }: { id: number }) {
 
   return (
     <section className="max-w-215 my-0 mx-auto py-10 px-6 w-full">
-      <Breadcrumb items={[{ label: "Início", href: "/" }, { label: "Meus pedidos", href: "/pedidos" }, { label: `#${order.id}` }]} />
+      <Breadcrumb items={[{ label: "Início", href: "/" }, { label: "Meus pedidos", href: "/pedidos" }, { label: `#${order.reference}` }]} />
 
       <div className="flex items-center gap-3 flex-wrap mb-1.5">
-        <h1 className="m-0 font-bold text-vh-24 font-space-grotesk">Pedido #{order.id}</h1>
+        <h1 className="m-0 font-bold text-vh-24 font-space-grotesk">Pedido #{order.reference}</h1>
         <span className={`inline-flex items-center rounded-vh-9 border py-1.25 px-3 font-bold text-vh-12 font-space-grotesk whitespace-nowrap ${ORDER_STATUS_TONE[order.status]}`}>
           {ORDER_STATUS_LABEL[order.status]}
         </span>
@@ -57,7 +58,7 @@ export default function OrderDetailClient({ id }: { id: number }) {
       <p className="mt-0 mx-0 mb-6 flex items-center gap-1.5 font-medium text-vh-12 font-manrope text-vh-muted">
         Realizado em {new Date(order.createdAt).toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" })}
         <span aria-hidden="true">·</span>
-        <QrCode aria-hidden="true" size={13} strokeWidth={2} className="shrink-0" />
+        <PixIcon size={12} className="shrink-0" />
         Pix
       </p>
 

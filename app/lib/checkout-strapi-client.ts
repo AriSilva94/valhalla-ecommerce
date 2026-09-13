@@ -93,6 +93,6 @@ export async function listOrders(accessToken: string): Promise<CheckoutResult<Or
   return request<Order[]>("/api/orders", accessToken, { method: "GET" });
 }
 
-export async function getOrder(accessToken: string, id: number): Promise<CheckoutResult<Order>> {
-  return request<Order>(`/api/orders/${id}`, accessToken, { method: "GET" });
+export async function getOrder(accessToken: string, reference: string): Promise<CheckoutResult<Order>> {
+  return request<Order>(`/api/orders/${encodeURIComponent(reference)}`, accessToken, { method: "GET" });
 }

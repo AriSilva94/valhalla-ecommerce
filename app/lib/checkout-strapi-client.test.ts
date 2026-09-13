@@ -74,6 +74,6 @@ test("getOrder: retorna NOT_FOUND para 404", async (t) => {
 
   t.mock.method(globalThis, "fetch", async () => jsonResponse({}, 404));
 
-  const result = await getOrder("token-abc", 999);
+  const result = await getOrder("token-abc", "abc123def4");
   assert.deepEqual(result, { ok: false, error: "NOT_FOUND", status: 404 });
 });

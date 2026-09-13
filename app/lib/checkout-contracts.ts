@@ -18,7 +18,10 @@ export type OrderItem = {
 export type OrderStatus = "pending" | "paid" | "expired" | "cancelled" | "failed";
 
 export type Order = {
-  id: number;
+  // Opaque public identifier, never the store's internal sequential id —
+  // see the backend's serialize-order.ts for why (it would leak total
+  // order volume across every customer).
+  reference: string;
   items: OrderItem[];
   totalAmount: number;
   status: OrderStatus;

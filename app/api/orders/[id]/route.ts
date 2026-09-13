@@ -45,9 +45,8 @@ export async function GET(
   const tokenToUse =
     session.data.refreshed && session.data.newTokens ? session.data.newTokens.accessToken : accessToken!;
 
-  const { id } = await params;
-  const orderId = Number(id);
-  if (!Number.isInteger(orderId) || orderId <= 0) {
+  const { id: reference } = await params;
+  if (!/^[a-f0-9]{6,40}$/i.test(reference)) {
     if (session.data.refreshed && session.data.newTokens) {
       const cookieInstructions = buildAuthCookieInstructions(session.data.newTokens, secure);
       return jsonWithCookies({ ok: false, error: CHECKOUT_ERROR_CODES.NOT_FOUND }, 404, cookieInstructions);
@@ -55,7 +54,7 @@ export async function GET(
     return jsonError(CHECKOUT_ERROR_CODES.NOT_FOUND, 404);
   }
 
-  const result = await checkoutClient.getOrder(tokenToUse, orderId);
+  const result = await checkoutClient.getOrder(tokenToUse, reference);
 
   if (session.data.refreshed && session.data.newTokens) {
     const cookieInstructions = buildAuthCookieInstructions(session.data.newTokens, secure);
