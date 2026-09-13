@@ -49,9 +49,9 @@ export default async function EmailConfirmadoPage({
         {state === "confirmed" && (
           <span className="font-medium text-vh-13-5 font-manrope text-vh-muted">
             Sua conta foi confirmada. Você já pode{" "}
-            <a href="/entrar" className="text-vh-accent">
+            <Link href="/entrar" className="text-vh-accent hover:text-vh-lime [transition:color_.15s]">
               entrar
-            </a>
+            </Link>
             .
           </span>
         )}

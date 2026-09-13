@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Mail, KeyRound, UserPlus, MailWarning } from "lucide-react";
 import { safeRedirect } from "@/app/lib/auth-redirect";
@@ -139,6 +140,9 @@ export default function LoginForm() {
         <span className="h-px flex-1 bg-vh-border" />
       </div>
 
+      {/* Plain <a>, not <Link>: this GET route triggers the OAuth redirect
+          chain and sets a nonce cookie as a side effect — Link's hover/
+          viewport prefetch would fire that speculatively. */}
       <a
         href={googleHref}
         className="flex items-center justify-center gap-2.5 border border-vh-border rounded-vh-10 p-3.5 font-bold text-vh-14 font-space-grotesk text-white no-underline hover:border-vh-violet [transition:border-color_.15s]"
@@ -148,20 +152,20 @@ export default function LoginForm() {
       </a>
 
       <div className="flex items-center justify-between gap-3 pt-3.5 border-t border-vh-border">
-        <a
+        <Link
           href="/esqueci-senha"
-          className="flex items-center gap-1.5 font-semibold text-vh-12-5 font-manrope text-vh-accent no-underline"
+          className="flex items-center gap-1.5 font-semibold text-vh-12-5 font-manrope text-vh-accent no-underline hover:text-vh-lime [transition:color_.15s]"
         >
           <KeyRound aria-hidden="true" size={14} strokeWidth={2} />
           Esqueci minha senha
-        </a>
-        <a
+        </Link>
+        <Link
           href="/cadastro"
-          className="flex items-center gap-1.5 font-semibold text-vh-12-5 font-manrope text-vh-accent no-underline"
+          className="flex items-center gap-1.5 font-semibold text-vh-12-5 font-manrope text-vh-accent no-underline hover:text-vh-lime [transition:color_.15s]"
         >
           <UserPlus aria-hidden="true" size={14} strokeWidth={2} />
           Criar conta
-        </a>
+        </Link>
       </div>
     </form>
   );

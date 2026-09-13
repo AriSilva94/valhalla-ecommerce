@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { CheckCircle2, LogIn } from "lucide-react";
 import PasswordField from "./PasswordField";
 import AuthAlert from "./AuthAlert";
@@ -57,9 +58,9 @@ export default function ResetPasswordForm({ code }: { code: string }) {
         </AuthResultHeading>
         <span className="font-medium text-vh-13-5 font-manrope text-vh-muted">
           Sua senha foi alterada.{" "}
-          <a href="/entrar" className="text-vh-accent">
+          <Link href="/entrar" className="text-vh-accent hover:text-vh-lime [transition:color_.15s]">
             Entrar agora
-          </a>
+          </Link>
           .
         </span>
       </div>
@@ -101,13 +102,13 @@ export default function ResetPasswordForm({ code }: { code: string }) {
       {error && <AuthAlert variant="error">{error}</AuthAlert>}
 
       <div className="flex items-center justify-center gap-1.5 pt-3.5 border-t border-vh-border">
-        <a
+        <Link
           href="/entrar"
-          className="flex items-center gap-1.5 font-semibold text-vh-12-5 font-manrope text-vh-accent no-underline"
+          className="flex items-center gap-1.5 font-semibold text-vh-12-5 font-manrope text-vh-accent no-underline hover:text-vh-lime [transition:color_.15s]"
         >
           <LogIn aria-hidden="true" size={14} strokeWidth={2} />
           Voltar para o login
-        </a>
+        </Link>
       </div>
     </form>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { User, Mail, CheckCircle2, LogIn } from "lucide-react";
 import AuthTextField from "./AuthTextField";
 import PasswordField from "./PasswordField";
@@ -124,13 +125,13 @@ export default function RegisterForm() {
 
       <div className="flex items-center justify-center gap-1.5 pt-3.5 border-t border-vh-border">
         <span className="font-medium text-vh-12-5 font-manrope text-vh-muted">Já tem conta?</span>
-        <a
+        <Link
           href="/entrar"
-          className="flex items-center gap-1.5 font-semibold text-vh-12-5 font-manrope text-vh-accent no-underline"
+          className="flex items-center gap-1.5 font-semibold text-vh-12-5 font-manrope text-vh-accent no-underline hover:text-vh-lime [transition:color_.15s]"
         >
           <LogIn aria-hidden="true" size={14} strokeWidth={2} />
           Entrar
-        </a>
+        </Link>
       </div>
     </form>
   );
