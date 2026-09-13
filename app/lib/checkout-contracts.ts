@@ -8,6 +8,11 @@ export type OrderItem = {
   configLabel: string;
   unitPrice: number;
   qty: number;
+  // Not part of the immutable snapshot Strapi stores — the BFF's
+  // /api/orders/[id] route attaches the product's *current* image
+  // cosmetically. Absent on list responses and null when the lookup fails
+  // or the product has no image.
+  productImageUrl?: string | null;
 };
 
 export type OrderStatus = "pending" | "paid" | "expired" | "cancelled" | "failed";

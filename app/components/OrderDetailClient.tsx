@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { PackageSearch } from "lucide-react";
 import { fmt } from "../lib/wa";
 import type { Order } from "../lib/checkout-contracts";
@@ -56,10 +57,15 @@ export default function OrderDetailClient({ id }: { id: number }) {
 
       <div className="bg-vh-card border border-vh-border rounded-2xl p-6 flex flex-col gap-3 mb-5">
         {order.items.map((it, i) => (
-          <div key={i} className="flex justify-between gap-3">
-            <div className="flex flex-col gap-0.5 min-w-0">
-              <span className="font-semibold text-vh-13 font-manrope">{it.qty}× {it.productName}</span>
-              <span className="font-medium text-vh-11-5 font-manrope text-vh-muted">{it.configLabel} · {it.colorName}</span>
+          <div key={i} className="flex gap-3 items-center">
+            <div className="w-12.5 h-12.5 flex-none relative overflow-hidden bg-[repeating-linear-gradient(45deg,#2A0A45_0_8px,#24063C_8px_16px)] border border-vh-border rounded-vh-9">
+              {it.productImageUrl && (
+                <Image src={it.productImageUrl} alt={it.productName} fill sizes="50px" className="object-cover" />
+              )}
+            </div>
+            <div className="flex-1 min-w-0 flex flex-col gap-0.5">
+              <span className="font-semibold text-vh-13 font-manrope truncate">{it.qty}× {it.productName}</span>
+              <span className="font-medium text-vh-11-5 font-manrope text-vh-muted truncate">{it.configLabel} · {it.colorName}</span>
             </div>
             <span className="font-bold text-vh-14 font-space-grotesk text-vh-lime whitespace-nowrap">{fmt(it.unitPrice * it.qty)}</span>
           </div>
