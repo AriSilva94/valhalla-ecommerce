@@ -58,3 +58,49 @@ test("PUT: 400 VALIDATION_ERROR com CPF inválido", async (t) => {
   );
   assert.equal(res.status, 400);
 });
+
+test("PUT: 200 com CPF/CEP/UF/endereço válidos retorna o perfil salvo", async (t) => {
+  process.env.STRAPI_INTERNAL_URL = "http://strapi.internal";
+  const { PUT } = await import("./route");
+
+  const savedProfile = {
+    cpfCnpj: "11144477735",
+    phone: "",
+    addressLine: "Rua X",
+    addressNumber: "10",
+    addressComplement: "",
+    neighborhood: "Centro",
+    city: "SP",
+    state: "SP",
+    postalCode: "01310100",
+  };
+
+  t.mock.method(globalThis, "fetch", async (url: string) => {
+    if (url.includes("/api/users/me")) {
+      return jsonResponse({ id: 1, username: "joe", email: "joe@example.com", confirmed: true, blocked: false, role: {} });
+    }
+    return jsonResponse({ ok: true, data: savedProfile });
+  });
+
+  const res = await PUT(
+    makeRequest(
+      "http://localhost/api/account/profile",
+      {
+        method: "PUT",
+        body: JSON.stringify({
+          cpfCnpj: "111.444.777-35",
+          postalCode: "01310-100",
+          state: "sp",
+          addressLine: "Rua X",
+          addressNumber: "10",
+          neighborhood: "Centro",
+          city: "SP",
+        }),
+      },
+      "valhalla_access=tok"
+    )
+  );
+  assert.equal(res.status, 200);
+  const body = await res.json();
+  assert.deepEqual(body, { ok: true, data: savedProfile });
+});
