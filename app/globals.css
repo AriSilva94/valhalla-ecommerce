@@ -298,6 +298,16 @@ pre {
   border-color: #8cff00 !important;
   background: rgba(140, 255, 0, 0.06) !important;
 }
+.vh-border-violet-hover:hover {
+  border-color: #8b2cf5 !important;
+}
+.vh-dropdown-item:hover {
+  background: #2a0a45 !important;
+  color: #fff !important;
+}
+.vh-eye-toggle:hover {
+  color: #d8d5e0 !important;
+}
 .vh-wa:hover {
   filter: brightness(1.1);
   color: #062e17 !important;

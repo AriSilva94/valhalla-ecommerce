@@ -31,7 +31,7 @@ export default function AccountMenu({
     return (
       <Link
         href="/entrar"
-        className="flex items-center gap-2 py-2.5 px-3.5 rounded-vh-10 border border-vh-border bg-transparent cursor-pointer text-white font-semibold text-vh-13 font-space-grotesk no-underline hover:border-vh-violet [transition:border-color_.15s]"
+        className="vh-border-violet-hover flex items-center gap-2 py-2.5 px-3.5 rounded-vh-10 border border-vh-border bg-transparent cursor-pointer text-white font-semibold text-vh-13 font-space-grotesk no-underline [transition:border-color_.15s]"
       >
         <LogIn aria-hidden="true" size={15} strokeWidth={2} className="text-vh-lime shrink-0" />
         Entrar
@@ -73,7 +73,7 @@ export default function AccountMenu({
             href="/lista"
             role="menuitem"
             onClick={() => setOpen(false)}
-            className="flex items-center justify-between gap-3 py-2.5 px-3.5 font-semibold text-vh-12-5 font-manrope text-vh-soft no-underline hover:bg-vh-deep hover:text-white [transition:background_.12s,color_.12s]"
+            className="vh-dropdown-item flex items-center justify-between gap-3 py-2.5 px-3.5 font-semibold text-vh-12-5 font-manrope text-vh-soft no-underline [transition:background_.12s,color_.12s]"
           >
             <span className="flex items-center gap-2">
               <ClipboardList aria-hidden="true" size={15} strokeWidth={2} />
@@ -89,7 +89,7 @@ export default function AccountMenu({
             type="button"
             role="menuitem"
             onClick={handleLogout}
-            className="flex items-center gap-2 w-full py-2.5 px-3.5 bg-transparent border-0 border-t border-t-vh-border cursor-pointer text-left font-semibold text-vh-12-5 font-manrope text-vh-soft hover:bg-vh-deep hover:text-white [transition:background_.12s,color_.12s]"
+            className="vh-dropdown-item flex items-center gap-2 w-full py-2.5 px-3.5 bg-transparent border-0 border-t border-t-vh-border cursor-pointer text-left font-semibold text-vh-12-5 font-manrope text-vh-soft [transition:background_.12s,color_.12s]"
           >
             <LogOut aria-hidden="true" size={15} strokeWidth={2} />
             Sair

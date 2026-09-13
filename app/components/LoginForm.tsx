@@ -145,7 +145,7 @@ export default function LoginForm() {
           viewport prefetch would fire that speculatively. */}
       <a
         href={googleHref}
-        className="flex items-center justify-center gap-2.5 border border-vh-border rounded-vh-10 p-3.5 font-bold text-vh-14 font-space-grotesk text-white no-underline hover:border-vh-violet [transition:border-color_.15s]"
+        className="vh-border-violet-hover flex items-center justify-center gap-2.5 border border-vh-border rounded-vh-10 p-3.5 font-bold text-vh-14 font-space-grotesk text-white no-underline [transition:border-color_.15s]"
       >
         <GoogleGIcon />
         Entrar com Google
@@ -154,14 +154,14 @@ export default function LoginForm() {
       <div className="flex items-center justify-between gap-3 pt-3.5 border-t border-vh-border">
         <Link
           href="/esqueci-senha"
-          className="flex items-center gap-1.5 font-semibold text-vh-12-5 font-manrope text-vh-accent no-underline hover:text-vh-lime [transition:color_.15s]"
+          className="vh-lime flex items-center gap-1.5 font-semibold text-vh-12-5 font-manrope text-vh-accent no-underline [transition:color_.15s]"
         >
           <KeyRound aria-hidden="true" size={14} strokeWidth={2} />
           Esqueci minha senha
         </Link>
         <Link
           href="/cadastro"
-          className="flex items-center gap-1.5 font-semibold text-vh-12-5 font-manrope text-vh-accent no-underline hover:text-vh-lime [transition:color_.15s]"
+          className="vh-lime flex items-center gap-1.5 font-semibold text-vh-12-5 font-manrope text-vh-accent no-underline [transition:color_.15s]"
         >
           <UserPlus aria-hidden="true" size={14} strokeWidth={2} />
           Criar conta

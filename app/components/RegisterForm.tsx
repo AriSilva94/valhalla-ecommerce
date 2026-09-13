@@ -127,7 +127,7 @@ export default function RegisterForm() {
         <span className="font-medium text-vh-12-5 font-manrope text-vh-muted">Já tem conta?</span>
         <Link
           href="/entrar"
-          className="flex items-center gap-1.5 font-semibold text-vh-12-5 font-manrope text-vh-accent no-underline hover:text-vh-lime [transition:color_.15s]"
+          className="vh-lime flex items-center gap-1.5 font-semibold text-vh-12-5 font-manrope text-vh-accent no-underline [transition:color_.15s]"
         >
           <LogIn aria-hidden="true" size={14} strokeWidth={2} />
           Entrar

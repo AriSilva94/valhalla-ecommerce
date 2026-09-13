@@ -58,7 +58,7 @@ export default function ResetPasswordForm({ code }: { code: string }) {
         </AuthResultHeading>
         <span className="font-medium text-vh-13-5 font-manrope text-vh-muted">
           Sua senha foi alterada.{" "}
-          <Link href="/entrar" className="text-vh-accent hover:text-vh-lime [transition:color_.15s]">
+          <Link href="/entrar" className="vh-lime text-vh-accent [transition:color_.15s]">
             Entrar agora
           </Link>
           .
@@ -104,7 +104,7 @@ export default function ResetPasswordForm({ code }: { code: string }) {
       <div className="flex items-center justify-center gap-1.5 pt-3.5 border-t border-vh-border">
         <Link
           href="/entrar"
-          className="flex items-center gap-1.5 font-semibold text-vh-12-5 font-manrope text-vh-accent no-underline hover:text-vh-lime [transition:color_.15s]"
+          className="vh-lime flex items-center gap-1.5 font-semibold text-vh-12-5 font-manrope text-vh-accent no-underline [transition:color_.15s]"
         >
           <LogIn aria-hidden="true" size={14} strokeWidth={2} />
           Voltar para o login
