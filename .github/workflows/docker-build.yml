@@ -47,6 +47,19 @@ jobs:
             type=raw,value=dev,enable=${{ github.ref_name == 'develop' }}
             type=sha,format=long
 
+      - name: Compute build args for this branch
+        id: buildargs
+        run: |
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            echo "media_host=${{ vars.PROD_NEXT_PUBLIC_MEDIA_HOST }}" >> "$GITHUB_OUTPUT"
+            echo "site_url=${{ vars.PROD_NEXT_PUBLIC_SITE_URL }}" >> "$GITHUB_OUTPUT"
+            echo "app_env=production" >> "$GITHUB_OUTPUT"
+          else
+            echo "media_host=${{ vars.DEV_NEXT_PUBLIC_MEDIA_HOST }}" >> "$GITHUB_OUTPUT"
+            echo "site_url=${{ vars.DEV_NEXT_PUBLIC_SITE_URL }}" >> "$GITHUB_OUTPUT"
+            echo "app_env=staging" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
@@ -56,6 +69,14 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args: |
+            NEXT_PUBLIC_MEDIA_HOST=${{ steps.buildargs.outputs.media_host }}
+            NEXT_PUBLIC_SITE_URL=${{ steps.buildargs.outputs.site_url }}
+            NEXT_PUBLIC_APP_ENV=${{ steps.buildargs.outputs.app_env }}
+            NEXT_PUBLIC_ANALYTICS_ENABLED=${{ vars.NEXT_PUBLIC_ANALYTICS_ENABLED }}
+            NEXT_PUBLIC_ANALYTICS_MODE=${{ vars.NEXT_PUBLIC_ANALYTICS_MODE }}
+            NEXT_PUBLIC_GTM_ID=${{ vars.NEXT_PUBLIC_GTM_ID }}
+            NEXT_PUBLIC_GA_MEASUREMENT_ID=${{ vars.NEXT_PUBLIC_GA_MEASUREMENT_ID }}
 
       - name: Trigger Dokploy deploy (develop)
         if: github.ref_name == 'develop'
