@@ -2,10 +2,10 @@ import { timingSafeEqual } from 'node:crypto';
 import {
   buildAuthCookieInstructions,
   buildClearOauthNonceCookieInstruction,
-} from '../../../../lib/auth-cookies';
-import { safeRedirect } from '../../../../lib/auth-redirect';
-import * as strapiClient from '../../../../lib/auth-strapi-client';
-import { redirectWithCookies } from '../../_shared';
+} from '../../../../../lib/auth-cookies';
+import { safeRedirect } from '../../../../../lib/auth-redirect';
+import * as strapiClient from '../../../../../lib/auth-strapi-client';
+import { redirectWithCookies } from '../../../_shared';
 
 const OAUTH_ERROR_REDIRECT = '/entrar?error=oauth_failed';
 const NONCE_COOKIE_NAME = 'valhalla_oauth_nonce';
@@ -40,7 +40,26 @@ function constantTimeEquals(a: string, b: string): boolean {
   return timingSafeEqual(bufferA, bufferB);
 }
 
-export async function GET(request: Request): Promise<Response> {
+// Why the nonce lives in the PATH, not a `?state=` query param: Strapi's
+// grant-based OAuth "connect" flow builds its final redirect as
+// `${callback}?${qs.stringify(providerData)}` — a blind concatenation, not
+// a merge. If `callback` already carries its own `?state=<nonce>`, grant
+// appends a SECOND `?`, producing
+// `.../callback?state=<nonce>?id_token=...&access_token=...`. A URL only
+// has one query-string delimiter, so everything after the first `?` —
+// including that second `?id_token=...` — becomes part of the `state`
+// value itself. `state` then never equals the plain nonce, and every
+// login fails with oauth_failed regardless of the Google account used.
+// Verified directly: production logs showed the callback route receiving
+// `state=<nonce>?id_token=...&access_token=...&raw[...]=...` as one
+// mangled query value.
+// A path segment has no such delimiter collision — grant's `?`-appended
+// querystring lands cleanly after it every time.
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ nonce: string }> }
+): Promise<Response> {
+  const { nonce: nonceFromPath } = await params;
   const secure = process.env.AUTH_COOKIE_SECURE !== 'false';
   const clearNonceCookie = buildClearOauthNonceCookieInstruction(secure);
 
@@ -53,19 +72,13 @@ export async function GET(request: Request): Promise<Response> {
 
   const [expectedNonce, encodedReturnTo] = nonceCookieValue.split(':');
 
-  const url = new URL(request.url);
-  const stateFromCallback = url.searchParams.get('state');
-
-  // The `state` query param is the nonce value we asked Strapi (via the
-  // `callback` override in app/api/auth/google/route.ts) to carry through
-  // the entire Google OAuth round trip untouched. Comparing it against the
-  // nonce stored in our own httpOnly cookie is the actual CSRF/replay
-  // check — merely requiring the cookie to exist (the old behavior) never
-  // verified anything about the incoming request.
+  // This is the actual CSRF/replay check — merely requiring the cookie to
+  // exist (the old behavior) never verified anything about the incoming
+  // request.
   if (
     !expectedNonce ||
-    !stateFromCallback ||
-    !constantTimeEquals(stateFromCallback, expectedNonce)
+    !nonceFromPath ||
+    !constantTimeEquals(nonceFromPath, expectedNonce)
   ) {
     return redirectWithCookies(OAUTH_ERROR_REDIRECT, [clearNonceCookie]);
   }
@@ -75,6 +88,7 @@ export async function GET(request: Request): Promise<Response> {
     '/'
   );
 
+  const url = new URL(request.url);
   const accessToken = url.searchParams.get('access_token');
   if (!accessToken) {
     return redirectWithCookies(OAUTH_ERROR_REDIRECT, [clearNonceCookie]);

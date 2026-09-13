@@ -27,14 +27,18 @@ export async function GET(request: Request): Promise<Response> {
     return redirectWithCookies('/entrar?error=oauth_failed', []);
   }
 
-  // Strapi's users-permissions provider validator does not check search
-  // params on the callback URL it is handed, so a `state` query param
-  // nested inside this `callback` override survives the full Google OAuth
-  // round trip untouched — that's what lets the callback route verify it
-  // against the nonce cookie set here (see app/api/auth/google/callback).
+  // The nonce travels as a PATH segment, not a `?state=` query param:
+  // Strapi's grant-based OAuth flow builds its final redirect as
+  // `${callback}?${qs.stringify(providerData)}` — a blind concatenation.
+  // A `callback` URL that already carries its own query string gets a
+  // SECOND `?` appended, and everything after the first `?` (including
+  // that second one) becomes part of a single mangled query value — so a
+  // `?state=<nonce>` here would never survive the round trip intact. See
+  // app/api/auth/google/callback/[nonce]/route.ts for the verified failure
+  // mode and the rest of this reasoning.
   const frontendPublicUrl =
     (process.env.FRONTEND_PUBLIC_URL ?? '').trim().replace(/\/+$/, '') || getAllowedOrigin();
-  const callbackUrl = `${frontendPublicUrl}/api/auth/google/callback?state=${encodeURIComponent(nonce)}`;
+  const callbackUrl = `${frontendPublicUrl}/api/auth/google/callback/${encodeURIComponent(nonce)}`;
 
   const strapiRedirectUrl = `${strapiPublicUrl}/api/connect/google?callback=${encodeURIComponent(callbackUrl)}`;
 
