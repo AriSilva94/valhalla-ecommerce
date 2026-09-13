@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { PackageSearch } from "lucide-react";
+import { PackageSearch, QrCode } from "lucide-react";
 import { fmt } from "../lib/wa";
 import type { Order } from "../lib/checkout-contracts";
 import { ORDER_STATUS_LABEL, ORDER_STATUS_TONE } from "../lib/order-status";
@@ -54,8 +54,11 @@ export default function OrderDetailClient({ id }: { id: number }) {
           {ORDER_STATUS_LABEL[order.status]}
         </span>
       </div>
-      <p className="mt-0 mx-0 mb-6 font-medium text-vh-12 font-manrope text-vh-muted">
+      <p className="mt-0 mx-0 mb-6 flex items-center gap-1.5 font-medium text-vh-12 font-manrope text-vh-muted">
         Realizado em {new Date(order.createdAt).toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" })}
+        <span aria-hidden="true">·</span>
+        <QrCode aria-hidden="true" size={13} strokeWidth={2} className="shrink-0" />
+        Pix
       </p>
 
       <div className="bg-vh-card border border-vh-border rounded-2xl p-6 flex flex-col gap-3 mb-5">

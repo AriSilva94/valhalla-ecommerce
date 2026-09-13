@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ChevronRight, Package, Receipt } from "lucide-react";
+import { ChevronRight, QrCode, Receipt } from "lucide-react";
 import { fmt } from "../lib/wa";
 import type { Order, OrderStatus } from "../lib/checkout-contracts";
 import { ORDER_STATUS_LABEL, ORDER_STATUS_TONE } from "../lib/order-status";
@@ -66,13 +66,17 @@ export default function OrdersListClient() {
               href={`/pedidos/${order.id}`}
               className="vh-cardprod flex items-center gap-4 bg-vh-card border border-vh-border rounded-vh-14 p-4.5 [transition:transform_.15s,border-color_.15s,box-shadow_.15s]"
             >
-              <span className="hidden sm:flex h-10.5 w-10.5 flex-none items-center justify-center rounded-full bg-vh-deep border border-vh-border">
-                <Package aria-hidden="true" size={18} strokeWidth={1.75} className="text-vh-accent" />
+              <span
+                title="Pix"
+                className="hidden sm:flex h-10.5 w-10.5 flex-none items-center justify-center rounded-full bg-vh-deep border border-vh-border"
+              >
+                <QrCode aria-hidden="true" size={18} strokeWidth={1.75} className="text-vh-accent" />
               </span>
               <div className="flex-1 min-w-0 flex flex-col gap-1">
                 <span className="font-bold text-vh-14-5 font-space-grotesk">Pedido #{order.id}</span>
-                <span className="font-medium text-vh-12 font-manrope text-vh-muted">
+                <span className="flex items-center gap-1.5 font-medium text-vh-12 font-manrope text-vh-muted">
                   {new Date(order.createdAt).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" })}
+                  <span aria-hidden="true" className="sm:hidden">· Pix</span>
                 </span>
               </div>
               <StatusBadge status={order.status} />
