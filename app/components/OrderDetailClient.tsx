@@ -1,10 +1,24 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { PackageSearch } from "lucide-react";
 import { fmt } from "../lib/wa";
 import type { Order } from "../lib/checkout-contracts";
+import { ORDER_STATUS_LABEL, ORDER_STATUS_TONE } from "../lib/order-status";
 import Breadcrumb from "./Breadcrumb";
 import PixPayment from "./PixPayment";
+
+function DetailSkeleton() {
+  return (
+    <section className="max-w-155 my-0 mx-auto py-10 px-6 w-full">
+      <div className="animate-pulse flex flex-col gap-3">
+        <div className="h-4 w-40 rounded bg-vh-deep mb-2" />
+        <div className="h-8 w-56 rounded bg-vh-deep mb-6" />
+        <div className="h-44 rounded-2xl bg-vh-card border border-vh-border" />
+      </div>
+    </section>
+  );
+}
 
 export default function OrderDetailClient({ id }: { id: number }) {
   const [order, setOrder] = useState<Order | null | undefined>(undefined);
@@ -15,11 +29,16 @@ export default function OrderDetailClient({ id }: { id: number }) {
       .then((body) => setOrder(body?.ok ? body.data : null));
   }, [id]);
 
-  if (order === undefined) return null;
+  if (order === undefined) return <DetailSkeleton />;
+
   if (order === null) {
     return (
-      <section className="max-w-155 my-0 mx-auto py-10 px-6 w-full text-center">
-        <p className="font-medium text-vh-14 font-manrope text-vh-muted">Pedido não encontrado.</p>
+      <section className="max-w-155 my-0 mx-auto py-16 px-6 w-full text-center">
+        <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-vh-deep border border-vh-border mb-3.5">
+          <PackageSearch aria-hidden="true" size={22} strokeWidth={1.75} className="text-vh-muted" />
+        </span>
+        <h1 className="mt-0 mx-0 mb-2 font-bold text-vh-20 font-space-grotesk">Pedido não encontrado</h1>
+        <p className="mt-0 mx-0 font-medium text-vh-14 font-manrope text-vh-muted">Confira o link ou volte para a lista de pedidos.</p>
       </section>
     );
   }
@@ -27,12 +46,22 @@ export default function OrderDetailClient({ id }: { id: number }) {
   return (
     <section className="max-w-155 my-0 mx-auto py-10 px-6 w-full">
       <Breadcrumb items={[{ label: "Início", href: "/" }, { label: "Meus pedidos", href: "/pedidos" }, { label: `#${order.id}` }]} />
-      <h1 className="mt-0 mx-0 mb-6 font-bold text-vh-24 font-space-grotesk">Pedido #{order.id}</h1>
+
+      <div className="flex items-center justify-between gap-3 flex-wrap mb-6">
+        <h1 className="m-0 font-bold text-vh-24 font-space-grotesk">Pedido #{order.id}</h1>
+        <span className={`inline-flex items-center rounded-vh-9 border py-1.25 px-3 font-bold text-vh-12 font-space-grotesk whitespace-nowrap ${ORDER_STATUS_TONE[order.status]}`}>
+          {ORDER_STATUS_LABEL[order.status]}
+        </span>
+      </div>
+
       <div className="bg-vh-card border border-vh-border rounded-2xl p-6 flex flex-col gap-3 mb-5">
         {order.items.map((it, i) => (
           <div key={i} className="flex justify-between gap-3">
-            <span className="font-semibold text-vh-13 font-manrope">{it.qty}× {it.productName}</span>
-            <span className="font-bold text-vh-14 font-space-grotesk text-vh-lime">{fmt(it.unitPrice * it.qty)}</span>
+            <div className="flex flex-col gap-0.5 min-w-0">
+              <span className="font-semibold text-vh-13 font-manrope">{it.qty}× {it.productName}</span>
+              <span className="font-medium text-vh-11-5 font-manrope text-vh-muted">{it.configLabel} · {it.colorName}</span>
+            </div>
+            <span className="font-bold text-vh-14 font-space-grotesk text-vh-lime whitespace-nowrap">{fmt(it.unitPrice * it.qty)}</span>
           </div>
         ))}
         <div className="flex justify-between pt-3 border-t border-t-vh-panel">
@@ -40,7 +69,16 @@ export default function OrderDetailClient({ id }: { id: number }) {
           <span className="font-bold text-vh-20 font-space-grotesk text-vh-lime">{fmt(order.totalAmount)}</span>
         </div>
       </div>
-      {order.status === "pending" && <PixPayment order={order} />}
+
+      <p className="mt-0 mx-0 mb-5 font-medium text-vh-12 font-manrope text-vh-muted">
+        Realizado em {new Date(order.createdAt).toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" })}
+      </p>
+
+      {order.status === "pending" && (
+        <div className="bg-vh-bg border border-vh-border rounded-2xl p-5">
+          <PixPayment order={order} />
+        </div>
+      )}
     </section>
   );
 }

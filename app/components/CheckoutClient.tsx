@@ -2,15 +2,56 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import {
+  Building2,
+  Hash,
+  Landmark,
+  Loader2,
+  MapPin,
+  Phone,
+  ShieldCheck,
+  User,
+} from "lucide-react";
 import { fmt } from "../lib/wa";
 import { useCart } from "./CartProvider";
 import { CHECKOUT_ERROR_CODES, type CustomerProfile, type Order } from "../lib/checkout-contracts";
+import AuthPageHeader from "./AuthPageHeader";
+import AuthTextField from "./AuthTextField";
+import AuthAlert from "./AuthAlert";
 import PixPayment from "./PixPayment";
 
 const EMPTY_PROFILE: CustomerProfile = {
   cpfCnpj: "", phone: "", addressLine: "", addressNumber: "",
   addressComplement: "", neighborhood: "", city: "", state: "", postalCode: "",
 };
+
+function Card({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return (
+    <div
+      className={`w-full max-w-135 bg-vh-panel border border-vh-border rounded-3xl p-7 sm:p-9 shadow-[0_24px_60px_-12px_rgba(0,0,0,0.55)] ${className}`}
+    >
+      {children}
+    </div>
+  );
+}
+
+function ProfileFormSkeleton() {
+  return (
+    <section className="flex justify-center py-10 px-4 sm:py-14 sm:px-6">
+      <Card>
+        <div className="animate-pulse flex flex-col gap-3">
+          <div className="h-12 w-12 rounded-full bg-vh-deep mb-4" />
+          <div className="h-6 w-2/3 rounded bg-vh-deep mb-1" />
+          <div className="h-4 w-1/2 rounded bg-vh-deep mb-6" />
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="h-11 rounded-vh-10 bg-vh-deep" />
+          ))}
+        </div>
+      </Card>
+    </section>
+  );
+}
 
 export default function CheckoutClient() {
   const router = useRouter();
@@ -25,8 +66,13 @@ export default function CheckoutClient() {
   const [payingNow, setPayingNow] = useState(false);
 
   useEffect(() => {
-    if (cartCount === 0 && !order) router.replace("/lista");
-  }, [cartCount, order, router]);
+    // Gated on `!loadingProfile`: useSyncExternalStore reports the SSR-empty
+    // cart snapshot for the very first client render (hydration), so
+    // checking cartCount before the profile fetch resolves would bounce a
+    // real visitor with items in their cart back to /lista on a hard
+    // navigation (e.g. refreshing /checkout directly).
+    if (!loadingProfile && cartCount === 0 && !order) router.replace("/lista");
+  }, [loadingProfile, cartCount, order, router]);
 
   useEffect(() => {
     fetch("/api/account/profile", { cache: "no-store" })
@@ -46,6 +92,10 @@ export default function CheckoutClient() {
       })
       .finally(() => setLoadingProfile(false));
   }, [router]);
+
+  function setField<K extends keyof CustomerProfile>(key: K, value: string) {
+    setProfile((p) => ({ ...p, [key]: value }));
+  }
 
   async function saveProfile() {
     setSavingProfile(true);
@@ -87,72 +137,167 @@ export default function CheckoutClient() {
     setOrder(body.data);
   }
 
-  if (loadingProfile) return null;
+  if (loadingProfile) return <ProfileFormSkeleton />;
 
   if (order) {
     return (
-      <section className="max-w-155 my-0 mx-auto py-10 px-6 w-full">
-        <h1 className="mt-0 mx-0 mb-2 font-bold text-vh-30 font-space-grotesk text-center">Pague com Pix</h1>
-        <p className="mt-0 mx-0 mb-6 font-bold text-vh-24 font-space-grotesk text-vh-lime text-center">
-          {fmt(order.totalAmount)}
-        </p>
-        <PixPayment order={order} onPaid={() => { clear(); router.push(`/pedidos/${order.id}`); }} />
+      <section className="flex justify-center py-10 px-4 sm:py-14 sm:px-6">
+        <Card>
+          <AuthPageHeader
+            icon={ShieldCheck}
+            title="Pague com Pix"
+            subtitle="Escaneie o QR code ou copie o código no seu app do banco."
+          />
+          <p className="mt-0 mx-0 mb-6 font-bold text-vh-30 font-space-grotesk text-vh-lime">
+            {fmt(order.totalAmount)}
+          </p>
+          <PixPayment order={order} onPaid={() => { clear(); router.push(`/pedidos/${order.id}`); }} />
+        </Card>
       </section>
     );
   }
 
   if (!profileComplete) {
     return (
-      <section className="max-w-135 my-0 mx-auto py-10 px-6 w-full">
-        <h1 className="mt-0 mx-0 mb-6 font-bold text-vh-24 font-space-grotesk">Complete seus dados</h1>
-        <div className="flex flex-col gap-3">
-          <input className="vh-input bg-vh-card border border-vh-border rounded-vh-10 py-3 px-4 text-white" placeholder="CPF ou CNPJ" value={profile.cpfCnpj} onChange={(e) => setProfile({ ...profile, cpfCnpj: e.target.value })} />
-          <input className="vh-input bg-vh-card border border-vh-border rounded-vh-10 py-3 px-4 text-white" placeholder="Telefone" value={profile.phone} onChange={(e) => setProfile({ ...profile, phone: e.target.value })} />
-          <input className="vh-input bg-vh-card border border-vh-border rounded-vh-10 py-3 px-4 text-white" placeholder="Rua" value={profile.addressLine} onChange={(e) => setProfile({ ...profile, addressLine: e.target.value })} />
-          <input className="vh-input bg-vh-card border border-vh-border rounded-vh-10 py-3 px-4 text-white" placeholder="Número" value={profile.addressNumber} onChange={(e) => setProfile({ ...profile, addressNumber: e.target.value })} />
-          <input className="vh-input bg-vh-card border border-vh-border rounded-vh-10 py-3 px-4 text-white" placeholder="Complemento (opcional)" value={profile.addressComplement} onChange={(e) => setProfile({ ...profile, addressComplement: e.target.value })} />
-          <input className="vh-input bg-vh-card border border-vh-border rounded-vh-10 py-3 px-4 text-white" placeholder="Bairro" value={profile.neighborhood} onChange={(e) => setProfile({ ...profile, neighborhood: e.target.value })} />
-          <input className="vh-input bg-vh-card border border-vh-border rounded-vh-10 py-3 px-4 text-white" placeholder="Cidade" value={profile.city} onChange={(e) => setProfile({ ...profile, city: e.target.value })} />
-          <input className="vh-input bg-vh-card border border-vh-border rounded-vh-10 py-3 px-4 text-white" placeholder="UF" maxLength={2} value={profile.state} onChange={(e) => setProfile({ ...profile, state: e.target.value.toUpperCase() })} />
-          <input className="vh-input bg-vh-card border border-vh-border rounded-vh-10 py-3 px-4 text-white" placeholder="CEP" value={profile.postalCode} onChange={(e) => setProfile({ ...profile, postalCode: e.target.value })} />
-          {profileError && <p className="text-vh-12 font-manrope text-red-400">{profileError}</p>}
-          <button
-            type="button"
-            disabled={savingProfile}
-            className="vh-btn-lime bg-vh-lime border-0 rounded-vh-11 py-3.5 px-6 font-bold text-vh-14 font-space-grotesk text-vh-ink! disabled:opacity-60"
-            onClick={saveProfile}
-          >
-            {savingProfile ? "Salvando..." : "Salvar e continuar"}
-          </button>
-        </div>
+      <section className="flex justify-center py-10 px-4 sm:py-14 sm:px-6">
+        <Card>
+          <AuthPageHeader
+            icon={User}
+            title="Complete seus dados"
+            subtitle={`Necessário para emitir a cobrança Pix do seu pedido de ${fmt(cartTotal)}.`}
+          />
+          <div className="flex flex-col gap-3">
+            <AuthTextField
+              icon={User}
+              placeholder="CPF ou CNPJ"
+              value={profile.cpfCnpj}
+              onChange={(e) => setField("cpfCnpj", e.target.value)}
+            />
+            <AuthTextField
+              icon={Phone}
+              placeholder="Telefone"
+              value={profile.phone}
+              onChange={(e) => setField("phone", e.target.value)}
+            />
+
+            <p className="mt-2 mx-0 mb-0.5 font-bold text-vh-11-5 font-space-grotesk tracking-vh-006 uppercase text-vh-muted">
+              Endereço de entrega
+            </p>
+
+            <div className="grid grid-cols-3 gap-2.5">
+              <AuthTextField
+                icon={MapPin}
+                className="col-span-2"
+                placeholder="Rua"
+                value={profile.addressLine}
+                onChange={(e) => setField("addressLine", e.target.value)}
+              />
+              <AuthTextField
+                icon={Hash}
+                placeholder="Nº"
+                value={profile.addressNumber}
+                onChange={(e) => setField("addressNumber", e.target.value)}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-2.5">
+              <AuthTextField
+                icon={Building2}
+                placeholder="Complemento"
+                value={profile.addressComplement}
+                onChange={(e) => setField("addressComplement", e.target.value)}
+              />
+              <AuthTextField
+                icon={Landmark}
+                placeholder="Bairro"
+                value={profile.neighborhood}
+                onChange={(e) => setField("neighborhood", e.target.value)}
+              />
+            </div>
+
+            <div className="grid grid-cols-3 gap-2.5">
+              <AuthTextField
+                icon={Building2}
+                className="col-span-2"
+                placeholder="Cidade"
+                value={profile.city}
+                onChange={(e) => setField("city", e.target.value)}
+              />
+              <AuthTextField
+                icon={MapPin}
+                placeholder="UF"
+                maxLength={2}
+                value={profile.state}
+                onChange={(e) => setField("state", e.target.value.toUpperCase())}
+              />
+            </div>
+
+            <AuthTextField
+              icon={MapPin}
+              placeholder="CEP"
+              value={profile.postalCode}
+              onChange={(e) => setField("postalCode", e.target.value)}
+            />
+
+            {profileError && <AuthAlert variant="error">{profileError}</AuthAlert>}
+
+            <button
+              type="button"
+              disabled={savingProfile}
+              className="vh-btn-lime mt-2 flex items-center justify-center gap-2 bg-vh-lime border-0 rounded-vh-11 py-3.5 px-6 font-bold text-vh-14 font-space-grotesk cursor-pointer text-vh-ink! disabled:opacity-60 [transition:background_.15s]"
+              onClick={saveProfile}
+            >
+              {savingProfile && <Loader2 aria-hidden="true" size={16} className="animate-spin" />}
+              {savingProfile ? "Salvando..." : "Salvar e continuar"}
+            </button>
+          </div>
+        </Card>
       </section>
     );
   }
 
   return (
-    <section className="max-w-155 my-0 mx-auto py-10 px-6 w-full">
-      <h1 className="mt-0 mx-0 mb-6 font-bold text-vh-24 font-space-grotesk">Revise e pague</h1>
-      <div className="bg-vh-card border border-vh-border rounded-2xl p-6 flex flex-col gap-3 mb-5">
-        {cart.map((it) => (
-          <div key={it.key} className="flex justify-between gap-3">
-            <span className="font-semibold text-vh-13 font-manrope">{it.qty}× {it.productName}</span>
-            <span className="font-bold text-vh-14 font-space-grotesk text-vh-lime">{fmt(it.unitPrice * it.qty)}</span>
+    <section className="flex justify-center py-10 px-4 sm:py-14 sm:px-6">
+      <Card>
+        <AuthPageHeader icon={ShieldCheck} title="Revise e pague" subtitle="Confira os itens antes de gerar a cobrança Pix." />
+
+        <div className="bg-vh-bg border border-vh-border rounded-2xl p-5 flex flex-col gap-3 mb-5">
+          {cart.map((it) => (
+            <div key={it.key} className="flex gap-3 items-center">
+              <div className="w-11.5 h-11.5 flex-none relative overflow-hidden bg-[repeating-linear-gradient(45deg,#2A0A45_0_8px,#24063C_8px_16px)] border border-vh-border rounded-vh-9">
+                {it.productImageUrl && (
+                  <Image src={it.productImageUrl} alt={it.productImageAlt ?? it.productName} fill sizes="46px" className="object-cover" />
+                )}
+              </div>
+              <div className="flex-1 min-w-0 flex flex-col gap-0.5">
+                <span className="font-bold text-vh-13 font-manrope truncate">{it.qty}× {it.productName}</span>
+                <span className="font-medium text-vh-11-5 font-manrope text-vh-muted truncate">{it.configLabel} · {it.colorName}</span>
+              </div>
+              <span className="font-bold text-vh-13-5 font-space-grotesk text-vh-lime whitespace-nowrap">{fmt(it.unitPrice * it.qty)}</span>
+            </div>
+          ))}
+          <div className="flex justify-between items-baseline pt-3 border-t border-t-vh-panel">
+            <span className="font-bold text-vh-14 font-space-grotesk text-vh-soft">Total</span>
+            <span className="font-bold text-vh-24 font-space-grotesk text-vh-lime">{fmt(cartTotal)}</span>
           </div>
-        ))}
-        <div className="flex justify-between pt-3 border-t border-t-vh-panel">
-          <span className="font-bold text-vh-14 font-space-grotesk">Total</span>
-          <span className="font-bold text-vh-20 font-space-grotesk text-vh-lime">{fmt(cartTotal)}</span>
         </div>
-      </div>
-      {checkoutError && <p className="text-vh-12 font-manrope text-red-400 mb-3">{checkoutError}</p>}
-      <button
-        type="button"
-        disabled={payingNow}
-        className="w-full vh-btn-lime bg-vh-lime border-0 rounded-vh-11 py-4 px-6 font-bold text-vh-15 font-space-grotesk text-vh-ink! disabled:opacity-60"
-        onClick={payWithPix}
-      >
-        {payingNow ? "Gerando cobrança..." : "Pagar com Pix"}
-      </button>
+
+        {checkoutError && <AuthAlert variant="error" className="mb-4">{checkoutError}</AuthAlert>}
+
+        <button
+          type="button"
+          disabled={payingNow}
+          className="vh-btn-lime w-full flex items-center justify-center gap-2 bg-vh-lime border-0 rounded-vh-11 py-4 px-6 font-bold text-vh-15 font-space-grotesk cursor-pointer text-vh-ink! disabled:opacity-60 [transition:background_.15s]"
+          onClick={payWithPix}
+        >
+          {payingNow && <Loader2 aria-hidden="true" size={18} className="animate-spin" />}
+          {payingNow ? "Gerando cobrança..." : "Pagar com Pix"}
+        </button>
+        <p className="mt-3.5 mx-0 mb-0 flex items-center justify-center gap-1.5 font-medium text-vh-11-5 font-manrope text-vh-muted text-center">
+          <ShieldCheck aria-hidden="true" size={13} strokeWidth={2} className="shrink-0" />
+          Pagamento processado com segurança via Asaas
+        </p>
+      </Card>
     </section>
   );
 }
