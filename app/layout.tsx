@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { getSiteSettings, getCategories, getProducts } from "./lib/strapi";
+import { getCurrentUser } from "./lib/current-user";
 import { CartProvider } from "./components/CartProvider";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -88,10 +89,11 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [settings, categories, products] = await Promise.all([
+  const [settings, categories, products, user] = await Promise.all([
     getSiteSettings(),
     getCategories(),
     getProducts(),
+    getCurrentUser(),
   ]);
 
   return (
@@ -116,6 +118,7 @@ export default async function RootLayout({
             products={products}
             showTopBar={settings.showTopBar}
             topBarText={settings.topBarText}
+            user={user}
           />
           <main className="flex-1">{children}</main>
           <Footer categories={categories} settings={settings} />

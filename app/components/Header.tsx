@@ -7,18 +7,22 @@ import { useRouter } from "next/navigation";
 import { fmt } from "../lib/wa";
 import { useCart } from "./CartProvider";
 import type { Category, Product } from "../lib/strapi";
+import type { AuthUser } from "../lib/auth-contracts";
 import { visibleCategories } from "../lib/categories";
+import AccountMenu from "./AccountMenu";
 
 export default function Header({
   categories,
   products,
   showTopBar,
   topBarText,
+  user,
 }: {
   categories: Category[];
   products: Product[];
   showTopBar: boolean;
   topBarText: string;
+  user: AuthUser | null;
 }) {
   const router = useRouter();
   const { cartCount } = useCart();
@@ -154,12 +158,7 @@ export default function Header({
             )}
           </div>
           <div className="order-2 sm:order-3 ml-auto sm:ml-0 flex items-center gap-2.5">
-            <Link
-              href="/entrar"
-              className="hidden sm:inline-flex items-center py-2.75 px-4 cursor-pointer text-vh-muted font-semibold text-vh-13 font-space-grotesk [transition:color_.15s]"
-            >
-              Entrar
-            </Link>
+            <AccountMenu user={user} />
             <Link
               href="/lista"
               className="vh-minhalista relative flex items-center gap-2.25 bg-transparent border border-vh-border rounded-vh-10 py-2.75 px-4 cursor-pointer text-white font-semibold text-vh-13 font-space-grotesk [transition:border-color_.15s,background_.15s]"
