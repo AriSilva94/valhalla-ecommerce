@@ -20,6 +20,7 @@ import AuthPageHeader from "./AuthPageHeader";
 import AuthTextField from "./AuthTextField";
 import AuthAlert from "./AuthAlert";
 import PixPayment from "./PixPayment";
+import PixIcon from "./PixIcon";
 
 const EMPTY_PROFILE: CustomerProfile = {
   cpfCnpj: "", phone: "", addressLine: "", addressNumber: "",
@@ -292,6 +293,7 @@ export default function CheckoutClient() {
         >
           {payingNow && <Loader2 aria-hidden="true" size={18} className="animate-spin" />}
           {payingNow ? "Gerando cobrança..." : "Pagar com Pix"}
+          {!payingNow && <PixIcon size={17} />}
         </button>
         <p className="mt-3.5 mx-0 mb-0 flex items-center justify-center gap-1.5 font-medium text-vh-11-5 font-manrope text-vh-muted text-center">
           <ShieldCheck aria-hidden="true" size={13} strokeWidth={2} className="shrink-0" />
