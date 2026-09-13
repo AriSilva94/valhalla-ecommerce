@@ -82,7 +82,15 @@ export default function Footer({
       </div>
       <div className="border-t border-t-vh-panel">
         <div className="max-w-310 my-0 mx-auto py-4 px-6 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 font-medium text-vh-11-5 font-manrope text-vh-footer-muted">
-          <p className="m-0">{settings.footerLegalText}</p>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <p className="m-0">{settings.footerLegalText}</p>
+            <Link href="/politica-privacidade" className="vh-lime text-vh-footer-muted underline underline-offset-2">
+              Política de Privacidade
+            </Link>
+            <Link href="/cookies" className="vh-lime text-vh-footer-muted underline underline-offset-2">
+              Cookies
+            </Link>
+          </div>
           <a
             className="vh-lime inline-flex items-center gap-1.5 text-vh-footer-muted"
             href="https://arisilva.tech/pt-br"
