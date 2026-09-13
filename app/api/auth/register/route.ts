@@ -36,10 +36,6 @@ export async function POST(request: Request): Promise<Response> {
     return jsonError(result.error, result.status);
   }
 
-  // Strapi's register call returns no JWT when email confirmation is
-  // required first — in that case there is nothing to set cookies with,
-  // so return a plain response with no Set-Cookie headers at all rather
-  // than issuing two cookies with empty-string token values.
   if (!result.data.tokens.accessToken || !result.data.tokens.refreshToken) {
     return jsonNoStore({ ok: true, data: { user: result.data.user } }, 200);
   }

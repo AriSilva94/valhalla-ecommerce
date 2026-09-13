@@ -6,11 +6,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 import { fmt } from "../lib/wa";
-import { useCart } from "./CartProvider";
 import type { Category, Product } from "../lib/strapi";
 import type { AuthUser } from "../lib/auth-contracts";
 import { visibleCategories } from "../lib/categories";
 import AccountMenu from "./AccountMenu";
+import CartLink from "./CartLink";
 
 export default function Header({
   categories,
@@ -26,7 +26,6 @@ export default function Header({
   user: AuthUser | null;
 }) {
   const router = useRouter();
-  const { cartCount } = useCart();
   const [q, setQ] = useState("");
   const [auto, setAuto] = useState(false);
 
@@ -83,7 +82,6 @@ export default function Header({
 
   return (
     <>
-      {/* ===== HEADER ===== */}
       {showTopBar && (
         <div className="bg-vh-lime text-vh-ink text-center font-bold text-vh-12 font-space-grotesk tracking-vh-008 uppercase py-2 px-4">
           {topBarText}
@@ -159,7 +157,8 @@ export default function Header({
             )}
           </div>
           <div className="order-2 sm:order-3 ml-auto sm:ml-0 flex items-center gap-2.5">
-            <AccountMenu user={user} cartCount={cartCount} />
+            <CartLink />
+            <AccountMenu user={user} />
           </div>
         </div>
         <nav className="border-t border-t-vh-panel relative">

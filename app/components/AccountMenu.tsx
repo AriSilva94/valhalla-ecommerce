@@ -7,13 +7,7 @@ import { User, ChevronDown, LogOut, ClipboardList, LogIn, Receipt } from "lucide
 import type { AuthUser } from "../lib/auth-contracts";
 import { cn } from "../lib/cn";
 
-export default function AccountMenu({
-  user,
-  cartCount,
-}: {
-  user: AuthUser | null;
-  cartCount: number;
-}) {
+export default function AccountMenu({ user }: { user: AuthUser | null }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -55,14 +49,7 @@ export default function AccountMenu({
         aria-expanded={open}
         className="flex items-center gap-2 py-2.5 px-3.5 rounded-vh-10 border border-vh-border bg-transparent cursor-pointer text-white font-semibold text-vh-13 font-space-grotesk [transition:border-color_.15s]"
       >
-        <span className="relative shrink-0">
-          <User aria-hidden="true" size={15} strokeWidth={2} className="text-vh-lime" />
-          {cartCount > 0 && (
-            <span className="absolute -top-1.5 -right-1.5 min-w-3.5 h-3.5 bg-vh-lime text-vh-ink rounded-full font-extrabold text-vh-8-5 font-space-grotesk leading-none flex items-center justify-center py-0 px-0.75 border-2 border-vh-bg">
-              {cartCount > 9 ? "9+" : cartCount}
-            </span>
-          )}
-        </span>
+        <User aria-hidden="true" size={15} strokeWidth={2} className="text-vh-lime shrink-0" />
         <span className="max-w-30 truncate">{user.username}</span>
         <ChevronDown
           aria-hidden="true"

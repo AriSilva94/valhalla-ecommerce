@@ -1,7 +1,3 @@
-// The official Pix pictogram (path data from simple-icons, MIT licensed —
-// https://simpleicons.org/icons/pix.svg). Renders in `currentColor` rather
-// than Pix's brand teal so it inherits the surrounding text/icon color,
-// matching how every other icon in this app's monochrome icon system works.
 export default function PixIcon({ size = 16, className }: { size?: number; className?: string }) {
   return (
     <svg

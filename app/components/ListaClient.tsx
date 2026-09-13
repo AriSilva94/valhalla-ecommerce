@@ -48,7 +48,6 @@ export default function ListaClient({ whatsappNumber }: { whatsappNumber: string
 
   return (
     <div>
-      {/* ===== INTEREST LIST ===== */}
       {step === "cart" && (
         <section className="max-w-310 my-0 mx-auto py-10 px-6 w-full">
           <Breadcrumb items={[{ label: "Início", href: "/" }, { label: "Minha lista" }]} />
@@ -111,7 +110,6 @@ export default function ListaClient({ whatsappNumber }: { whatsappNumber: string
         </section>
       )}
 
-      {/* ===== REVIEW ===== */}
       {step === "review" && (
         <section className="max-w-215 my-0 mx-auto py-10 px-6 w-full">
           <div className="flex gap-2 items-center justify-center mb-7.5 flex-wrap">
@@ -155,7 +153,6 @@ export default function ListaClient({ whatsappNumber }: { whatsappNumber: string
         </section>
       )}
 
-      {/* ===== SENT ===== */}
       {step === "sent" && (
         <section className="max-w-155 my-0 mx-auto py-20 px-6 w-full text-center">
           <div className="w-18.5 h-18.5 mt-0 mx-auto mb-5.5 rounded-full bg-vh-wa/12 border-2 border-vh-wa flex items-center justify-center font-bold text-vh-32 font-space-grotesk text-vh-wa shadow-vh-wa-40">✓</div>

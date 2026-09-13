@@ -46,8 +46,6 @@ export default function RegisterForm() {
         setError(ERROR_MESSAGES[body.error] ?? ERROR_MESSAGES.UPSTREAM_ERROR);
         return;
       }
-      // Registration succeeds but confirmation is required before login —
-      // no auto-login here per spec.
       setSuccess(true);
     } catch {
       setError(ERROR_MESSAGES.UPSTREAM_ERROR);
@@ -71,6 +69,7 @@ export default function RegisterForm() {
 
   return (
     <form
+      method="post"
       onSubmit={handleSubmit}
       className="flex flex-col gap-4"
     >

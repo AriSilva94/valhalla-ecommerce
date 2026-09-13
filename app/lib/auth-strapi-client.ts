@@ -1,7 +1,3 @@
-// Server-only Strapi client for authentication. Never import this from a
-// client component — it reads STRAPI_INTERNAL_URL (no NEXT_PUBLIC_ prefix)
-// and every call carries no browser-visible secrets.
-
 import type { AuthResult, AuthUser } from './auth-contracts';
 import { AUTH_ERROR_CODES } from './auth-contracts';
 import type { AuthTokens } from './auth-cookies';
@@ -19,11 +15,6 @@ function getBaseUrl(): string {
   return raw.trim().replace(/\/+$/, '');
 }
 
-// Extracts the upstream error message from a Strapi users-permissions 400
-// body, whatever shape it comes in — `{ error: "message" }` (the shape
-// already assumed by this file's tests) as well as the plugin's real
-// `{ error: { message: "..." } }` / `{ message: "..." }` shapes. Returns
-// '' when nothing usable is found; never throws.
 function extractStrapiErrorMessage(body: unknown): string {
   if (!body || typeof body !== 'object') return '';
   const anyBody = body as Record<string, unknown>;
@@ -44,9 +35,6 @@ function extractStrapiErrorMessage(body: unknown): string {
   return '';
 }
 
-// Maps Strapi's actual 400 error message to one of our fixed, stable error
-// codes. This is the ONLY place upstream message text is inspected — the
-// raw text itself is never forwarded to the browser, only the mapped code.
 function mapValidationMessage(message: string): string {
   const normalized = message.toLowerCase();
   if (
@@ -71,9 +59,6 @@ type RawStrapiUser = {
 };
 
 function toAuthUser(raw: RawStrapiUser): AuthUser {
-  // A null/missing role from Strapi means the user genuinely has no role;
-  // defaulting it to 'authenticated' would make it indistinguishable from a
-  // real authenticated role, so we default to '' (falsy, distinguishable).
   const role = typeof raw.role === 'string' ? raw.role : raw.role?.name ?? '';
   return {
     id: raw.id,
@@ -104,8 +89,6 @@ async function request<T>(
   try {
     baseUrl = getBaseUrl();
   } catch {
-    // Never leak the raw error message (it never contains a token, but keep
-    // the shape consistent with other failure paths regardless).
     return errorResult(AUTH_ERROR_CODES.UPSTREAM_ERROR, 500);
   }
 
@@ -116,7 +99,6 @@ async function request<T>(
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     });
   } catch {
-    // Network failure or timeout (AbortSignal.timeout) both land here.
     return errorResult(AUTH_ERROR_CODES.UPSTREAM_ERROR, 502);
   }
 
@@ -131,7 +113,6 @@ async function request<T>(
         const message = extractStrapiErrorMessage(body);
         if (message) code = mapValidationMessage(message);
       } catch {
-        // No parseable body — fall back to the generic validation code.
       }
       return errorResult(code, 400);
     }
@@ -242,12 +223,6 @@ export async function resendConfirmation(email: string): Promise<AuthResult<null
   return { ok: true, data: null };
 }
 
-// Strapi's users-permissions email-confirmation endpoint is a browser-facing
-// GET route: on success it 30x-redirects to the configured
-// `email_confirmation_redirection` URL, it doesn't return JSON. The BFF
-// calls it server-side with redirect: 'manual' so the confirmation token
-// never reaches the browser (spec: "o BFF encaminha a confirmação ao Strapi
-// sem expor o token") and treats a redirect response as success.
 export async function confirmEmail(confirmationToken: string): Promise<AuthResult<null>> {
   let baseUrl: string;
   try {

@@ -68,7 +68,6 @@ export default function HomeInteractive({
 
   return (
     <>
-      {/* ===== HOME ===== */}
       <section className="relative overflow-hidden vh-home-hero-bg">
         <div className="absolute inset-0 vh-hero-pattern"></div>
         <div className="relative max-w-310 my-0 mx-auto pt-8 sm:pt-16 px-6 pb-18 grid vh-grid-hero gap-12 items-center">

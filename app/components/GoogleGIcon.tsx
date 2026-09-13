@@ -1,6 +1,3 @@
-// Google's official "G" mark, used verbatim on the "Entrar com Google"
-// button — this is a brand identifier, not a decorative icon, so its
-// colors stay as Google specifies rather than following the app palette.
 export default function GoogleGIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">

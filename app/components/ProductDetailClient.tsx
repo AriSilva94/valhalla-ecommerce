@@ -77,8 +77,6 @@ export default function ProductDetailClient({
   whatsappNumber: string;
 }) {
   const { addItem } = useCart();
-  // colors and configs are two independent axes: derive the distinct color list and distinct
-  // configLabel list from `product.variants`, matching the original data model's `p.colors`/`p.vars`.
   const colors = Array.from(
     new Map(product.variants.map((v) => [v.color.name, v.color])).values(),
   );
@@ -143,7 +141,6 @@ export default function ProductDetailClient({
       "% OFF"
     : null;
 
-  // mainImage first, then the gallery, so index 0 is always the cover.
   const photos = [product.mainImage, ...product.gallery].filter(
     Boolean,
   ) as NonNullable<typeof product.mainImage>[];

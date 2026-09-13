@@ -26,23 +26,13 @@ export async function resolveSession(
   }
 
   if (meResult.status !== 401) {
-    // Non-401 failures (upstream/network errors, etc.) are forwarded as-is
-    // regardless of refresh-token availability — there is nothing a
-    // refresh could fix here, and the caller should not clear otherwise
-    // possibly-valid cookies over a transient upstream issue.
     return meResult;
   }
 
   if (!refreshToken) {
-    // The access token is genuinely invalid/expired (401) and there is no
-    // refresh path to recover it — this must reliably become
-    // UNAUTHENTICATED (not meResult's raw INVALID_CREDENTIALS) so that
-    // session/route.ts clears the now-useless auth cookies instead of
-    // leaving them stuck forever.
     return { ok: false, error: AUTH_ERROR_CODES.UNAUTHENTICATED, status: 401 };
   }
 
-  // Exactly one refresh-then-retry attempt — never loop.
   return attemptRefreshAndRetry(refreshToken);
 }
 

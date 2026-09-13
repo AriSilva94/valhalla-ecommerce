@@ -69,6 +69,7 @@ export default function ResetPasswordForm({ code }: { code: string }) {
 
   return (
     <form
+      method="post"
       onSubmit={handleSubmit}
       className="flex flex-col gap-4"
     >

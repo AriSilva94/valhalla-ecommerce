@@ -60,10 +60,6 @@ export default function LoginForm() {
     }
   }
 
-  // Minimal resend-confirmation action, adapted from ForgotPasswordForm's
-  // pattern: no separate screen, just an inline call to the existing
-  // /api/auth/resend-confirmation route (neutral response either way) that
-  // becomes available once EMAIL_NOT_CONFIRMED is the current error.
   async function handleResendConfirmation() {
     setResendState("sending");
     try {
@@ -81,6 +77,7 @@ export default function LoginForm() {
 
   return (
     <form
+      method="post"
       onSubmit={handleSubmit}
       className="flex flex-col gap-4"
     >
@@ -140,9 +137,6 @@ export default function LoginForm() {
         <span className="h-px flex-1 bg-vh-border" />
       </div>
 
-      {/* Plain <a>, not <Link>: this GET route triggers the OAuth redirect
-          chain and sets a nonce cookie as a side effect — Link's hover/
-          viewport prefetch would fire that speculatively. */}
       <a
         href={googleHref}
         className="vh-border-violet-hover flex items-center justify-center gap-2.5 border border-vh-border rounded-vh-10 p-3.5 font-bold text-vh-14 font-space-grotesk text-white no-underline [transition:border-color_.15s]"

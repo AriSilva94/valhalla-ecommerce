@@ -72,9 +72,6 @@ export function ringShadowClass(value: string) {
 
 const SWATCH_FALLBACK = "#9690A3";
 
-// Cores cadastradas no Strapi são arbitrárias: nenhuma classe do Tailwind existe
-// para elas em build time, então o allowlist acima não serve — vai em style inline.
-// Só hex é aceito, para não deixar valor de CMS virar CSS arbitrário.
 export function swatchStyle(value: string | null | undefined) {
   const raw = (value ?? "").trim();
   const hex = raw.startsWith("#") ? raw : `#${raw}`;

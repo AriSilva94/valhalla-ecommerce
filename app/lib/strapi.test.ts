@@ -3,14 +3,6 @@ import assert from "node:assert/strict";
 import { notFound, redirect } from "next/navigation";
 import { normalizeStrapiUrl, withCacheFallback, withCacheOrThrow } from "./strapi";
 
-// Regression coverage for the unstable_rethrow bug that broke the production
-// build: a Next.js internal control-flow error (notFound()/redirect()) must
-// escape withCacheFallback/withCacheOrThrow untouched, never be swallowed and
-// replaced with a cached/default value. We use the real `notFound`/`redirect`
-// from next/navigation so the thrown errors carry the exact `digest` shape
-// (`NEXT_HTTP_ERROR_FALLBACK;404`, `NEXT_REDIRECT;...`) that the real
-// `unstable_rethrow` implementation recognizes, rather than a hand-rolled
-// approximation that might not exercise its actual logic.
 function throwNotFound(): never {
   notFound();
 }

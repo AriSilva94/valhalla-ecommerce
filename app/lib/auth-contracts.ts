@@ -1,6 +1,3 @@
-// Types only — no logic. Shared contract between the BFF auth core and the
-// route handlers (Task 4/5) that will sit on top of it.
-
 export type AuthUser = {
   id: number;
   username: string;
@@ -14,9 +11,6 @@ export type AuthResult<T> =
   | { ok: true; data: T }
   | { ok: false; error: string; status: number };
 
-// Public error codes returned to the browser. These are stable, generic
-// identifiers — never the raw Strapi error message — so callers can branch
-// on them without leaking upstream details.
 export const AUTH_ERROR_CODES = {
   INVALID_CREDENTIALS: 'INVALID_CREDENTIALS',
   EMAIL_NOT_CONFIRMED: 'EMAIL_NOT_CONFIRMED',

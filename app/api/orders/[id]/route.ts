@@ -5,10 +5,6 @@ import * as checkoutClient from "../../../lib/checkout-strapi-client";
 import { CHECKOUT_ERROR_CODES, type Order } from "../../../lib/checkout-contracts";
 import { getProductBySlug } from "../../../lib/strapi";
 
-// Order items are an immutable price/name snapshot — they never carry an
-// image URL. Enriching with the product's *current* image here is purely
-// cosmetic (order history display), so a lookup failure for any item must
-// never fail the whole response — the item just renders without a photo.
 async function withItemImages(order: Order): Promise<Order> {
   const uniqueSlugs = [...new Set(order.items.map((item) => item.productSlug))];
   const imageBySlug = new Map<string, string | null>();

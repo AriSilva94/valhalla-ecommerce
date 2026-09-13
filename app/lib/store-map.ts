@@ -26,14 +26,14 @@ export function mapsEmbedUrl(o: MapEmbedOptions): string {
   const locale = `!1s${o.language}!2s${o.region}`;
 
   const pb = [
-    "!1m18!1m12!1m3", // abertura: bloco de câmera
+    "!1m18!1m12!1m3",
     `!1d${o.viewportSpanMeters}`,
     `!2d${o.longitude}`,
     `!3d${o.latitude}`,
-    "!2m3!1f0!2f0!3f0", // rotação, inclinação e roll da câmera
+    "!2m3!1f0!2f0!3f0",
     `!3m2!1i${width}!2i${height}`,
     `!4f${fov}`,
-    "!3m3!1m2", // abertura: bloco do lugar
+    "!3m3!1m2",
     `!1s${encodeURIComponent(o.placeId)}`,
     `!2s${encodeURIComponent(o.placeLabel)}`,
     `!5e${MODE_CODES[o.mode]}`,

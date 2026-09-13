@@ -9,15 +9,6 @@ export const metadata = {
   title: "E-mail confirmado",
 };
 
-// This exact path (`/auth/email-confirmed`) matches the backend's
-// buildAdvancedSettings/buildEmailTemplates `email_confirmation_redirection`
-// and email action URL (src/auth/config.ts) — not a free choice.
-//
-// Per especificacao.md flow #2 ("o link chega ao frontend; o BFF encaminha
-// a confirmação ao Strapi sem expor o token"), this page does the
-// confirmation itself: it reads the `confirmation` token from the query
-// string, forwards it to Strapi server-side (never to the browser), and
-// renders success/error based on that result.
 export default async function EmailConfirmadoPage({
   searchParams,
 }: {
@@ -25,10 +16,6 @@ export default async function EmailConfirmadoPage({
 }) {
   const { confirmation } = await searchParams;
 
-  // Three distinct states: no `confirmation` param at all (someone hit
-  // this URL directly, not via the confirmation email — a different
-  // situation from a bad/expired code and worth a distinct message),
-  // present-and-valid, and present-and-invalid.
   let state: "missing" | "confirmed" | "invalid" = "missing";
   if (confirmation) {
     const result = await handleConfirmEmail(confirmation, strapiClient);

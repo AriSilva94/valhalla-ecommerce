@@ -53,7 +53,6 @@ export function parseCart(raw: string | null): CartLine[] {
     const lines = parsed.filter(isCartLine);
     return lines.length > 0 ? lines : EMPTY;
   } catch {
-    // ignore malformed localStorage content
     return EMPTY;
   }
 }

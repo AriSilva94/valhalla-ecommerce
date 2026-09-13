@@ -28,9 +28,6 @@ export async function POST(request: Request): Promise<Response> {
     return jsonError(AUTH_ERROR_CODES.VALIDATION_ERROR, 400);
   }
 
-  // Neutral response on every code path once validation passes — never
-  // branch on the handler's result here, to avoid leaking whether the
-  // email exists.
   await handleForgotPassword(email, strapiClient);
   return jsonNoStore({ ok: true, data: null }, 200);
 }

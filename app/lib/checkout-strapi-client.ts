@@ -1,6 +1,3 @@
-// app/lib/checkout-strapi-client.ts
-// Server-only: lê STRAPI_INTERNAL_URL, nunca importar de um client component.
-
 import type { CheckoutResult, CustomerProfile, Order, OrderItemInput } from "./checkout-contracts";
 import { CHECKOUT_ERROR_CODES } from "./checkout-contracts";
 
@@ -95,13 +92,4 @@ export async function listOrders(accessToken: string): Promise<CheckoutResult<Or
 
 export async function getOrder(accessToken: string, reference: string): Promise<CheckoutResult<Order>> {
   return request<Order>(`/api/orders/${encodeURIComponent(reference)}`, accessToken, { method: "GET" });
-}
-
-// Sandbox-only: replaces the manual "simulate payment" click in the Asaas
-// dashboard. Never returns order data — the existing webhook flow applies
-// the status change, and the caller's normal 5s poll picks it up.
-export async function simulatePayment(accessToken: string, reference: string): Promise<CheckoutResult<null>> {
-  return request<null>(`/api/orders/${encodeURIComponent(reference)}/simulate-payment`, accessToken, {
-    method: "POST",
-  });
 }

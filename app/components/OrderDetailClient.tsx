@@ -8,7 +8,6 @@ import { fmt, formatVariantMeta } from "../lib/wa";
 import type { Order } from "../lib/checkout-contracts";
 import { ORDER_STATUS_LABEL, ORDER_STATUS_TONE } from "../lib/order-status";
 import Breadcrumb from "./Breadcrumb";
-import PixPayment from "./PixPayment";
 
 function DetailSkeleton() {
   return (
@@ -83,9 +82,18 @@ export default function OrderDetailClient({ reference }: { reference: string }) 
         </div>
       </div>
 
-      {order.status === "pending" && (
-        <div className="bg-vh-bg border border-vh-border rounded-2xl p-5">
-          <PixPayment order={order} />
+      {order.status === "pending" && order.checkoutUrl && (
+        <div className="bg-vh-bg border border-vh-border rounded-2xl p-5 flex flex-col items-center gap-3">
+          <p className="m-0 font-medium text-vh-13 font-manrope text-vh-muted text-center">
+            Pagamento ainda não concluído.
+          </p>
+          <a
+            href={order.checkoutUrl}
+            className="vh-btn-lime flex items-center gap-2 bg-vh-lime border-0 rounded-vh-11 py-3 px-6 font-bold text-vh-14 font-space-grotesk cursor-pointer text-vh-ink! [transition:background_.15s]"
+          >
+            Continuar pagamento
+            <PixIcon size={16} />
+          </a>
         </div>
       )}
     </section>

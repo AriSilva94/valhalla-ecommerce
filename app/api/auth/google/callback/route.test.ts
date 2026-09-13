@@ -55,16 +55,6 @@ test('callback: valid matching state + successful googleCallback sets cookies an
   assert.doesNotMatch(bodyText, /access-token-value$/m);
 });
 
-// Regression test for the real bug: Strapi's grant middleware builds its
-// callback redirect as `${override}?${qs.stringify(providerOutput)}` —
-// blind string concatenation, not a query-string merge. Since our override
-// already carries `?state=<nonce>`, this appends a SECOND `?`, so the real
-// incoming request looks exactly like this: `state`'s raw value is the
-// nonce followed by a literal "?id_token=..." and everything else grant
-// appended, not just the plain nonce. This is copied verbatim (percent-
-// decoded) from a production log entry of a real Google login attempt.
-// Prove the route still recovers the plain nonce and the plain
-// access_token correctly out of this mangled shape.
 test('callback: recovers the plain nonce and access_token from state mangled by grant', async (t) => {
   process.env.STRAPI_INTERNAL_URL = 'http://strapi.internal';
   process.env.AUTH_COOKIE_SECURE = 'false';
@@ -96,8 +86,6 @@ test('callback: recovers the plain nonce and access_token from state mangled by 
   assert.equal(res.status, 302);
   assert.equal(res.headers.get('Location'), '/');
   assert.equal(fetchMock.mock.callCount(), 1);
-  // The access_token strapiClient.googleCallback received must be the
-  // clean Google token, not anything from the mangled `state` value.
   const [calledUrl] = fetchMock.mock.calls[0].arguments as [string];
   assert.ok(calledUrl.includes(encodeURIComponent('ya29.a0AdMD6Ejl5real-token')));
 });

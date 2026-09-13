@@ -6,10 +6,6 @@ import { Mail, MailCheck, LogIn } from "lucide-react";
 import AuthTextField from "./AuthTextField";
 import AuthResultHeading from "./AuthResultHeading";
 
-// The /api/auth/forgot-password route always returns { ok: true } to avoid
-// revealing whether an email exists. The form mirrors that neutrality:
-// once the request completes (success or network error), it shows the same
-// generic message — it never branches on the response body's content.
 export default function ForgotPasswordForm() {
   const [email, setEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -45,6 +41,7 @@ export default function ForgotPasswordForm() {
 
   return (
     <form
+      method="post"
       onSubmit={handleSubmit}
       className="flex flex-col gap-4"
     >

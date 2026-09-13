@@ -28,8 +28,6 @@ export async function POST(request: Request): Promise<Response> {
     return jsonError(AUTH_ERROR_CODES.VALIDATION_ERROR, 400);
   }
 
-  // Neutral response on every code path once validation passes — no
-  // branching on the handler's result (no email enumeration).
   await handleResendConfirmation(email, strapiClient);
   return jsonNoStore({ ok: true, data: null }, 200);
 }

@@ -16,9 +16,6 @@ export async function POST(request: Request): Promise<Response> {
   const { accessToken } = readAuthCookies(request);
   const secure = process.env.AUTH_COOKIE_SECURE !== 'false';
 
-  // Always clear cookies, regardless of whether the upstream revoke
-  // succeeded — handleLogout already swallows Strapi failures into a
-  // neutral success, but we clear cookies unconditionally either way.
   if (accessToken) {
     await handleLogout(accessToken, strapiClient);
   }

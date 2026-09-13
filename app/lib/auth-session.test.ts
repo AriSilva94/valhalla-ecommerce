@@ -1,11 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-// node:test cannot mock individual named exports of an ES module (the
-// namespace object's properties are non-configurable), so these tests drive
-// resolveSession end-to-end through a mocked global.fetch instead of mocking
-// ./auth-strapi-client directly — same style as auth-strapi-client.test.ts.
-
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), { status });
 }
@@ -48,7 +43,6 @@ test('resolveSession: expired access token triggers exactly one refresh-then-ret
     const path = String(url);
     calls.push(path);
     if (path.includes('/api/users/me')) {
-      // First call fails (expired), second (after refresh) succeeds.
       const meCallsSoFar = calls.filter((c) => c.includes('/api/users/me')).length;
       if (meCallsSoFar === 1) return jsonResponse({ error: 'unauthorized' }, 401);
       return jsonResponse(RAW_USER);
@@ -96,8 +90,6 @@ test('resolveSession: does NOT retry a second time after the retry also fails', 
   }
   const meCalls = calls.filter((c) => c.includes('/api/users/me'));
   const refreshCalls = calls.filter((c) => c.includes('/api/auth/refresh'));
-  // me() is called once for the initial attempt and once for the retry after
-  // refresh — never a third time.
   assert.equal(meCalls.length, 2);
   assert.equal(refreshCalls.length, 1);
 });

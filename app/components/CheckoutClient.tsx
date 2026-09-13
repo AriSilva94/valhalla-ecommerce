@@ -15,11 +15,10 @@ import {
 } from "lucide-react";
 import { fmt, formatVariantMeta } from "../lib/wa";
 import { useCart } from "./CartProvider";
-import { CHECKOUT_ERROR_CODES, type CustomerProfile, type Order } from "../lib/checkout-contracts";
+import { CHECKOUT_ERROR_CODES, type CustomerProfile } from "../lib/checkout-contracts";
 import AuthPageHeader from "./AuthPageHeader";
 import AuthTextField from "./AuthTextField";
 import AuthAlert from "./AuthAlert";
-import PixPayment from "./PixPayment";
 import PixIcon from "./PixIcon";
 
 const EMPTY_PROFILE: CustomerProfile = {
@@ -62,18 +61,13 @@ export default function CheckoutClient() {
   const [profileComplete, setProfileComplete] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileError, setProfileError] = useState("");
-  const [order, setOrder] = useState<Order | null>(null);
+  const [redirecting, setRedirecting] = useState(false);
   const [checkoutError, setCheckoutError] = useState("");
   const [payingNow, setPayingNow] = useState(false);
 
   useEffect(() => {
-    // Gated on `!loadingProfile`: useSyncExternalStore reports the SSR-empty
-    // cart snapshot for the very first client render (hydration), so
-    // checking cartCount before the profile fetch resolves would bounce a
-    // real visitor with items in their cart back to /lista on a hard
-    // navigation (e.g. refreshing /checkout directly).
-    if (!loadingProfile && cartCount === 0 && !order) router.replace("/lista");
-  }, [loadingProfile, cartCount, order, router]);
+    if (!loadingProfile && cartCount === 0 && !redirecting) router.replace("/lista");
+  }, [loadingProfile, cartCount, redirecting, router]);
 
   useEffect(() => {
     fetch("/api/account/profile", { cache: "no-store" })
@@ -126,8 +120,8 @@ export default function CheckoutClient() {
       }),
     });
     const body = await res.json();
-    setPayingNow(false);
     if (!body.ok) {
+      setPayingNow(false);
       if (body.error === CHECKOUT_ERROR_CODES.PROFILE_INCOMPLETE) {
         setProfileComplete(false);
         return;
@@ -135,24 +129,25 @@ export default function CheckoutClient() {
       setCheckoutError("Não foi possível iniciar o pagamento. Tente novamente.");
       return;
     }
-    setOrder(body.data);
+    setRedirecting(true);
+    clear();
+    window.location.href = body.data.checkoutUrl;
   }
 
   if (loadingProfile) return <ProfileFormSkeleton />;
 
-  if (order) {
+  if (redirecting) {
     return (
       <section className="flex justify-center py-10 px-4 sm:py-14 sm:px-6">
         <Card>
           <AuthPageHeader
             icon={ShieldCheck}
-            title="Pague com Pix"
-            subtitle="Escaneie o QR code ou copie o código no seu app do banco."
+            title="Redirecionando para o pagamento"
+            subtitle="Você será levado à página segura do Asaas para concluir com Pix."
           />
-          <p className="mt-0 mx-0 mb-6 font-bold text-vh-30 font-space-grotesk text-vh-lime">
-            {fmt(order.totalAmount)}
-          </p>
-          <PixPayment order={order} onPaid={() => { clear(); router.push(`/pedidos/${order.reference}`); }} />
+          <div className="flex justify-center py-6">
+            <Loader2 aria-hidden="true" size={28} className="animate-spin text-vh-lime" />
+          </div>
         </Card>
       </section>
     );

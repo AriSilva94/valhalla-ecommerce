@@ -34,10 +34,7 @@ test("GET: anexa productImageUrl a cada item buscando o produto atual", async (t
     ],
     totalAmount: 99.99,
     status: "paid",
-    asaasInvoiceUrl: null,
-    pixQrCodeImage: null,
-    pixCopyPaste: null,
-    pixExpiration: null,
+    checkoutUrl: null,
     createdAt: "2026-09-13T10:00:00.000Z",
   };
 

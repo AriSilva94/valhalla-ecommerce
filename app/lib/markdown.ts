@@ -1,4 +1,3 @@
-// Remove marcação markdown básica para uso em contextos de texto puro (ex: meta description).
 export function stripMarkdown(markdown: string): string {
   return markdown
     .replace(/!\[[^\]]*]\([^)]*\)/g, "")
