@@ -6,6 +6,7 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Fab from "./components/Fab";
 import Analytics from "./components/Analytics";
+import CookieConsentBanner from "./components/CookieConsentBanner";
 import {
   getCanonicalPath,
   getSiteUrl,
@@ -123,6 +124,7 @@ export default async function RootLayout({
             show={settings.showFab}
             whatsappNumber={settings.whatsappNumber}
           />
+          <CookieConsentBanner />
         </CartProvider>
       </body>
       <Analytics />
