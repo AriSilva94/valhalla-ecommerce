@@ -7,6 +7,7 @@ import { Loader2, ShieldCheck, User } from "lucide-react";
 import { fmt, formatVariantMeta } from "../lib/wa";
 import { useCart } from "./CartProvider";
 import { CHECKOUT_ERROR_CODES, type CustomerProfile } from "../lib/checkout-contracts";
+import { createCheckoutIdempotencyKeyManager } from "../lib/checkout-idempotency";
 import AuthPageHeader from "./AuthPageHeader";
 import AuthAlert from "./AuthAlert";
 import ProfileForm from "./ProfileForm";
@@ -55,7 +56,7 @@ export default function CheckoutClient() {
   const [redirecting, setRedirecting] = useState(false);
   const [checkoutError, setCheckoutError] = useState("");
   const [payingNow, setPayingNow] = useState(false);
-  const checkoutIdempotencyKey = useRef<string | null>(null);
+  const checkoutIdempotencyKeyManager = useRef(createCheckoutIdempotencyKeyManager());
 
   useEffect(() => {
     if (!loadingProfile && cartCount === 0 && !redirecting) router.replace("/lista");
@@ -100,8 +101,7 @@ export default function CheckoutClient() {
   async function payWithPix() {
     setPayingNow(true);
     setCheckoutError("");
-    const idempotencyKey = checkoutIdempotencyKey.current ?? crypto.randomUUID();
-    checkoutIdempotencyKey.current = idempotencyKey;
+    const idempotencyKey = checkoutIdempotencyKeyManager.current.get();
 
     try {
       const res = await fetch("/api/checkout", {
@@ -112,7 +112,7 @@ export default function CheckoutClient() {
         }),
       });
       const body = await res.json();
-      checkoutIdempotencyKey.current = null;
+      checkoutIdempotencyKeyManager.current.complete(res.status, body.error);
       if (!body.ok) {
         setPayingNow(false);
         if (body.error === CHECKOUT_ERROR_CODES.PROFILE_INCOMPLETE) {
