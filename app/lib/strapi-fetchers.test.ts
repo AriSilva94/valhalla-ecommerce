@@ -176,7 +176,7 @@ test("getProductsByCategorySlug writes only fresh mapped content to Redis with t
 
   assert.equal(products[0].name, "Notebook Gamer");
   assert.equal(contentCache.writes.length, 1);
-  assert.deepEqual(contentCache.writes[0].slice(0, 2), ["category-products:redis-content-test", 300]);
+  assert.deepEqual(contentCache.writes[0].slice(0, 2), ["catalog:category-products:redis-content-test", 300]);
   assert.equal(JSON.parse(contentCache.writes[0][2])[0].name, "Notebook Gamer");
 });
 

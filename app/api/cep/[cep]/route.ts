@@ -36,16 +36,17 @@ async function fetchCep(digits: string, fetcher: typeof fetch): Promise<CepData>
     throw new CepLookupError("UPSTREAM_ERROR");
   }
 
-  if (!res.ok) throw new CepLookupError("UPSTREAM_ERROR");
+  if (res.status !== 200) throw new CepLookupError("UPSTREAM_ERROR");
 
-  let body: ViaCepResponse;
+  let body: unknown;
   try {
     body = await res.json();
   } catch {
     throw new CepLookupError("UPSTREAM_ERROR");
   }
 
-  if (body.erro) throw new CepLookupError("NOT_FOUND");
+  if (isViaCepNotFound(body)) throw new CepLookupError("NOT_FOUND");
+  if (!isViaCepAddress(body)) throw new CepLookupError("UPSTREAM_ERROR");
 
   return {
     addressLine: body.logradouro ?? "",
@@ -53,6 +54,22 @@ async function fetchCep(digits: string, fetcher: typeof fetch): Promise<CepData>
     city: body.localidade ?? "",
     state: body.uf ?? "",
   };
+}
+
+function isViaCepNotFound(body: unknown): body is ViaCepResponse & { erro: true } {
+  return isRecord(body) && body.erro === true;
+}
+
+function isViaCepAddress(body: unknown): body is Required<Pick<ViaCepResponse, "logradouro" | "bairro" | "localidade" | "uf">> {
+  return isRecord(body)
+    && typeof body.logradouro === "string"
+    && typeof body.bairro === "string"
+    && typeof body.localidade === "string"
+    && typeof body.uf === "string";
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 export async function lookupCep(cep: string, dependencies: CepLookupDependencies = {}): Promise<Response> {

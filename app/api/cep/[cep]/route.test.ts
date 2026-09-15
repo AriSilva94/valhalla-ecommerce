@@ -18,6 +18,20 @@ function createCacheClient(): JsonCacheClient & { writes: Array<[string, number,
   };
 }
 
+function createMemoryCacheClient(): JsonCacheClient & { writes: Array<[string, number, string]> } {
+  const values = new Map<string, string>();
+  const writes: Array<[string, number, string]> = [];
+  return {
+    get: async (key) => values.get(key) ?? null,
+    setex: async (key, ttlSeconds, value) => {
+      writes.push([key, ttlSeconds, value]);
+      values.set(key, value);
+      return "OK";
+    },
+    writes,
+  };
+}
+
 test("GET: 400 quando o CEP não tem 8 dígitos", async () => {
   const { GET } = await import("./route");
   const res = await GET(new Request("http://localhost/api/cep/123"), {
@@ -63,6 +77,40 @@ test("lookupCep caches only a valid ViaCEP response for one week", async () => {
     604800,
     JSON.stringify({ addressLine: "Avenida Paulista", neighborhood: "Bela Vista", city: "São Paulo", state: "SP" }),
   ]]);
+});
+
+test("lookupCep rejects non-200 and malformed ViaCEP payloads without caching them", async () => {
+  const { lookupCep } = await import("./route");
+  const cache = createCacheClient();
+
+  assert.equal(
+    (await lookupCep("01310100", {
+      cache,
+      fetcher: async () => jsonResponse({ logradouro: "Avenida Paulista", bairro: "Bela Vista", localidade: "São Paulo", uf: "SP" }, 201),
+    })).status,
+    502
+  );
+  assert.equal((await lookupCep("01310100", { cache, fetcher: async () => jsonResponse({}) })).status, 502);
+  assert.deepEqual(cache.writes, []);
+});
+
+test("lookupCep serves the second identical valid CEP request from injected Redis", async () => {
+  const { lookupCep } = await import("./route");
+  const cache = createMemoryCacheClient();
+  let viaCepFetches = 0;
+  const fetcher: typeof fetch = async () => {
+    viaCepFetches += 1;
+    return jsonResponse({ logradouro: "Avenida Paulista", bairro: "Bela Vista", localidade: "São Paulo", uf: "SP" });
+  };
+
+  const first = await lookupCep("01310-100", { cache, fetcher });
+  const second = await lookupCep("01310-100", { cache, fetcher });
+
+  assert.equal(first.status, 200);
+  assert.equal(second.status, 200);
+  assert.equal(viaCepFetches, 1);
+  assert.equal(cache.writes.length, 1);
+  assert.deepEqual(await second.json(), await first.json());
 });
 
 test("GET: 404 quando o ViaCEP não encontra o CEP", async (t) => {

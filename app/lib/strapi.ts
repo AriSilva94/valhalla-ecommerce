@@ -336,13 +336,13 @@ type ContentCacheEntry = { key: string; ttlSeconds: number };
 export const STRAPI_CONTENT_CACHE = {
   categories: { key: "catalog:categories", ttlSeconds: 300 },
   products: { key: "catalog:products", ttlSeconds: 300 },
-  productBySlug: (slug: string): ContentCacheEntry => ({ key: `product:${slug}`, ttlSeconds: 600 }),
-  categoryBySlug: (slug: string): ContentCacheEntry => ({ key: `category:${slug}`, ttlSeconds: 900 }),
-  productsByCategorySlug: (slug: string): ContentCacheEntry => ({ key: `category-products:${slug}`, ttlSeconds: 300 }),
-  homepage: { key: "homepage", ttlSeconds: 900 },
-  siteSettings: { key: "site-settings", ttlSeconds: 900 },
-  faqs: { key: "faqs", ttlSeconds: 3600 },
-  policies: { key: "policies", ttlSeconds: 21600 },
+  productBySlug: (slug: string): ContentCacheEntry => ({ key: `catalog:product:${slug}`, ttlSeconds: 600 }),
+  categoryBySlug: (slug: string): ContentCacheEntry => ({ key: `catalog:category:${slug}`, ttlSeconds: 900 }),
+  productsByCategorySlug: (slug: string): ContentCacheEntry => ({ key: `catalog:category-products:${slug}`, ttlSeconds: 300 }),
+  homepage: { key: "content:homepage", ttlSeconds: 900 },
+  siteSettings: { key: "content:site-settings", ttlSeconds: 900 },
+  faqs: { key: "content:faqs", ttlSeconds: 3600 },
+  policies: { key: "content:policies", ttlSeconds: 21600 },
 } as const;
 
 function cacheSet(key: string, value: unknown): void {
