@@ -88,8 +88,15 @@ export async function createOrder(
   });
 }
 
-export async function listOrders(accessToken: string): Promise<CheckoutResult<Order[]>> {
-  return request<Order[]>("/api/orders", accessToken, { method: "GET" });
+export async function listOrders(
+  accessToken: string,
+  pagination?: { page?: number; pageSize?: number }
+): Promise<CheckoutResult<Order[]>> {
+  const params = new URLSearchParams();
+  if (pagination?.page) params.set("page", String(pagination.page));
+  if (pagination?.pageSize) params.set("pageSize", String(pagination.pageSize));
+  const query = params.toString();
+  return request<Order[]>(`/api/orders${query ? `?${query}` : ""}`, accessToken, { method: "GET" });
 }
 
 export async function getOrder(accessToken: string, reference: string): Promise<CheckoutResult<Order>> {
