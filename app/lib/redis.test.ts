@@ -128,6 +128,8 @@ test('getRateLimitClient recreates an ended client and does not log connection s
   const firstClient = {
     status: 'ready',
     eval: async () => [1, 300],
+    get: async () => null,
+    setex: async () => 'OK',
     on: (_event: 'error', handler: (error: Error) => void) => {
       connectionErrorHandler = handler;
     },
@@ -135,6 +137,8 @@ test('getRateLimitClient recreates an ended client and does not log connection s
   const secondClient = {
     status: 'ready',
     eval: async () => [1, 300],
+    get: async () => null,
+    setex: async () => 'OK',
     on: () => undefined,
   };
   const clients = [firstClient, secondClient];

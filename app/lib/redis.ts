@@ -4,7 +4,12 @@ export type RateLimiterClient = {
   eval(script: string, keyCount: number, key: string, windowSeconds: string): Promise<unknown>;
 };
 
-export type RedisRateLimitClient = RateLimiterClient & {
+export type RedisContentCacheClient = {
+  get(key: string): Promise<string | null>;
+  setex(key: string, ttlSeconds: number, value: string): Promise<unknown>;
+};
+
+export type RedisRateLimitClient = RateLimiterClient & RedisContentCacheClient & {
   status: string;
   on(event: 'error', listener: (error: Error) => void): unknown;
 };
