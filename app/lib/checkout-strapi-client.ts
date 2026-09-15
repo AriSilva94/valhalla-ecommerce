@@ -78,10 +78,12 @@ export async function updateProfile(
 
 export async function createOrder(
   accessToken: string,
-  items: OrderItemInput[]
+  items: OrderItemInput[],
+  idempotencyKey: string
 ): Promise<CheckoutResult<Order>> {
   return request<Order>("/api/orders", accessToken, {
     method: "POST",
+    headers: { "Idempotency-Key": idempotencyKey },
     body: JSON.stringify({ items }),
   });
 }

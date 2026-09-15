@@ -5,6 +5,12 @@ import { buildAuthCookieInstructions } from "../../lib/auth-cookies";
 import * as checkoutClient from "../../lib/checkout-strapi-client";
 import { CHECKOUT_ERROR_CODES, type OrderItemInput } from "../../lib/checkout-contracts";
 
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function isUuid(value: string | null): value is string {
+  return value !== null && UUID_PATTERN.test(value);
+}
+
 export async function POST(request: Request): Promise<Response> {
   if (!isOriginAllowed(request, getAllowedOrigin())) {
     return jsonError(CHECKOUT_ERROR_CODES.INVALID_ORIGIN, 403);
@@ -21,6 +27,15 @@ export async function POST(request: Request): Promise<Response> {
   const secure = process.env.AUTH_COOKIE_SECURE !== "false";
   const tokenToUse =
     session.data.refreshed && session.data.newTokens ? session.data.newTokens.accessToken : accessToken!;
+
+  const idempotencyKey = request.headers.get("Idempotency-Key");
+  if (!isUuid(idempotencyKey)) {
+    if (session.data.refreshed && session.data.newTokens) {
+      const cookieInstructions = buildAuthCookieInstructions(session.data.newTokens, secure);
+      return jsonWithCookies({ ok: false, error: CHECKOUT_ERROR_CODES.IDEMPOTENCY_KEY_REQUIRED }, 400, cookieInstructions);
+    }
+    return jsonError(CHECKOUT_ERROR_CODES.IDEMPOTENCY_KEY_REQUIRED, 400);
+  }
 
   let body: { items?: unknown };
   try {
@@ -64,7 +79,7 @@ export async function POST(request: Request): Promise<Response> {
     return jsonError(CHECKOUT_ERROR_CODES.EMPTY_CART, 400);
   }
 
-  const result = await checkoutClient.createOrder(tokenToUse, items);
+  const result = await checkoutClient.createOrder(tokenToUse, items, idempotencyKey);
 
   if (session.data.refreshed && session.data.newTokens) {
     const cookieInstructions = buildAuthCookieInstructions(session.data.newTokens, secure);

@@ -45,16 +45,19 @@ test("updateProfile: envia PUT com o corpo do perfil", async (t) => {
   assert.equal(JSON.parse(init.body as string).cpfCnpj, "11144477735");
 });
 
-test("createOrder: envia POST e retorna o pedido criado", async (t) => {
+test("createOrder: encaminha a chave de idempotência ao Strapi", async (t) => {
   process.env.STRAPI_INTERNAL_URL = "http://strapi.internal";
   const { createOrder } = await import("./checkout-strapi-client");
 
-  t.mock.method(globalThis, "fetch", async () =>
+  const fetchMock = t.mock.method(globalThis, "fetch", async () =>
     jsonResponse({ ok: true, data: { id: 1, status: "pending" } }, 201)
   );
 
-  const result = await createOrder("token-abc", [{ productSlug: "x", variantSku: "S", qty: 1 }]);
+  const idempotencyKey = "a7fbd574-f1cd-442e-9cab-a03242e1ced4";
+  const result = await createOrder("token-abc", [{ productSlug: "x", variantSku: "S", qty: 1 }], idempotencyKey);
   assert.deepEqual(result, { ok: true, data: { id: 1, status: "pending" } });
+  const [, init] = fetchMock.mock.calls[0].arguments as [string, RequestInit];
+  assert.equal(new Headers(init.headers).get("Idempotency-Key"), idempotencyKey);
 });
 
 test("listOrders: retorna a lista de pedidos", async (t) => {
