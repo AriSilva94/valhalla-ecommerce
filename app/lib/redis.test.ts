@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { lua, lauxlib, lualib, to_luastring } from 'fengari';
 
 import {
   checkRateLimit,
@@ -10,7 +11,6 @@ import {
 } from './redis';
 
 function runRateLimitScriptWithFailedExpiry(script: string): { keyExists: boolean } {
-  const { lua, lauxlib, lualib, to_luastring } = require('fengari');
   const state = lauxlib.luaL_newstate();
   lualib.luaL_openlibs(state);
   let keyExists = false;
