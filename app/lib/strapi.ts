@@ -1,4 +1,5 @@
 import { unstable_rethrow } from "next/navigation";
+import { withJsonCache, type JsonCacheClient } from "./content-cache";
 
 export interface StrapiMedia {
   url: string;
@@ -330,6 +331,20 @@ const CACHE_MAX_ENTRIES = 500;
 
 const cache = new Map<string, unknown>();
 
+type ContentCacheEntry = { key: string; ttlSeconds: number };
+
+export const STRAPI_CONTENT_CACHE = {
+  categories: { key: "catalog:categories", ttlSeconds: 300 },
+  products: { key: "catalog:products", ttlSeconds: 300 },
+  productBySlug: (slug: string): ContentCacheEntry => ({ key: `product:${slug}`, ttlSeconds: 600 }),
+  categoryBySlug: (slug: string): ContentCacheEntry => ({ key: `category:${slug}`, ttlSeconds: 900 }),
+  productsByCategorySlug: (slug: string): ContentCacheEntry => ({ key: `category-products:${slug}`, ttlSeconds: 300 }),
+  homepage: { key: "homepage", ttlSeconds: 900 },
+  siteSettings: { key: "site-settings", ttlSeconds: 900 },
+  faqs: { key: "faqs", ttlSeconds: 3600 },
+  policies: { key: "policies", ttlSeconds: 21600 },
+} as const;
+
 function cacheSet(key: string, value: unknown): void {
   if (!cache.has(key) && cache.size >= CACHE_MAX_ENTRIES) {
     const oldestKey = cache.keys().next().value;
@@ -364,6 +379,32 @@ export async function withCacheOrThrow<T>(key: string, fetcher: () => Promise<T>
     console.error(`[strapi] no cache available for ${key}, rethrowing:`, err);
     throw err;
   }
+}
+
+async function withContentCacheFallback<T>(
+  mapKey: string,
+  contentCache: ContentCacheEntry,
+  fetcher: () => Promise<T>,
+  fallback: T,
+  client?: JsonCacheClient | null
+): Promise<T> {
+  return withCacheFallback(
+    mapKey,
+    () => withJsonCache(contentCache.key, contentCache.ttlSeconds, fetcher, client),
+    fallback
+  );
+}
+
+async function withContentCacheOrThrow<T>(
+  mapKey: string,
+  contentCache: ContentCacheEntry,
+  fetcher: () => Promise<T>,
+  client?: JsonCacheClient | null
+): Promise<T> {
+  return withCacheOrThrow(
+    mapKey,
+    () => withJsonCache(contentCache.key, contentCache.ttlSeconds, fetcher, client)
+  );
 }
 
 async function strapiFetch<T>(path: string): Promise<T> {
@@ -450,10 +491,11 @@ const DEFAULT_SITE_SETTINGS: SiteSettings = {
   defaultSeo: null,
 };
 
-export async function getSiteSettings(): Promise<SiteSettings> {
+export async function getSiteSettings(contentCache?: JsonCacheClient | null): Promise<SiteSettings> {
   const path = "/api/site-setting?populate[footerLinkColumns][populate]=links&populate[aboutStats]=true&populate[defaultSeo]=true";
-  return withCacheFallback(
+  return withContentCacheFallback(
     path,
+    STRAPI_CONTENT_CACHE.siteSettings,
     async () => {
       const json = await strapiFetch<StrapiSingle<RawSiteSetting>>(path);
       const d = json.data;
@@ -479,7 +521,8 @@ export async function getSiteSettings(): Promise<SiteSettings> {
         defaultSeo: d.defaultSeo ? { metaTitle: d.defaultSeo.metaTitle, metaDescription: d.defaultSeo.metaDescription } : null,
       };
     },
-    DEFAULT_SITE_SETTINGS
+    DEFAULT_SITE_SETTINGS,
+    contentCache
   );
 }
 
@@ -503,11 +546,12 @@ const DEFAULT_HOMEPAGE: Homepage = {
   whatsappBanner: { headline: "", text: "", buttonLabel: "", buttonLink: "" },
 };
 
-export async function getHomepage(): Promise<Homepage> {
+export async function getHomepage(contentCache?: JsonCacheClient | null): Promise<Homepage> {
   const path =
     "/api/homepage?populate[hero][populate][0]=trustBadges&populate[hero][populate][1]=image&populate[benefits]=true&populate[steps]=true&populate[testimonials]=true&populate[whatsappBanner]=true";
-  return withCacheFallback(
+  return withContentCacheFallback(
     path,
+    STRAPI_CONTENT_CACHE.homepage,
     async () => {
       const json = await strapiFetch<StrapiSingle<RawHomepage>>(path);
       const d = json.data;
@@ -536,14 +580,16 @@ export async function getHomepage(): Promise<Homepage> {
         },
       };
     },
-    DEFAULT_HOMEPAGE
+    DEFAULT_HOMEPAGE,
+    contentCache
   );
 }
 
-export async function getCategories(): Promise<Category[]> {
+export async function getCategories(contentCache?: JsonCacheClient | null): Promise<Category[]> {
   const path = "/api/categories?populate=products&sort[0]=sortOrder:asc&sort[1]=name:asc";
-  return withCacheFallback(
+  return withContentCacheFallback(
     path,
+    STRAPI_CONTENT_CACHE.categories,
     async () => {
       const json = await strapiFetch<StrapiList<RawCategory>>(path);
       return json.data.map((c) => ({
@@ -556,74 +602,95 @@ export async function getCategories(): Promise<Category[]> {
         productCount: Array.isArray(c.products) ? c.products.length : 0,
       }));
     },
-    []
+    [],
+    contentCache
   );
 }
 
-export async function getCategoryBySlug(slug: string): Promise<Category | null> {
+export async function getCategoryBySlug(slug: string, contentCache?: JsonCacheClient | null): Promise<Category | null> {
   const path = `/api/categories?filters[slug][$eq]=${encodeURIComponent(slug)}&populate=products`;
-  const json = await withCacheOrThrow(path, () => strapiFetch<StrapiList<RawCategory>>(path));
-  const raw = json.data[0];
-  if (!raw) return null;
-  return {
-    id: raw.id,
-    documentId: raw.documentId,
-    updatedAt: raw.updatedAt ?? raw.publishedAt ?? raw.createdAt ?? null,
-    name: raw.name,
-    slug: raw.slug,
-    description: raw.description,
-    productCount: Array.isArray(raw.products) ? raw.products.length : 0,
-  };
+  return withContentCacheOrThrow(
+    path,
+    STRAPI_CONTENT_CACHE.categoryBySlug(slug),
+    async () => {
+      const json = await strapiFetch<StrapiList<RawCategory>>(path);
+      const raw = json.data[0];
+      if (!raw) return null;
+      return {
+        id: raw.id,
+        documentId: raw.documentId,
+        updatedAt: raw.updatedAt ?? raw.publishedAt ?? raw.createdAt ?? null,
+        name: raw.name,
+        slug: raw.slug,
+        description: raw.description,
+        productCount: Array.isArray(raw.products) ? raw.products.length : 0,
+      };
+    },
+    contentCache
+  );
 }
 
-export async function getProducts(): Promise<Product[]> {
+export async function getProducts(contentCache?: JsonCacheClient | null): Promise<Product[]> {
   const path = `/api/products?${PRODUCT_POPULATE}&pagination[pageSize]=100`;
-  return withCacheFallback(
+  return withContentCacheFallback(
     path,
+    STRAPI_CONTENT_CACHE.products,
     async () => {
       const json = await strapiFetch<StrapiList<RawProduct>>(path);
       return json.data.map(mapProduct);
     },
-    []
+    [],
+    contentCache
   );
 }
 
-export async function getProductsByCategorySlug(slug: string): Promise<Product[]> {
+export async function getProductsByCategorySlug(slug: string, contentCache?: JsonCacheClient | null): Promise<Product[]> {
   const path = `/api/products?filters[category][slug][$eq]=${encodeURIComponent(slug)}&${PRODUCT_POPULATE}&pagination[pageSize]=100`;
-  return withCacheFallback(
+  return withContentCacheFallback(
     path,
+    STRAPI_CONTENT_CACHE.productsByCategorySlug(slug),
     async () => {
       const json = await strapiFetch<StrapiList<RawProduct>>(path);
       return json.data.map(mapProduct);
     },
-    []
+    [],
+    contentCache
   );
 }
 
-export async function getProductBySlug(slug: string): Promise<Product | null> {
+export async function getProductBySlug(slug: string, contentCache?: JsonCacheClient | null): Promise<Product | null> {
   const path = `/api/products?filters[slug][$eq]=${encodeURIComponent(slug)}&${PRODUCT_POPULATE}`;
-  const json = await withCacheOrThrow(path, () => strapiFetch<StrapiList<RawProduct>>(path));
-  const raw = json.data[0];
-  if (!raw) return null;
-  return mapProduct(raw);
+  return withContentCacheOrThrow(
+    path,
+    STRAPI_CONTENT_CACHE.productBySlug(slug),
+    async () => {
+      const json = await strapiFetch<StrapiList<RawProduct>>(path);
+      const raw = json.data[0];
+      return raw ? mapProduct(raw) : null;
+    },
+    contentCache
+  );
 }
 
-export async function getFaqs(): Promise<Faq[]> {
+export async function getFaqs(contentCache?: JsonCacheClient | null): Promise<Faq[]> {
   const path = "/api/faqs?sort=order:asc&pagination[pageSize]=100";
-  return withCacheFallback(
+  return withContentCacheFallback(
     path,
+    STRAPI_CONTENT_CACHE.faqs,
     async () => {
       const json = await strapiFetch<StrapiList<RawFaq>>(path);
       return json.data.map((f) => ({ id: f.id, question: f.question, answer: f.answer, order: f.order }));
     },
-    []
+    [],
+    contentCache
   );
 }
 
-export async function getPolicies(): Promise<Policy[]> {
+export async function getPolicies(contentCache?: JsonCacheClient | null): Promise<Policy[]> {
   const path = "/api/policies?pagination[pageSize]=100";
-  return withCacheFallback(
+  return withContentCacheFallback(
     path,
+    STRAPI_CONTENT_CACHE.policies,
     async () => {
       const json = await strapiFetch<StrapiList<RawPolicy>>(path);
       return json.data.map((p) => ({
@@ -635,6 +702,7 @@ export async function getPolicies(): Promise<Policy[]> {
         body: p.body,
       }));
     },
-    []
+    [],
+    contentCache
   );
 }

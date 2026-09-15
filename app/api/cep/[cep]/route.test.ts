@@ -1,8 +1,21 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import type { JsonCacheClient } from "../../../lib/content-cache";
 
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), { status });
+}
+
+function createCacheClient(): JsonCacheClient & { writes: Array<[string, number, string]> } {
+  const writes: Array<[string, number, string]> = [];
+  return {
+    get: async () => null,
+    setex: async (key, ttlSeconds, value) => {
+      writes.push([key, ttlSeconds, value]);
+      return "OK";
+    },
+    writes,
+  };
 }
 
 test("GET: 400 quando o CEP não tem 8 dígitos", async () => {
@@ -35,6 +48,23 @@ test("GET: retorna os dados normalizados do ViaCEP", async (t) => {
   });
 });
 
+test("lookupCep caches only a valid ViaCEP response for one week", async () => {
+  const { lookupCep } = await import("./route");
+  const cache = createCacheClient();
+
+  const res = await lookupCep("01310-100", {
+    cache,
+    fetcher: async () => jsonResponse({ logradouro: "Avenida Paulista", bairro: "Bela Vista", localidade: "São Paulo", uf: "SP" }),
+  });
+
+  assert.equal(res.status, 200);
+  assert.deepEqual(cache.writes, [[
+    "cep:01310100",
+    604800,
+    JSON.stringify({ addressLine: "Avenida Paulista", neighborhood: "Bela Vista", city: "São Paulo", state: "SP" }),
+  ]]);
+});
+
 test("GET: 404 quando o ViaCEP não encontra o CEP", async (t) => {
   const { GET } = await import("./route");
 
@@ -57,4 +87,14 @@ test("GET: 502 quando o ViaCEP está fora do ar", async (t) => {
     params: Promise.resolve({ cep: "01310100" }),
   });
   assert.equal(res.status, 502);
+});
+
+test("lookupCep does not cache validation, not-found, or upstream failures", async () => {
+  const { lookupCep } = await import("./route");
+  const cache = createCacheClient();
+
+  assert.equal((await lookupCep("123", { cache, fetcher: async () => jsonResponse({}) })).status, 400);
+  assert.equal((await lookupCep("00000000", { cache, fetcher: async () => jsonResponse({ erro: true }) })).status, 404);
+  assert.equal((await lookupCep("01310100", { cache, fetcher: async () => jsonResponse(null, 500) })).status, 502);
+  assert.deepEqual(cache.writes, []);
 });

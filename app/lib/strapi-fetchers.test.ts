@@ -94,6 +94,7 @@ test("getHomepage: Strapi goes down after a prior success -> returns stale cache
 });
 
 import { getCategories, getProducts, getProductsByCategorySlug, getFaqs, getPolicies } from "./strapi";
+import type { JsonCacheClient } from "./content-cache";
 
 const RAW_CATEGORY = {
   id: 1,
@@ -154,6 +155,40 @@ const RAW_PRODUCT = {
   mainImage: null,
   gallery: [],
 };
+
+function createContentCacheClient(): JsonCacheClient & { writes: Array<[string, number, string]> } {
+  const writes: Array<[string, number, string]> = [];
+  return {
+    get: async () => null,
+    setex: async (key, ttlSeconds, value) => {
+      writes.push([key, ttlSeconds, value]);
+      return "OK";
+    },
+    writes,
+  };
+}
+
+test("getProductsByCategorySlug writes only fresh mapped content to Redis with the category TTL", async (t) => {
+  const contentCache = createContentCacheClient();
+  t.mock.method(globalThis, "fetch", async () => jsonResponse({ data: [RAW_PRODUCT] }));
+
+  const products = await getProductsByCategorySlug("redis-content-test", contentCache);
+
+  assert.equal(products[0].name, "Notebook Gamer");
+  assert.equal(contentCache.writes.length, 1);
+  assert.deepEqual(contentCache.writes[0].slice(0, 2), ["category-products:redis-content-test", 300]);
+  assert.equal(JSON.parse(contentCache.writes[0][2])[0].name, "Notebook Gamer");
+});
+
+test("getProductsByCategorySlug does not write the neutral fallback to Redis", async (t) => {
+  const contentCache = createContentCacheClient();
+  t.mock.method(globalThis, "fetch", async () => jsonResponse(null, 500));
+
+  const products = await getProductsByCategorySlug("redis-fallback-test", contentCache);
+
+  assert.deepEqual(products, []);
+  assert.deepEqual(contentCache.writes, []);
+});
 
 test("getProducts: Strapi down, no prior cache -> returns []", async (t) => {
   t.mock.method(globalThis, "fetch", async () => jsonResponse(null, 500));
