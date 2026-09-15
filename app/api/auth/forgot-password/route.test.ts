@@ -46,6 +46,8 @@ test('forgot-password: 429 after the configured limit is exceeded', async () => 
       lastStatus = res.status;
     }
     assert.equal(lastStatus, 429);
+    const retryResponse = await POST(makeRequest(ip, { email: 'joe@example.com' }));
+    assert.ok(retryResponse.headers.has('Retry-After'));
   } finally {
     globalThis.fetch = originalFetch;
   }

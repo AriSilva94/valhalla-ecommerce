@@ -11,8 +11,8 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const rateLimitKey = `checkout:${getClientIp(request)}`;
-  const rateLimit = enforceRateLimit(rateLimitKey, 10, 5 * 60 * 1000);
-  if (!rateLimit.allowed) return jsonError(CHECKOUT_ERROR_CODES.RATE_LIMITED, 429);
+  const rateLimit = await enforceRateLimit(rateLimitKey, 10, 5 * 60 * 1000);
+  if (!rateLimit.allowed) return jsonError(CHECKOUT_ERROR_CODES.RATE_LIMITED, 429, rateLimit.retryAfterSeconds);
 
   const { accessToken, refreshToken } = readAuthCookies(request);
   const session = await resolveSession(accessToken, refreshToken);

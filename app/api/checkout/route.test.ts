@@ -102,6 +102,10 @@ test("429 após exceder o limite de requisições na janela", async (t) => {
     lastStatus = res.status;
   }
   assert.equal(lastStatus, 429);
+  const retryResponse = await POST(
+    makeRequest({ items: [{ productSlug: "x", variantSku: "S", qty: 1 }] }, undefined, { ip })
+  );
+  assert.ok(retryResponse.headers.has("Retry-After"));
 });
 
 test("o corpo enviado ao Strapi /api/orders nunca inclui unitPrice em nenhum item", async (t) => {

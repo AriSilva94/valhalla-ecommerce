@@ -12,9 +12,9 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const rateLimitKey = `register:${getClientIp(request)}`;
-  const rateLimit = enforceRateLimit(rateLimitKey, 5, 60 * 60 * 1000);
+  const rateLimit = await enforceRateLimit(rateLimitKey, 5, 60 * 60 * 1000);
   if (!rateLimit.allowed) {
-    return jsonError(AUTH_ERROR_CODES.RATE_LIMITED, 429);
+    return jsonError(AUTH_ERROR_CODES.RATE_LIMITED, 429, rateLimit.retryAfterSeconds);
   }
 
   const parsed = await parseJsonBody(request);

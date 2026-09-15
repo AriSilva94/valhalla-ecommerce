@@ -1,4 +1,5 @@
 import type { AuthCookieInstruction, OauthNonceCookieInstruction } from '../../lib/auth-cookies';
+import { checkRateLimit, getRateLimitClient, type RateLimitResult } from '../../lib/redis';
 
 type CookieInstruction = AuthCookieInstruction | OauthNonceCookieInstruction;
 
@@ -15,11 +16,11 @@ function sweepExpiredEntries(now: number): void {
   }
 }
 
-export function enforceRateLimit(
+function enforceLocalRateLimit(
   key: string,
   limit: number,
   windowMs: number
-): { allowed: boolean; retryAfterSeconds?: number } {
+): RateLimitResult {
   const now = Date.now();
   sweepExpiredEntries(now);
   const entry = rateLimitStore.get(key);
@@ -35,6 +36,17 @@ export function enforceRateLimit(
 
   entry.count += 1;
   return { allowed: true };
+}
+
+export async function enforceRateLimit(
+  key: string,
+  limit: number,
+  windowMs: number
+): Promise<RateLimitResult> {
+  const redisClient = getRateLimitClient();
+  if (!redisClient) return enforceLocalRateLimit(key, limit, windowMs);
+
+  return checkRateLimit(key, limit, Math.max(1, Math.ceil(windowMs / 1000)), redisClient);
 }
 
 export function readAuthCookies(request: Request): {
@@ -82,10 +94,12 @@ export function jsonWithCookies(
   return new Response(JSON.stringify(body), { status, headers });
 }
 
-export function jsonError(code: string, status: number): Response {
+export function jsonError(code: string, status: number, retryAfterSeconds?: number): Response {
+  const headers = new Headers({ 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
+  if (retryAfterSeconds !== undefined) headers.set('Retry-After', String(retryAfterSeconds));
   return new Response(JSON.stringify({ ok: false, error: code }), {
     status,
-    headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
+    headers,
   });
 }
 

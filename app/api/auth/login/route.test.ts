@@ -100,6 +100,8 @@ test('login: 429 after the configured limit is exceeded within the window', asyn
       lastStatus = res.status;
     }
     assert.equal(lastStatus, 429);
+    const retryResponse = await POST(makeRequest(ip, { identifier: 'joe@example.com', password: 'password123' }));
+    assert.ok(retryResponse.headers.has('Retry-After'));
   } finally {
     globalThis.fetch = originalFetch;
   }
