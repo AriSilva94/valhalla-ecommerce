@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Loader2, ShieldCheck, User } from "lucide-react";
 import { fmt, formatVariantMeta } from "../lib/wa";
 import { useCart } from "./CartProvider";
 import { CHECKOUT_ERROR_CODES, type CustomerProfile } from "../lib/checkout-contracts";
+import { createCheckoutIdempotencyKeyManager } from "../lib/checkout-idempotency";
 import AuthPageHeader from "./AuthPageHeader";
 import AuthAlert from "./AuthAlert";
 import ProfileForm from "./ProfileForm";
@@ -55,6 +56,7 @@ export default function CheckoutClient() {
   const [redirecting, setRedirecting] = useState(false);
   const [checkoutError, setCheckoutError] = useState("");
   const [payingNow, setPayingNow] = useState(false);
+  const checkoutIdempotencyKeyManager = useRef(createCheckoutIdempotencyKeyManager());
 
   useEffect(() => {
     if (!loadingProfile && cartCount === 0 && !redirecting) router.replace("/lista");
@@ -99,26 +101,34 @@ export default function CheckoutClient() {
   async function payWithPix() {
     setPayingNow(true);
     setCheckoutError("");
-    const res = await fetch("/api/checkout", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        items: cart.map((it) => ({ productSlug: it.productSlug, variantSku: it.variantSku, qty: it.qty })),
-      }),
-    });
-    const body = await res.json();
-    if (!body.ok) {
-      setPayingNow(false);
-      if (body.error === CHECKOUT_ERROR_CODES.PROFILE_INCOMPLETE) {
-        setProfileComplete(false);
+    const idempotencyKey = checkoutIdempotencyKeyManager.current.get();
+
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Idempotency-Key": idempotencyKey },
+        body: JSON.stringify({
+          items: cart.map((it) => ({ productSlug: it.productSlug, variantSku: it.variantSku, qty: it.qty })),
+        }),
+      });
+      const body = await res.json();
+      checkoutIdempotencyKeyManager.current.complete(res.status, body.error);
+      if (!body.ok) {
+        setPayingNow(false);
+        if (body.error === CHECKOUT_ERROR_CODES.PROFILE_INCOMPLETE) {
+          setProfileComplete(false);
+          return;
+        }
+        setCheckoutError("Não foi possível iniciar o pagamento. Tente novamente.");
         return;
       }
+      setRedirecting(true);
+      clear();
+      window.location.href = body.data.checkoutUrl;
+    } catch {
+      setPayingNow(false);
       setCheckoutError("Não foi possível iniciar o pagamento. Tente novamente.");
-      return;
     }
-    setRedirecting(true);
-    clear();
-    window.location.href = body.data.checkoutUrl;
   }
 
   if (loadingProfile) return <ProfileFormSkeleton />;

@@ -12,7 +12,13 @@ export async function GET(request: Request): Promise<Response> {
   const tokenToUse =
     session.data.refreshed && session.data.newTokens ? session.data.newTokens.accessToken : accessToken!;
 
-  const result = await checkoutClient.listOrders(tokenToUse);
+  const requestUrl = new URL(request.url);
+  const page = requestUrl.searchParams.get("page");
+  const pageSize = requestUrl.searchParams.get("pageSize");
+  const result = await checkoutClient.listOrders(tokenToUse, {
+    ...(page ? { page: Number(page) } : {}),
+    ...(pageSize ? { pageSize: Number(pageSize) } : {}),
+  });
 
   if (session.data.refreshed && session.data.newTokens) {
     const cookieInstructions = buildAuthCookieInstructions(session.data.newTokens, secure);

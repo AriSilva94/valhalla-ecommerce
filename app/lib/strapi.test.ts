@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { notFound, redirect } from "next/navigation";
-import { normalizeStrapiUrl, withCacheFallback, withCacheOrThrow } from "./strapi";
+import { normalizeStrapiUrl, STRAPI_CONTENT_CACHE, withCacheFallback, withCacheOrThrow } from "./strapi";
 
 function throwNotFound(): never {
   notFound();
@@ -10,6 +10,17 @@ function throwNotFound(): never {
 function throwRedirect(): never {
   redirect("/somewhere");
 }
+
+test("STRAPI_CONTENT_CACHE uses the domain cache key prefixes and TTLs", () => {
+  assert.deepEqual(STRAPI_CONTENT_CACHE.products, { key: "catalog:products", ttlSeconds: 300 });
+  assert.deepEqual(STRAPI_CONTENT_CACHE.productBySlug("notebook"), { key: "catalog:product:notebook", ttlSeconds: 600 });
+  assert.deepEqual(STRAPI_CONTENT_CACHE.categoryBySlug("notebooks"), { key: "catalog:category:notebooks", ttlSeconds: 900 });
+  assert.deepEqual(STRAPI_CONTENT_CACHE.productsByCategorySlug("notebooks"), { key: "catalog:category-products:notebooks", ttlSeconds: 300 });
+  assert.deepEqual(STRAPI_CONTENT_CACHE.homepage, { key: "content:homepage", ttlSeconds: 900 });
+  assert.deepEqual(STRAPI_CONTENT_CACHE.siteSettings, { key: "content:site-settings", ttlSeconds: 900 });
+  assert.deepEqual(STRAPI_CONTENT_CACHE.faqs, { key: "content:faqs", ttlSeconds: 3600 });
+  assert.deepEqual(STRAPI_CONTENT_CACHE.policies, { key: "content:policies", ttlSeconds: 21600 });
+});
 
 test("withCacheFallback: a notFound() control-flow error escapes untouched, not swallowed as a fallback", async () => {
   await assert.rejects(
