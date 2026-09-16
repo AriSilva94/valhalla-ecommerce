@@ -8,7 +8,7 @@ Atualizado em 2026-09-16. Trabalho na branch `feature/payment-gateway-decoupling
 - [x] 2. PaymentGateway e PaymentService — contrato interno, service, factory e adapter Asaas implementados e testados.
 - [x] 3. Persistência neutra — pedido, perfil, serialização e lookup do webhook usam campos genéricos.
 - [x] 4. Webhooks normalizados e idempotentes — parser Asaas, registro único e transições protegidas implementados; o parser Deflow será adicionado na entrega 6.
-- [ ] 5. Frontend e contratos neutros.
+- [x] 5. Frontend e contratos neutros — UI sem marca do provedor e contrato preparado para URL ou QR Pix/copia e cola.
 - [ ] 6. Adapter Deflow e validação da troca.
 
 ## Retomada da entrega 1
@@ -37,3 +37,5 @@ Achado confirmado para a entrega 4: o webhook Asaas atual pode transformar `paid
 Operação da idempotência: `docs/integracoes/checkout-idempotency.md` no repositório da API descreve respostas e limitações de reconciliação manual.
 
 Após a correção: revisão de conformidade, depois revisão de qualidade. Contagens de testes anteriores são históricas; cada entrega registra a execução feita no respectivo worktree. Não confundir os testes das outras worktrees com a suíte da branch em revisão.
+
+Na validação do frontend, typecheck e `git diff --check` passaram. A suíte existente ficou em 266/267 porque o teste de GA4 exige `.env.local` no worktree; o lint direcionado mantém dois erros preexistentes em Analytics e CookieConsentBanner.
