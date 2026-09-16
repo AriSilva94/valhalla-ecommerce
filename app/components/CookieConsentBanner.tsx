@@ -1,34 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import Link from "next/link";
 import { Cookie } from "lucide-react";
 import {
-  COOKIE_CONSENT_EVENT,
   getCookieConsent,
   setCookieConsent,
-  type CookieConsent,
+  subscribeCookieConsent,
 } from "../lib/cookie-consent";
+import type { CookieConsent } from "../lib/cookie-consent";
 
 export default function CookieConsentBanner() {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    setVisible(getCookieConsent() === null);
-
-    function onConsentChanged(e: Event) {
-      const detail = (e as CustomEvent<CookieConsent | null>).detail;
-      setVisible(detail === null);
-    }
-    window.addEventListener(COOKIE_CONSENT_EVENT, onConsentChanged);
-    return () => window.removeEventListener(COOKIE_CONSENT_EVENT, onConsentChanged);
-  }, []);
+  const consent = useSyncExternalStore(subscribeCookieConsent, getCookieConsent, () => null);
+  const visible = consent === null;
 
   if (!visible) return null;
 
   function choose(consent: CookieConsent) {
     setCookieConsent(consent);
-    setVisible(false);
   }
 
   return (

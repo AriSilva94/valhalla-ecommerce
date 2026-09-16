@@ -3,6 +3,11 @@ export type CookieConsent = "accepted" | "rejected";
 const STORAGE_KEY = "vh-cookie-consent";
 export const COOKIE_CONSENT_EVENT = "vh-cookie-consent-changed";
 
+export function subscribeCookieConsent(onChange: () => void): () => void {
+  window.addEventListener(COOKIE_CONSENT_EVENT, onChange);
+  return () => window.removeEventListener(COOKIE_CONSENT_EVENT, onChange);
+}
+
 export function getCookieConsent(): CookieConsent | null {
   if (typeof window === "undefined") return null;
   try {
