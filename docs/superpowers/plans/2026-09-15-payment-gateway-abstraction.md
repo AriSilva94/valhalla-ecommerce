@@ -30,12 +30,14 @@
 
 - [ ] Escrever teste que envia a mesma chave para duas criações e espera o mesmo pedido sem segunda chamada ao gateway.
 - [ ] Executar o teste isolado e confirmar falha porque o controller ignora `Idempotency-Key`.
-- [ ] Adicionar campo único `checkoutIdempotencyKey` ao pedido e validar a chave antes da criação.
+- [ ] Validar UUID v4 e persistir `checkoutIdempotencyScope` único (`userId:uuid` normalizado), mantendo a chave original em campo separado.
 - [ ] Fazer o lookup por usuário e chave antes de criar o pedido.
-- [ ] Tratar corrida de unicidade retornando o pedido já existente.
+- [ ] Tratar corrida de unicidade retornando resultado completo ou conflito 409 enquanto estiver em processamento, nunca sucesso incompleto.
 - [ ] Executar os testes do controller e confirmar sucesso.
 - [ ] Adicionar teste de falha do gateway seguida de retry com a mesma chave.
 - [ ] Confirmar que a regra não usa Redis como fonte de verdade.
+- [ ] Comparar fingerprint SHA-256 do corpo canônico antes de consultar preços atuais; rejeitar a mesma chave com conteúdo diferente.
+- [ ] Bloquear reexecução de checkout incerto após timeout ou reinício; exigir reconciliação, sem assumir idempotência externa não documentada.
 - [ ] Commitar como `feat: enforce checkout idempotency in backend`.
 
 ### Entrega 2: porta e service de pagamento

@@ -26,6 +26,8 @@ O controller não conhecerá payloads, headers, eventos, IDs ou códigos de erro
 
 ## Contrato interno do pagamento
 
+Atualização aprovada em 2026-09-16: para Deflow, exibir QR Pix e copia e cola no site, receber em DePix na Liquid e considerar o pedido pago somente após a liquidação em DePix. O contrato deve distinguir checkout hospedado de instruções Pix, sem obrigar o adapter a inventar uma URL. A UI terá suporte inicial a ambas as modalidades; depois disso, a seleção do provedor não deve exigir novas alterações no frontend.
+
 O contrato deverá representar apenas capacidades necessárias ao negócio:
 
 - criação ou recuperação de cliente;
