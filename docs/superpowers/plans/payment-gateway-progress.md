@@ -6,7 +6,7 @@ Atualizado em 2026-09-16. Trabalho na branch `feature/payment-gateway-decoupling
 
 - [x] 1. Idempotência persistente — implementada e revisada; reconciliação manual documentada.
 - [x] 2. PaymentGateway e PaymentService — contrato interno, service, factory e adapter Asaas implementados e testados.
-- [ ] 3. Persistência neutra.
+- [x] 3. Persistência neutra — pedido, perfil, serialização e lookup do webhook usam campos genéricos.
 - [ ] 4. Webhooks normalizados e idempotentes.
 - [ ] 5. Frontend e contratos neutros.
 - [ ] 6. Adapter Deflow e validação da troca.
