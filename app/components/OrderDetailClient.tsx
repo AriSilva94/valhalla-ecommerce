@@ -52,7 +52,7 @@ export default function OrderDetailClient({ reference }: { reference: string }) 
     const body = await res.json();
     setSimulating(false);
     if (!body.ok) {
-      setSimulateError("Não foi possível simular o pagamento. Talvez o Pix ainda não tenha sido gerado na Asaas.");
+      setSimulateError("Não foi possível simular o pagamento. Talvez a cobrança Pix ainda não tenha sido gerada.");
     }
   }
 

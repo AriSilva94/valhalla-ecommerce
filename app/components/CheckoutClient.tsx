@@ -56,6 +56,7 @@ export default function CheckoutClient() {
   const [redirecting, setRedirecting] = useState(false);
   const [checkoutError, setCheckoutError] = useState("");
   const [payingNow, setPayingNow] = useState(false);
+  const [paymentInstructions, setPaymentInstructions] = useState<{ reference: string; pixCopyPaste?: string | null; pixQrCodeUrl?: string | null } | null>(null);
   const checkoutIdempotencyKeyManager = useRef(createCheckoutIdempotencyKeyManager());
 
   useEffect(() => {
@@ -122,9 +123,14 @@ export default function CheckoutClient() {
         setCheckoutError("Não foi possível iniciar o pagamento. Tente novamente.");
         return;
       }
-      setRedirecting(true);
       clear();
-      window.location.href = body.data.checkoutUrl;
+      if (body.data.checkoutUrl) {
+        setRedirecting(true);
+        window.location.href = body.data.checkoutUrl;
+      } else {
+        setPaymentInstructions(body.data);
+        setPayingNow(false);
+      }
     } catch {
       setPayingNow(false);
       setCheckoutError("Não foi possível iniciar o pagamento. Tente novamente.");
@@ -140,7 +146,7 @@ export default function CheckoutClient() {
           <AuthPageHeader
             icon={ShieldCheck}
             title="Redirecionando para o pagamento"
-            subtitle="Você será levado à página segura do Asaas para concluir com Pix."
+            subtitle="Você será levado ao ambiente seguro de pagamento para concluir com Pix."
           />
           <div className="flex justify-center py-6">
             <Loader2 aria-hidden="true" size={28} className="animate-spin text-vh-lime" />
@@ -177,6 +183,15 @@ export default function CheckoutClient() {
       <Card>
         <AuthPageHeader icon={ShieldCheck} title="Revise e pague" subtitle="Confira os itens antes de gerar a cobrança Pix." />
 
+        {paymentInstructions && (
+          <div className="bg-vh-bg border border-vh-border rounded-2xl p-5 mb-5 flex flex-col items-center gap-3">
+            <p className="m-0 font-bold text-vh-15 font-space-grotesk text-center">Pagamento Pix gerado</p>
+            {paymentInstructions.pixQrCodeUrl && <Image src={paymentInstructions.pixQrCodeUrl} alt="QR Code para pagamento Pix" width={220} height={220} className="rounded-xl" />}
+            {paymentInstructions.pixCopyPaste && <button type="button" className="vh-btn-lime w-full rounded-vh-11 py-3 px-4 font-bold text-vh-14 font-space-grotesk" onClick={() => navigator.clipboard.writeText(paymentInstructions.pixCopyPaste!)}>Copiar Pix copia e cola</button>}
+            <p className="m-0 font-medium text-vh-12 font-manrope text-vh-muted text-center">A confirmação acontece após a liquidação do pagamento.</p>
+          </div>
+        )}
+
         <div className="bg-vh-bg border border-vh-border rounded-2xl p-5 flex flex-col gap-3 mb-5">
           {cart.map((it) => (
             <div key={it.key} className="flex gap-3 items-center">
@@ -212,7 +227,7 @@ export default function CheckoutClient() {
         </button>
         <p className="mt-3.5 mx-0 mb-0 flex items-center justify-center gap-1.5 font-medium text-vh-11-5 font-manrope text-vh-muted text-center">
           <ShieldCheck aria-hidden="true" size={13} strokeWidth={2} className="shrink-0" />
-          Pagamento processado com segurança via Asaas
+          Pagamento processado com segurança
         </p>
       </Card>
     </section>

@@ -32,7 +32,7 @@ export default async function PoliticaPrivacidadePage() {
             <li>Cadastro: nome de usuário, e-mail e senha (armazenada de forma criptografada).</li>
             <li>Login social: nome, e-mail e foto de perfil fornecidos pelo Google, quando você opta por entrar com essa conta.</li>
             <li>Dados de compra: CPF ou CNPJ, telefone e endereço de entrega, necessários para emissão de cobrança e envio de produtos.</li>
-            <li>Dados de pagamento: o processamento do Pix é feito pela Asaas Gestão Financeira S.A., que coleta e trata os dados de pagamento diretamente em seu ambiente seguro. Não armazenamos dados de cartão ou chaves Pix em nossos servidores.</li>
+            <li>Dados de pagamento: o processamento do Pix é feito pelo gateway de pagamento ativo, que coleta e trata os dados diretamente em seu ambiente seguro. Não armazenamos dados de cartão ou chaves Pix em nossos servidores.</li>
             <li>
               Dados de navegação: cookies de sessão (essenciais) e, mediante seu consentimento, cookies de análise de audiência. Veja detalhes na nossa{" "}
               <a href="/cookies" className="vh-lime underline underline-offset-2">Política de Cookies</a>.
@@ -73,7 +73,7 @@ export default async function PoliticaPrivacidadePage() {
       body: (
         <>
           <ul className="m-0 pl-5 flex flex-col gap-1.5 list-disc">
-            <li><strong className="text-vh-soft">Asaas Gestão Financeira S.A.</strong> — processamento do pagamento via Pix.</li>
+            <li><strong className="text-vh-soft">Gateway de pagamento ativo</strong> — processamento do pagamento via Pix.</li>
             <li><strong className="text-vh-soft">Google (Google Analytics/Tag Manager)</strong> — análise de audiência, somente se você aceitar cookies de análise.</li>
             <li><strong className="text-vh-soft">Provedores de infraestrutura e hospedagem</strong> — armazenamento seguro dos dados do sistema.</li>
           </ul>

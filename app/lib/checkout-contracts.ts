@@ -19,6 +19,8 @@ export type Order = {
   totalAmount: number;
   status: OrderStatus;
   checkoutUrl: string | null;
+  pixCopyPaste?: string | null;
+  pixQrCodeUrl?: string | null;
   createdAt: string;
 };
 
@@ -50,6 +52,9 @@ export const CHECKOUT_ERROR_CODES = {
   UNAUTHENTICATED: "UNAUTHENTICATED",
   INVALID_ORIGIN: "INVALID_ORIGIN",
   RATE_LIMITED: "RATE_LIMITED",
+  CHECKOUT_IN_PROGRESS: "CHECKOUT_IN_PROGRESS",
+  CHECKOUT_RECONCILIATION_REQUIRED: "CHECKOUT_RECONCILIATION_REQUIRED",
+  IDEMPOTENCY_KEY_REUSED: "IDEMPOTENCY_KEY_REUSED",
   IDEMPOTENCY_KEY_REQUIRED: "IDEMPOTENCY_KEY_REQUIRED",
   NOT_FOUND: "NOT_FOUND",
 } as const;
